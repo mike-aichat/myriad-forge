@@ -1,21 +1,71 @@
-import { ELEMENT_BY_ID, findResult } from "./recipes.js";
+import { currentChapter } from "./progress.js";
+import { ELEMENT_BY_ID, ELEMENT_DEPTH, findResult, getResultRecipes } from "./recipes.js";
 
-export function pickInspirationPair(state) {
-  const discovered = [...new Set(state.discovered || [])].filter((id) => ELEMENT_BY_ID.has(id));
-  if (discovered.length < 2) return null;
+function pickRandom(items) {
+  return items[Math.floor(Math.random() * items.length)];
+}
 
-  const discoveredSet = new Set(discovered);
-  const pairs = [];
+function toPair(candidate) {
+  return candidate.ingredients.map((id) => ELEMENT_BY_ID.get(id));
+}
+
+function buildCandidates(discovered, discoveredSet) {
+  const candidates = [];
   for (let i = 0; i < discovered.length; i += 1) {
     for (let j = i + 1; j < discovered.length; j += 1) {
       const result = findResult(discovered[i], discovered[j]);
       if (result && !discoveredSet.has(result)) {
-        pairs.push([discovered[i], discovered[j]]);
+        candidates.push({ ingredients: [discovered[i], discovered[j]], result });
       }
     }
   }
-  if (!pairs.length) return null;
+  return candidates;
+}
 
-  const [aId, bId] = pairs[Math.floor(Math.random() * pairs.length)];
-  return [ELEMENT_BY_ID.get(aId), ELEMENT_BY_ID.get(bId)];
+function prioritize(candidates, state, discoveredSet) {
+  const openTargets = currentChapter(state).objectives
+    .map((objective) => objective.target)
+    .filter((id) => !discoveredSet.has(id));
+
+  const targetSet = new Set(openTargets);
+  const direct = candidates.filter((candidate) => targetSet.has(candidate.result));
+  if (direct.length) return pickRandom(direct);
+
+  const materials = new Set();
+  for (const target of openTargets) {
+    for (const recipe of getResultRecipes(target)) {
+      for (const id of recipe) {
+        if (!discoveredSet.has(id)) materials.add(id);
+      }
+    }
+  }
+  const materialCandidates = candidates.filter((candidate) => materials.has(candidate.result));
+  if (materialCandidates.length) return pickRandom(materialCandidates);
+
+  let shallowest = Infinity;
+  for (const candidate of candidates) {
+    shallowest = Math.min(shallowest, ELEMENT_DEPTH.get(candidate.result) ?? Infinity);
+  }
+  const lowest = candidates.filter(
+    (candidate) => (ELEMENT_DEPTH.get(candidate.result) ?? Infinity) === shallowest
+  );
+  return pickRandom(lowest);
+}
+
+export function pickInspirationPair(state, focusId = null) {
+  const discovered = [...new Set(state.discovered || [])].filter((id) => ELEMENT_BY_ID.has(id));
+  if (discovered.length < 2) return null;
+
+  const discoveredSet = new Set(discovered);
+  const candidates = buildCandidates(discovered, discoveredSet);
+  if (!candidates.length) return null;
+
+  if (focusId && discoveredSet.has(focusId)) {
+    const focused = candidates.filter((candidate) =>
+      candidate.ingredients.includes(focusId)
+    );
+    if (focused.length) return toPair(prioritize(focused, state, discoveredSet));
+  }
+
+  return toPair(prioritize(candidates, state, discoveredSet));
 }

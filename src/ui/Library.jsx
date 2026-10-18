@@ -252,9 +252,9 @@ export function Library({
                 title={
                   insight < 1
                     ? "灵光用尽了。发现新要素、写完手记，或者连续失败都会让灵光重新聚起来。"
-                    : "花 1 点灵光，随机挑一对能熔出新要素的组合直接熔炼（快捷键 R）"
+                    : "花 1 点灵光：先凑当前手记的目标，或目标要用的材料；炉里只放了一个要素时，会先给它找搭档（快捷键 R）"
                 }
-                aria-label={`灵光 ${insight} 点，随机熔炼一对能产出新要素的组合`}
+                aria-label={`灵光 ${insight} 点，优先凑当前手记目标；已选一个要素时会为它找搭档`}
                 aria-keyshortcuts="R"
               >
                 <span className="library-insight__mark" aria-hidden="true">✦</span>

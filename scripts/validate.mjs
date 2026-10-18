@@ -5,7 +5,7 @@ import { BASE_IDS, GRANTED_IDS, ROOT_IDS, ENDGAME_IDS } from "../src/data/schema
 import { resolveShapeName } from "../src/art/shapes.js";
 import { createInitialState, fuseElements } from "../src/game/progress.js";
 import { buildPairHistoryMap, inferCraftedPairs, normalizeCraftedPairs, normalizeFailedPairs } from "../src/game/craftedPairs.js";
-import { RECIPES_BY_RESULT, findResult, pairKey } from "../src/game/recipes.js";
+import { ELEMENT_DEPTH, RECIPES_BY_RESULT, findResult, pairKey } from "../src/game/recipes.js";
 import { buildElementUseStatus } from "../src/game/recipeStatus.js";
 import { pickInspirationPair } from "../src/game/hints.js";
 import { CHALLENGES, CHALLENGE_ELEMENTS } from "../src/data/challenges.js";
@@ -361,7 +361,14 @@ if (!failurePair) {
   }
 }
 
+for (const element of ELEMENTS) {
+  if (ELEMENT_DEPTH.get(element.id) !== depth.get(element.id)) {
+    fail(`灵光使用的配方深度与校验深度不一致：${element.id}`);
+  }
+}
+
 const inspirationState = createInitialState();
+const prologueTargets = new Set(CHAPTERS[0].objectives.map((objective) => objective.target));
 for (let i = 0; i < 50; i += 1) {
   const inspiration = pickInspirationPair(inspirationState);
   if (
@@ -375,6 +382,9 @@ for (let i = 0; i < 50; i += 1) {
   if (!inspirationResult || inspirationState.discovered.includes(inspirationResult)) {
     fail("灵光挑中的组合不能熔出未发现的新要素");
   }
+  if (!prologueTargets.has(inspirationResult)) {
+    fail("灵光没有优先完成当前手记目标");
+  }
 }
 const onlyPairState = {
   ...createInitialState(),
@@ -386,6 +396,40 @@ if (!onlyPair || pairKey(onlyPair[0].id, onlyPair[1].id) !== "fire+water") {
 }
 if (pickInspirationPair({ ...onlyPairState, discovered: ["fire", "water", "steam"] }) !== null) {
   fail("灵光不应该在可行组合的产物都已发现时继续挑选");
+}
+const materialPriorityState = {
+  ...createInitialState(),
+  completedChapters: ["prologue"],
+};
+const materialPair = pickInspirationPair(materialPriorityState);
+if (!materialPair || findResult(materialPair[0].id, materialPair[1].id) !== "lava") {
+  fail("灵光没有优先为当前手记目标准备材料");
+}
+const shallowState = {
+  ...createInitialState(),
+  discovered: ["fire", "water", "earth", "air", "steam", "smoke", "mud", "lava", "dust"],
+};
+const shallowPair = pickInspirationPair(shallowState);
+if (!shallowPair || pairKey(shallowPair[0].id, shallowPair[1].id) !== "air+water") {
+  fail("灵光没有在无任务可推进时选择配方深度最浅的新要素");
+}
+const focusedEarth = pickInspirationPair(inspirationState, "earth");
+if (!focusedEarth || pairKey(focusedEarth[0].id, focusedEarth[1].id) !== "earth+water") {
+  fail("灵光没有为已选要素优先找能完成手记目标的搭档");
+}
+for (let i = 0; i < 30; i += 1) {
+  const focusedFire = pickInspirationPair(inspirationState, "fire");
+  if (!focusedFire || !focusedFire.some((element) => element.id === "fire")) {
+    fail("灵光没有保留已选中的要素");
+  }
+  const focusedResult = findResult(focusedFire[0].id, focusedFire[1].id);
+  if (focusedResult !== "steam" && focusedResult !== "smoke") {
+    fail("灵光为已选要素找搭档时没有优先当前手记目标");
+  }
+}
+const focusWithoutPartner = pickInspirationPair(shallowState, "steam");
+if (!focusWithoutPartner || pairKey(focusWithoutPartner[0].id, focusWithoutPartner[1].id) !== "air+water") {
+  fail("已选要素没有可用搭档时，灵光没有回退到普通挑选");
 }
 const allDiscoveredState = {
   ...createInitialState(),

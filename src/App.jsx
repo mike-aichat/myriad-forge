@@ -306,21 +306,34 @@ export default function App() {
       pushToast("灵光用尽了。发现新要素、写完手记，或者连续失败都会让灵光重新聚起来。", "warn");
       return;
     }
-    const pair = pickInspirationPair(game);
+    const focusId = selected.length === 1 ? selected[0] : null;
+    const pair = pickInspirationPair(game, focusId);
     if (!pair) {
       pushToast("现有的要素凑不出新东西了。去试炼里找找别的出路吧。", "warn");
       return;
     }
     const [a, b] = pair;
+    const focusName =
+      focusId && pair.some((element) => element.id === focusId)
+        ? ELEMENT_BY_ID.get(focusId)?.name
+        : null;
+    const partner = focusName ? (a.id === focusId ? b : a) : null;
     inspiringRef.current = true;
     setIsInspiring(true);
     setGame((current) => ({ ...current, insight: current.insight - 1 }));
     setSelected([a.id, b.id]);
     setForgeMessage({
       tone: "idle",
-      text: `灵光挑中了「${a.name}」和「${b.name}」。炉火正在把它们推到一处……`,
+      text: focusName
+        ? `灵光沿着「${focusName}」找到了「${partner.name}」。炉火正在把它们推到一处……`
+        : `灵光挑中了「${a.name}」和「${b.name}」。炉火正在把它们推到一处……`,
     });
-    pushToast(`灵光挑中了「${a.name}」与「${b.name}」。`, "insight");
+    pushToast(
+      focusName
+        ? `灵光沿着「${focusName}」找到了「${partner.name}」。`
+        : `灵光挑中了「${a.name}」与「${b.name}」。`,
+      "insight"
+    );
     audio.select();
     forgeRef.current?.scrollIntoView({
       behavior: reducedMotion ? "auto" : "smooth",

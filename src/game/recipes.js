@@ -1,5 +1,5 @@
 import { ELEMENTS } from "../data/elements/index.js";
-import { BASE_IDS, GRANTED_IDS, ENDGAME_IDS } from "../data/schema.js";
+import { BASE_IDS, GRANTED_IDS, ROOT_IDS, ENDGAME_IDS } from "../data/schema.js";
 
 export const ELEMENT_BY_ID = new Map(ELEMENTS.map((element) => [element.id, element]));
 export const ELEMENT_BY_NAME = new Map(ELEMENTS.map((element) => [element.name, element]));
@@ -26,6 +26,26 @@ for (const element of ELEMENTS) {
     for (const ingredient of recipe) {
       if (!RECIPES_BY_INGREDIENT.has(ingredient)) RECIPES_BY_INGREDIENT.set(ingredient, []);
       RECIPES_BY_INGREDIENT.get(ingredient).push({ result: element.id, recipe });
+    }
+  }
+}
+
+export const ELEMENT_DEPTH = new Map(ROOT_IDS.map((id) => [id, 0]));
+
+let depthChanged = true;
+while (depthChanged) {
+  depthChanged = false;
+  for (const element of ELEMENTS) {
+    if (ELEMENT_DEPTH.has(element.id)) continue;
+    let best = Infinity;
+    for (const [a, b] of RECIPES_BY_RESULT.get(element.id) || []) {
+      if (ELEMENT_DEPTH.has(a) && ELEMENT_DEPTH.has(b)) {
+        best = Math.min(best, 1 + Math.max(ELEMENT_DEPTH.get(a), ELEMENT_DEPTH.get(b)));
+      }
+    }
+    if (Number.isFinite(best)) {
+      ELEMENT_DEPTH.set(element.id, best);
+      depthChanged = true;
     }
   }
 }
