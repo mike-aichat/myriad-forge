@@ -8,8 +8,11 @@ import { RECIPES_BY_RESULT, findResult } from "../src/game/recipes.js";
 import { drawHint } from "../src/game/hints.js";
 import { CHALLENGES, CHALLENGE_ELEMENTS } from "../src/data/challenges.js";
 import {
+  challengeFamily,
   createRun,
   fuseRun,
+  hasStepLimit,
+  isPuzzle,
   minimumSteps,
   recipeKey,
   resolveChallengeElement,
@@ -250,11 +253,18 @@ let mainTargetCount = 0;
 let challengeOnlyTargetCount = 0;
 const challengeSummaries = [];
 
+const challengeElementIds = new Set();
+const challengeElementNames = new Set();
 for (const element of CHALLENGE_ELEMENTS) {
   if (byId.has(element.id)) fail(`试炼要素与主线要素 ID 冲突：${element.id}`);
+  if (challengeElementIds.has(element.id)) fail(`试炼要素 ID 重复：${element.id}`);
+  challengeElementIds.add(element.id);
   if (!element.name || !element.description || element.description.trim().length < 8) {
     fail(`试炼要素 ${element.id} 缺少名称或描述`);
   }
+  if (challengeElementNames.has(element.name)) fail(`试炼要素名称重复：${element.name}`);
+  challengeElementNames.add(element.name);
+  if (!categoryIds.has(element.category)) fail(`试炼要素 ${element.id} 的类型不存在：${element.category}`);
   if (!resolveShapeName(element.shape)) fail(`试炼要素 ${element.id} 的像素图形没有绘制：${element.shape}`);
 }
 
@@ -263,6 +273,11 @@ if (!CHALLENGES.length) fail("没有任何炉外试炼");
 for (const challenge of CHALLENGES) {
   if (challengeIds.has(challenge.id)) fail(`试炼 ID 重复：${challenge.id}`);
   challengeIds.add(challenge.id);
+  const family = challengeFamily(challenge);
+  const puzzle = isPuzzle(challenge);
+  if (challenge.family !== undefined && !["puzzle", "ember"].includes(challenge.family)) {
+    fail(`试炼「${challenge.id}」的 family 无效：${challenge.family}`);
+  }
   for (const field of ["title", "subtitle", "quote", "intro", "objective", "clue", "opening", "outro", "fail"]) {
     if (!challenge[field] || !String(challenge[field]).trim()) {
       fail(`试炼「${challenge.id}」缺少故事字段：${field}`);
@@ -274,8 +289,18 @@ for (const challenge of CHALLENGES) {
   if (new Set(challenge.starterIds).size !== challenge.starterIds.length) {
     fail(`试炼「${challenge.title}」起始要素重复`);
   }
-  if (!Number.isFinite(challenge.stepLimit) || challenge.stepLimit < 1) {
-    fail(`试炼「${challenge.title}」余烬上限无效`);
+  if (puzzle) {
+    if (hasStepLimit(challenge)) fail(`谜题「${challenge.title}」不应有余烬上限`);
+    if (!Array.isArray(challenge.hints) || challenge.hints.length < 3) {
+      fail(`谜题「${challenge.title}」至少需要 3 条提示`);
+    } else if (challenge.hints.some((hint) => !String(hint).trim())) {
+      fail(`谜题「${challenge.title}」存在空提示`);
+    }
+    if (challenge.starterIds.length < 5) {
+      fail(`谜题「${challenge.title}」至少需要 5 种起始要素`);
+    }
+  } else if (!hasStepLimit(challenge)) {
+    fail(`燃尽试炼「${challenge.title}」缺少有效的余烬上限`);
   }
   const targetElement = resolveChallengeElement(challenge.targetId);
   if (!targetElement) fail(`试炼「${challenge.title}」的目标不存在：${challenge.targetId}`);
@@ -290,6 +315,16 @@ for (const challenge of CHALLENGES) {
     if (!resolveChallengeElement(id)) fail(`试炼「${challenge.title}」的起始要素不存在：${id}`);
   }
 
+  if (puzzle) {
+    const mainStarters = challenge.starterIds.filter((id) => byId.has(id));
+    if (mainStarters.length) {
+      fail(`谜题「${challenge.title}」的起始要素必须全部来自主线之外：${mainStarters.join(", ")}`);
+    }
+    if (!(challenge.recipes || []).some((recipe) => recipe.optional)) {
+      fail(`谜题「${challenge.title}」至少需要一条可选或诱饵配方`);
+    }
+  }
+
   const pairSet = new Set();
   for (const recipe of challenge.recipes || []) {
     if (!recipe || !recipe.a || !recipe.b || !recipe.result) {
@@ -300,6 +335,9 @@ for (const challenge of CHALLENGES) {
     if (!resolveChallengeElement(recipe.a)) fail(`试炼「${challenge.title}」配方引用不存在的要素：${recipe.a}`);
     if (!resolveChallengeElement(recipe.b)) fail(`试炼「${challenge.title}」配方引用不存在的要素：${recipe.b}`);
     if (!resolveChallengeElement(recipe.result)) fail(`试炼「${challenge.title}」配方结果不存在：${recipe.result}`);
+    if (puzzle && [recipe.a, recipe.b, recipe.result].some((id) => byId.has(id))) {
+      fail(`谜题「${challenge.title}」的配方不能引用主线要素：${recipe.a} + ${recipe.b} → ${recipe.result}`);
+    }
     const key = recipeKey(recipe.a, recipe.b);
     if (pairSet.has(key)) fail(`试炼「${challenge.title}」重复配方：${recipe.a} + ${recipe.b}`);
     pairSet.add(key);
@@ -329,14 +367,38 @@ for (const challenge of CHALLENGES) {
 
   const best = minimumSteps(challenge);
   if (!Number.isFinite(best)) fail(`试炼「${challenge.title}」的目标无法从起始要素抵达`);
-  if (best > challenge.stepLimit) {
+  if (hasStepLimit(challenge) && best > challenge.stepLimit) {
     fail(`试炼「${challenge.title}」最少需要 ${best} 次熔炼，但余烬上限只有 ${challenge.stepLimit}`);
   }
 
-  // 用实际试炼引擎跑一次最短路线，确保完成判定与余烬结算可用。
+  if (puzzle) {
+    let wrongPair = null;
+    for (let i = 0; i < challenge.starterIds.length && !wrongPair; i += 1) {
+      for (let j = i + 1; j < challenge.starterIds.length; j += 1) {
+        const key = recipeKey(challenge.starterIds[i], challenge.starterIds[j]);
+        if (!pairSet.has(key)) {
+          wrongPair = [challenge.starterIds[i], challenge.starterIds[j]];
+          break;
+        }
+      }
+    }
+    if (!wrongPair) {
+      fail(`谜题「${challenge.title}」没有可用于测试的无效组合`);
+    } else {
+      const failed = fuseRun(challenge, createRun(challenge), wrongPair[0], wrongPair[1]);
+      if (failed.lost || failed.result || failed.run.status !== "playing") {
+        fail(`谜题「${challenge.title}」的无效组合不应导致失败`);
+      }
+    }
+  }
+
+  // 用实际试炼引擎跑一次路线，确保完成判定与余烬结算可用。
   let simulatedChallenge = createRun(challenge);
   let guard = 0;
-  while (!simulatedChallenge.discovered.includes(challenge.targetId) && guard < challenge.stepLimit + 2) {
+  const guardLimit = hasStepLimit(challenge)
+    ? challenge.stepLimit + 2
+    : (challenge.recipes || []).length + best + 6;
+  while (!simulatedChallenge.discovered.includes(challenge.targetId) && guard < guardLimit) {
     guard += 1;
     const known = new Set(simulatedChallenge.discovered);
     const nextRecipe = (challenge.recipes || []).find(
@@ -348,18 +410,23 @@ for (const challenge of CHALLENGES) {
     if (outcome.won) break;
   }
   if (!simulatedChallenge.discovered.includes(challenge.targetId) || simulatedChallenge.status !== "won") {
-    fail(`试炼「${challenge.title}」的试炼引擎无法在余烬上限内完成目标`);
+    fail(`试炼「${challenge.title}」的试炼引擎无法完成目标`);
   }
   challengeSummaries.push({
     name: challenge.title,
     target: targetElement?.name || challenge.targetId,
     targetKind: isMainTarget ? "主线" : "限定",
     steps: Number.isFinite(best) ? best : "?",
-    limit: challenge.stepLimit,
+    limit: hasStepLimit(challenge) ? challenge.stepLimit : null,
+    family,
   });
 }
 
-if (CHALLENGES.length !== 4) fail(`试炼数量应为 4，目前 ${CHALLENGES.length}`);
+const puzzleCount = CHALLENGES.filter((challenge) => isPuzzle(challenge)).length;
+const emberCount = CHALLENGES.length - puzzleCount;
+if (CHALLENGES.length !== 8) fail(`试炼数量应为 8（4 谜题 + 4 燃尽），目前 ${CHALLENGES.length}`);
+if (puzzleCount !== 4) fail(`谜题数量应为 4，目前 ${puzzleCount}`);
+if (emberCount !== 4) fail(`燃尽试炼数量应为 4，目前 ${emberCount}`);
 if (mainTargetCount < 1) fail("至少需要一个以主线要素为目标的试炼");
 if (challengeOnlyTargetCount < 1) fail("至少需要一个以试炼限定要素为目标的试炼");
 
@@ -382,10 +449,16 @@ for (const [name, value] of deepest) console.log(`  ${name}：${value}`);
 console.log(
   `\n完整试玩：${simulationSteps} 次熔炼 · ${simulated.discovered.length} 个要素 · ${simulated.completedChapters.length} 章 · 结局${simulated.endingSeen ? "已触发" : "未触发"}`
 );
-console.log(`\n炉外试炼：${CHALLENGES.length} 则 · 主线目标 ${mainTargetCount} · 试炼限定目标 ${challengeOnlyTargetCount}`);
+console.log(
+  `\n炉外试炼：${CHALLENGES.length} 则 · 谜题 ${puzzleCount} · 燃尽 ${emberCount} · 主线目标 ${mainTargetCount} · 限定目标 ${challengeOnlyTargetCount}`
+);
 for (const summary of challengeSummaries) {
+  const rule =
+    summary.family === "puzzle"
+      ? `无步数限制 · Par ${summary.steps} 步`
+      : `最少 ${summary.steps} 次 / 余烬 ${summary.limit} 次`;
   console.log(
-    `  ${summary.name}：${summary.target}（${summary.targetKind}）· 最少 ${summary.steps} 次 / 余烬 ${summary.limit} 次`
+    `  ${summary.family === "puzzle" ? "谜题" : "燃尽"} · ${summary.name}：${summary.target}（${summary.targetKind}）· ${rule}`
   );
 }
 if (warnings.length) {

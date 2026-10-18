@@ -8,14 +8,23 @@ import {
   createRun,
   fuseRun,
   isMainElement,
+  isPuzzle,
+  minimumSteps,
   resolveChallengeElement,
 } from "./engine.js";
 
-const EMPTY_LINES = [
+const EMBER_EMPTY_LINES = [
   "炉火没有回应。余烬少了一枚。",
   "两种存在礼貌地错开了。",
   "有东西一闪而过，但没来得及成为故事。",
   "灰烬翻了个身，继续睡。",
+];
+
+const PUZZLE_EMPTY_LINES = [
+  "什么也没有发生。两样东西礼貌地错开了。",
+  "炉火眨了一下眼，没有接话。",
+  "它们凑近看了看彼此，又分开了。",
+  "炉底传来一声很轻的“不”。",
 ];
 
 function ChallengeSlot({ index, element, onRemove, disabled }) {
@@ -65,12 +74,17 @@ export function ChallengePlay({ challenge, reducedMotion, onWin, onLose, onBack 
   const target = useMemo(() => resolveChallengeElement(challenge.targetId), [challenge]);
   const targetCategory = CATEGORY_MAP[target.category];
   const targetIsNew = !isMainElement(challenge.targetId);
+  const puzzle = isPuzzle(challenge);
+  const par = useMemo(() => minimumSteps(challenge), [challenge]);
   const [run, setRun] = useState(() => createRun(challenge));
   const [selected, setSelected] = useState([]);
   const [isFusing, setIsFusing] = useState(false);
+  const [hintIndex, setHintIndex] = useState(0);
   const [message, setMessage] = useState({
     tone: "idle",
-    text: "选两种要素放入熔炉。每次熔炼都会烧掉一枚余烬。",
+    text: puzzle
+      ? "选两种要素放入熔炉。没有步数限制，错误组合不会失败。"
+      : "选两种要素放入熔炉。每次熔炼都会烧掉一枚余烬。",
   });
   const [lastDiscovery, setLastDiscovery] = useState(null);
 
@@ -112,7 +126,10 @@ export function ChallengePlay({ challenge, reducedMotion, onWin, onLose, onBack 
     if (selected.includes(id)) {
       audio.click();
       setSelected(selected.filter((item) => item !== id));
-      setMessage({ tone: "idle", text: `把${element.name}放回了余烬里。` });
+      setMessage({
+        tone: "idle",
+        text: puzzle ? `把${element.name}放回了桌上。` : `把${element.name}放回了余烬里。`,
+      });
       return;
     }
     if (selected.length >= 2) {
@@ -160,9 +177,11 @@ export function ChallengePlay({ challenge, reducedMotion, onWin, onLose, onBack 
       if (!outcome.result) {
         audio.fail();
         setLastDiscovery(null);
+        const emptyLines = puzzle ? PUZZLE_EMPTY_LINES : EMBER_EMPTY_LINES;
+        const emptyLine = emptyLines[Math.floor(Math.random() * emptyLines.length)];
         setMessage({
-          tone: "fail",
-          text: `${EMPTY_LINES[Math.floor(Math.random() * EMPTY_LINES.length)]}（余烬 -1）`,
+          tone: puzzle ? "idle" : "fail",
+          text: puzzle ? `${emptyLine}（再试一次）` : `${emptyLine}（余烬 -1）`,
         });
         if (outcome.lost) {
           setMessage({ tone: "fail", text: "余烬用完了。目标还没有出现。" });
@@ -176,7 +195,7 @@ export function ChallengePlay({ challenge, reducedMotion, onWin, onLose, onBack 
         setLastDiscovery(outcome.result);
         setMessage({
           tone: "success",
-          text: `「${outcome.result.name}」从炉底浮了上来。故事多了一行。`,
+          text: `「${outcome.result.name}」从炉底浮了上来。${puzzle ? "谜面亮了一格。" : "故事多了一行。"}`,
         });
       } else {
         audio.select();
@@ -196,7 +215,7 @@ export function ChallengePlay({ challenge, reducedMotion, onWin, onLose, onBack 
     }, 560);
   };
 
-  const targetKind = targetIsNew ? "试炼限定" : "主线要素";
+  const targetKind = targetIsNew ? (puzzle ? "谜题限定" : "试炼限定") : "主线要素";
 
   return (
     <main className="challenge-play">
@@ -207,11 +226,15 @@ export function ChallengePlay({ challenge, reducedMotion, onWin, onLose, onBack 
             <h2 id="challenge-forge-title">{challenge.title}</h2>
             <p>{challenge.subtitle}</p>
           </div>
-          <div className="challenge-ember-readout">
-            <span>余烬</span>
-            <b>{remaining}</b>
-            <em>/ {challenge.stepLimit}</em>
-            <EmberPips total={challenge.stepLimit} remaining={remaining} />
+          <div className={`challenge-ember-readout ${puzzle ? "is-par" : ""}`}>
+            <span>{puzzle ? "步数" : "余烬"}</span>
+            <b>{puzzle ? run.stepsUsed : remaining}</b>
+            <em>{puzzle ? "无限制" : `/ ${challenge.stepLimit}`}</em>
+            {puzzle ? (
+              <span className="challenge-par-readout__par">Par {par}</span>
+            ) : (
+              <EmberPips total={challenge.stepLimit} remaining={remaining} />
+            )}
           </div>
         </div>
 
@@ -255,7 +278,9 @@ export function ChallengePlay({ challenge, reducedMotion, onWin, onLose, onBack 
             <span className="challenge-fuse__hint">
               {selectedElements.length === 2
                 ? `${selectedElements[0].name} ＋ ${selectedElements[1].name}`
-                : "每一次熔炼都会烧掉一枚余烬"}
+                : puzzle
+                  ? "没有步数限制。试错不会失败。"
+                  : "每一次熔炼都会烧掉一枚余烬"}
             </span>
           </div>
           <button
@@ -291,7 +316,11 @@ export function ChallengePlay({ challenge, reducedMotion, onWin, onLose, onBack 
         <div className="challenge-tray">
           <div className="challenge-tray__head">
             <span className="eyebrow">炉中的要素 · {run.discovered.length} 种</span>
-            <span>起始要素不可替换，新要素会加入余烬</span>
+            <span>
+              {puzzle
+                ? "起始要素全部来自主图鉴之外，新要素会加入牌堆"
+                : "起始要素不可替换，新要素会加入余烬"}
+            </span>
           </div>
           <div className="challenge-tray__grid">
             {trayElements.map(({ element, starter }) => {
@@ -343,7 +372,11 @@ export function ChallengePlay({ challenge, reducedMotion, onWin, onLose, onBack 
                 {targetCategory.name}
               </span>
             </div>
-            <p>{targetIsNew ? "主图鉴里没有它。只有这则试炼会记得。" : "它也在主炉的图鉴里，但这一次，只能用手边的余烬把它做出来。"}</p>
+            <p>
+              {targetIsNew
+                ? `主图鉴里没有它。只有这${puzzle ? "页谜题" : "则试炼"}会记得。`
+                : "它也在主炉的图鉴里，但这一次，只能用手边的余烬把它做出来。"}
+            </p>
           </div>
         </div>
 
@@ -353,12 +386,12 @@ export function ChallengePlay({ challenge, reducedMotion, onWin, onLose, onBack 
             <b>{challenge.starterIds.length} 种</b>
           </div>
           <div>
-            <span>余烬</span>
-            <b>{remaining} / {challenge.stepLimit}</b>
+            <span>{puzzle ? "步数" : "余烬"}</span>
+            <b>{puzzle ? "无限制" : `${remaining} / ${challenge.stepLimit}`}</b>
           </div>
           <div>
-            <span>熔炼配方</span>
-            <b>仅限本页</b>
+            <span>{puzzle ? "Par" : "熔炼配方"}</span>
+            <b>{puzzle ? `${par} 步` : "仅限本页"}</b>
           </div>
         </div>
 
@@ -366,6 +399,41 @@ export function ChallengePlay({ challenge, reducedMotion, onWin, onLose, onBack 
           <span>炉边老话</span>
           {challenge.clue}
         </p>
+
+        {puzzle && challenge.hints?.length > 0 && (
+          <div className="challenge-hints">
+            <div className="challenge-hints__head">
+              <span className="eyebrow">提示 · {hintIndex} / {challenge.hints.length}</span>
+              <button
+                type="button"
+                className="challenge-hints__button"
+                onClick={() => {
+                  if (hintIndex >= challenge.hints.length) return;
+                  audio.select();
+                  setHintIndex((value) => value + 1);
+                }}
+                disabled={hintIndex >= challenge.hints.length}
+              >
+                {hintIndex === 0
+                  ? "翻一点提示"
+                  : hintIndex >= challenge.hints.length
+                    ? "提示用完了"
+                    : "再翻一点"}
+              </button>
+            </div>
+            {hintIndex === 0 ? (
+              <p className="challenge-hints__empty">
+                卡住的时候，可以让炉边老话再说一句。提示不会计入步数。
+              </p>
+            ) : (
+              <ol className="challenge-hints__list">
+                {challenge.hints.slice(0, hintIndex).map((hint) => (
+                  <li key={hint}>{hint}</li>
+                ))}
+              </ol>
+            )}
+          </div>
+        )}
 
         <details className="challenge-opening">
           <summary>重读这一页的开头</summary>
@@ -397,7 +465,7 @@ export function ChallengePlay({ challenge, reducedMotion, onWin, onLose, onBack 
         </div>
 
         <button type="button" className="text-button challenge-leave" onClick={onBack}>
-          离开这次试炼 <span aria-hidden="true">→</span>
+          {puzzle ? "离开这页谜题" : "离开这次试炼"} <span aria-hidden="true">→</span>
         </button>
       </aside>
     </main>

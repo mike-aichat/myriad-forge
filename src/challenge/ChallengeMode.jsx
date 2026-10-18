@@ -4,7 +4,7 @@ import { audio } from "../audio.js";
 import { ChallengeHub } from "./ChallengeHub.jsx";
 import { ChallengePlay } from "./ChallengePlay.jsx";
 import { ChallengeIntroOverlay, ChallengeResultOverlay } from "./ChallengeOverlays.jsx";
-import { resolveChallengeElement } from "./engine.js";
+import { challengeFamily, resolveChallengeElement } from "./engine.js";
 import { challengeCompletedCount, loadChallengeProgress, recordChallengeWin } from "./store.js";
 import "./challenge.css";
 
@@ -23,13 +23,13 @@ function ChallengeHeader({ view, active, completed, total, sound, onToggleSound,
       </div>
 
       <div className="challenge-topbar__center">
-        <span className="challenge-topbar__overline">故事进度</span>
+        <span className="challenge-topbar__overline">挑战进度</span>
         <span className="challenge-topbar__count">
           {completed}<em>/ {total}</em>
         </span>
         {view === "play" && active && (
           <span className="challenge-topbar__active">
-            {active.numeral} · {active.title}
+            {challengeFamily(active) === "puzzle" ? "谜题" : "燃尽"} {active.numeral} · {active.title}
           </span>
         )}
       </div>
@@ -75,8 +75,13 @@ export function ChallengeMode({ onExit, sound, onToggleSound, reducedMotion }) {
   const active = CHALLENGES.find((challenge) => challenge.id === activeId) || null;
   const target = active ? resolveChallengeElement(active.targetId) : null;
   const completed = challengeCompletedCount(progress);
-  const activeIndex = active ? CHALLENGES.findIndex((challenge) => challenge.id === active.id) : -1;
-  const nextChallenge = activeIndex >= 0 ? CHALLENGES[activeIndex + 1] : null;
+  const familyChallenges = active
+    ? CHALLENGES.filter((challenge) => challengeFamily(challenge) === challengeFamily(active))
+    : [];
+  const activeIndex = active
+    ? familyChallenges.findIndex((challenge) => challenge.id === active.id)
+    : -1;
+  const nextChallenge = activeIndex >= 0 ? familyChallenges[activeIndex + 1] || null : null;
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
@@ -192,8 +197,8 @@ export function ChallengeMode({ onExit, sound, onToggleSound, reducedMotion }) {
       )}
 
       <footer className="challenge-footer">
-        <span>炉外试炼 · 四个被主线留在炉边的故事</span>
-        <span>起始要素固定 · 余烬有限 · 进度独立保存</span>
+        <span>炉外试炼 · 四则谜题与四个被主线留在炉边的故事</span>
+        <span>起始要素固定 · 谜题无步数限制 · 燃尽仍有次数</span>
       </footer>
     </div>
   );

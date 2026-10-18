@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { CATEGORY_MAP } from "../data/categories.js";
 import { Sprite } from "../ui/Sprite.jsx";
-import { isMainElement, resolveChallengeElement } from "./engine.js";
+import { isMainElement, isPuzzle, minimumSteps, parRating, resolveChallengeElement } from "./engine.js";
 
 function useChallengeOverlay(onBack) {
   const ref = useRef(null);
@@ -57,6 +57,8 @@ export function ChallengeIntroOverlay({ challenge, target, onStart, onBack }) {
   const ref = useChallengeOverlay(onBack);
   const category = CATEGORY_MAP[target.category];
   const targetIsNew = !isMainElement(challenge.targetId);
+  const puzzle = isPuzzle(challenge);
+  const par = puzzle ? minimumSteps(challenge) : null;
   const starters = challenge.starterIds.map((id) => resolveChallengeElement(id)).filter(Boolean);
 
   return createPortal(
@@ -71,7 +73,9 @@ export function ChallengeIntroOverlay({ challenge, target, onStart, onBack }) {
         style={{ "--challenge-accent": challenge.accent }}
       >
         <div className="challenge-intro-card__number">{challenge.numeral}</div>
-        <p className="overlay-kicker">炉外试炼 · 第{challenge.numeral}则</p>
+        <p className="overlay-kicker">
+          {puzzle ? "炉外谜题" : "炉外试炼"} · 第{challenge.numeral}则
+        </p>
         <h2 id="challenge-intro-title">{challenge.title}</h2>
         <p className="challenge-intro-card__subtitle">{challenge.subtitle}</p>
         <blockquote>{challenge.quote}</blockquote>
@@ -95,7 +99,7 @@ export function ChallengeIntroOverlay({ challenge, target, onStart, onBack }) {
             <h3>{target.name}</h3>
             <div className="challenge-intro-target__chips">
               <span className="challenge-kind" data-new={targetIsNew ? "true" : "false"}>
-                {targetIsNew ? "试炼限定" : "主线要素"}
+                {targetIsNew ? (puzzle ? "谜题限定" : "试炼限定") : "主线要素"}
               </span>
               <span className="category-chip" style={{ "--cat": category.color }}>{category.name}</span>
             </div>
@@ -105,8 +109,12 @@ export function ChallengeIntroOverlay({ challenge, target, onStart, onBack }) {
 
         <div className="challenge-intro-starters">
           <div className="challenge-intro-starters__head">
-            <span className="eyebrow">你手里的起始要素 · {starters.length} 种</span>
-            <span className="challenge-ember-count">✦ 余烬 {challenge.stepLimit} 次</span>
+            <span className="eyebrow">
+              {puzzle ? "挑战专属起始要素" : "你手里的起始要素"} · {starters.length} 种
+            </span>
+            <span className="challenge-ember-count">
+              {puzzle ? `✦ 无步数限制 · Par ${par}` : `✦ 余烬 ${challenge.stepLimit} 次`}
+            </span>
           </div>
           <div className="challenge-intro-starters__row">
             {starters.map((element) => (
@@ -119,12 +127,14 @@ export function ChallengeIntroOverlay({ challenge, target, onStart, onBack }) {
         </div>
 
         <p className="challenge-intro-rule">
-          只可使用本页中的配方。成功和失败都会消耗一枚余烬；离开试炼会重燃余烬，故事从头开始。
+          {puzzle
+            ? "只可使用本页中的配方。错误组合不会失败，也没有步数限制；卡住时可以翻开提示。离开会重置本次进度。"
+            : "只可使用本页中的配方。成功和失败都会消耗一枚余烬；离开试炼会重燃余烬，故事从头开始。"}
         </p>
 
         <div className="challenge-intro-actions">
           <button type="button" className="primary-button primary-button--wide" onClick={onStart} data-autofocus>
-            点燃余烬
+            {puzzle ? "开始解谜" : "点燃余烬"}
           </button>
           <button type="button" className="text-button" onClick={onBack}>
             回到试炼目录
@@ -141,7 +151,10 @@ export function ChallengeResultOverlay({ challenge, target, record, nextChalleng
   const category = CATEGORY_MAP[target.category];
   const targetIsNew = !isMainElement(challenge.targetId);
   const won = record.type === "won";
-  const remaining = Math.max(0, challenge.stepLimit - record.stepsUsed);
+  const puzzle = isPuzzle(challenge);
+  const par = puzzle ? minimumSteps(challenge) : null;
+  const rating = won && puzzle ? parRating(challenge, record.stepsUsed) : 0;
+  const remaining = puzzle ? null : Math.max(0, challenge.stepLimit - record.stepsUsed);
 
   return createPortal(
     <div className={`overlay challenge-result-overlay ${won ? "is-win" : "is-loss"}`} role="presentation">
@@ -155,20 +168,36 @@ export function ChallengeResultOverlay({ challenge, target, record, nextChalleng
         style={{ "--challenge-accent": challenge.accent }}
       >
         <p className="overlay-kicker">
-          {won ? "试炼完成 · STORY COMPLETE" : "余烬熄灭 · THE FIRE FADES"}
+          {won
+            ? puzzle
+              ? "谜题解开 · PUZZLE SOLVED"
+              : "试炼完成 · STORY COMPLETE"
+            : "余烬熄灭 · THE FIRE FADES"}
         </p>
         <div className={`challenge-result-sigil ${won ? "is-win" : "is-loss"}`}>
           <span aria-hidden="true" />
           <span aria-hidden="true" />
           <Sprite element={target} size={won ? 144 : 112} />
         </div>
-        <h2 id="challenge-result-title">{won ? `你造出了「${target.name}」` : "故事停在这里"}</h2>
+        <h2 id="challenge-result-title">
+          {won ? `${puzzle ? "你解开了" : "你造出了"}「${target.name}」` : "故事停在这里"}
+        </h2>
         <div className="challenge-result-chips">
           <span className="challenge-kind" data-new={targetIsNew ? "true" : "false"}>
-            {targetIsNew ? "试炼限定" : "主线要素"}
+            {targetIsNew ? (puzzle ? "谜题限定" : "试炼限定") : "主线要素"}
           </span>
           <span className="category-chip" style={{ "--cat": category.color }}>{category.name}</span>
         </div>
+        {won && puzzle && (
+          <div
+            className="challenge-result-stars"
+            aria-label={rating === 3 ? "三星，达到 Par" : rating === 2 ? "二星" : "一星"}
+          >
+            {[1, 2, 3].map((star) => (
+              <span key={star} className={star <= rating ? "is-lit" : ""} aria-hidden="true">✦</span>
+            ))}
+          </div>
+        )}
 
         {won ? (
           <>
@@ -180,29 +209,48 @@ export function ChallengeResultOverlay({ challenge, target, record, nextChalleng
         )}
 
         <div className="challenge-result-stats">
-          <div>
-            <span>{won ? "本次熔炼" : "用到余烬"}</span>
-            <b>{won ? record.stepsUsed : challenge.stepLimit} 次</b>
-          </div>
-          <div>
-            <span>{won ? "最佳记录" : "剩余余烬"}</span>
-            <b>{won ? `${record.bestSteps} 次` : "0 枚"}</b>
-          </div>
-          <div>
-            <span>{won ? "剩余余烬" : "最终目标"}</span>
-            <b>{won ? `${remaining} 枚` : target.name}</b>
-          </div>
+          {puzzle ? (
+            <>
+              <div>
+                <span>本次步数</span>
+                <b>{record.stepsUsed} 步</b>
+              </div>
+              <div>
+                <span>Par</span>
+                <b>{par} 步</b>
+              </div>
+              <div>
+                <span>最佳记录</span>
+                <b>{record.bestSteps} 步</b>
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <span>{won ? "本次熔炼" : "用到余烬"}</span>
+                <b>{won ? record.stepsUsed : challenge.stepLimit} 次</b>
+              </div>
+              <div>
+                <span>{won ? "最佳记录" : "剩余余烬"}</span>
+                <b>{won ? `${record.bestSteps} 次` : "0 枚"}</b>
+              </div>
+              <div>
+                <span>{won ? "剩余余烬" : "最终目标"}</span>
+                <b>{won ? `${remaining} 枚` : target.name}</b>
+              </div>
+            </>
+          )}
         </div>
 
         <div className="challenge-result-actions">
           {won ? (
             <>
               <button type="button" className="primary-button" onClick={onRetry} data-autofocus>
-                再走一遍
+                {puzzle ? "再解一次" : "再走一遍"}
               </button>
               {nextChallenge && (
                 <button type="button" className="primary-button primary-button--ghost" onClick={onNext}>
-                  下一则故事
+                  {puzzle ? "下一则谜题" : "下一则故事"}
                 </button>
               )}
               <button type="button" className="text-button" onClick={onBack}>
@@ -220,7 +268,13 @@ export function ChallengeResultOverlay({ challenge, target, record, nextChalleng
             </>
           )}
         </div>
-        {won && <p className="challenge-result-foot">已记入炉外手记。起始要素不会改变，但每次可以选择不同的顺序。</p>}
+        {won && (
+          <p className="challenge-result-foot">
+            {puzzle
+              ? "已记入炉外手记。起始要素不会改变，但每次可以换一条更短的路。"
+              : "已记入炉外手记。起始要素不会改变，但每次可以选择不同的顺序。"}
+          </p>
+        )}
       </article>
     </div>,
     document.body

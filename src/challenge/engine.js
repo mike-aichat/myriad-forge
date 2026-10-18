@@ -9,6 +9,18 @@ export function isMainElement(id) {
   return ELEMENT_BY_ID.has(id);
 }
 
+export function challengeFamily(challenge) {
+  return challenge.family === "puzzle" ? "puzzle" : "ember";
+}
+
+export function isPuzzle(challenge) {
+  return challengeFamily(challenge) === "puzzle";
+}
+
+export function hasStepLimit(challenge) {
+  return Number.isFinite(challenge.stepLimit) && challenge.stepLimit > 0;
+}
+
 export function recipeKey(a, b) {
   return [a, b].sort().join("+");
 }
@@ -67,9 +79,10 @@ export function fuseRun(challenge, run, a, b) {
     beats: [...run.beats],
   };
   const resultId = buildRecipeMap(challenge).get(recipeKey(a, b));
+  const limited = hasStepLimit(challenge);
 
   if (!resultId) {
-    if (next.stepsUsed >= challenge.stepLimit) next.status = "lost";
+    if (limited && next.stepsUsed >= challenge.stepLimit) next.status = "lost";
     return {
       run: next,
       result: null,
@@ -88,7 +101,7 @@ export function fuseRun(challenge, run, a, b) {
 
   if (resultId === challenge.targetId) {
     next.status = "won";
-  } else if (next.stepsUsed >= challenge.stepLimit) {
+  } else if (limited && next.stepsUsed >= challenge.stepLimit) {
     next.status = "lost";
   }
 
@@ -102,5 +115,14 @@ export function fuseRun(challenge, run, a, b) {
 }
 
 export function attemptsLeft(challenge, run) {
+  if (!hasStepLimit(challenge)) return null;
   return Math.max(0, challenge.stepLimit - run.stepsUsed);
+}
+
+export function parRating(challenge, stepsUsed) {
+  const par = minimumSteps(challenge);
+  if (!Number.isFinite(par)) return 1;
+  if (stepsUsed <= par) return 3;
+  if (stepsUsed <= par + 2) return 2;
+  return 1;
 }

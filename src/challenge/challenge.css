@@ -1636,6 +1636,157 @@
 }
 
 /* --------------------------------------------------------------------------
+   Families, free puzzles and hints
+   -------------------------------------------------------------------------- */
+
+.challenge-family {
+  margin-top: 28px;
+}
+
+.challenge-family__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 26px;
+  margin-bottom: 14px;
+  padding: 0 2px 12px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.challenge-family__head h3 {
+  margin-top: 3px;
+  font-family: var(--font-pixel);
+  font-size: 23px;
+  font-weight: normal;
+  letter-spacing: 0.04em;
+  color: var(--parchment);
+}
+
+.challenge-family__meta {
+  max-width: 560px;
+  text-align: right;
+}
+
+.challenge-family__meta span {
+  color: var(--brass);
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  letter-spacing: 0.06em;
+}
+
+.challenge-family__meta p {
+  margin-top: 4px;
+  color: var(--muted-2);
+  font-family: var(--font-serif);
+  font-size: 11px;
+  line-height: 1.75;
+  text-wrap: pretty;
+}
+
+.challenge-card__family {
+  padding: 2px 7px;
+  border: 1px solid color-mix(in srgb, var(--challenge-accent) 34%, transparent);
+  color: var(--challenge-accent);
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.challenge-card__topline .challenge-card__state {
+  margin-left: auto;
+}
+
+.challenge-card.is-puzzle {
+  border-color: color-mix(in srgb, var(--challenge-accent) 26%, var(--line));
+}
+
+.challenge-starter.is-exclusive i {
+  color: var(--verdigris);
+}
+
+.challenge-ember-readout.is-par b {
+  color: var(--verdigris);
+}
+
+.challenge-par-readout__par {
+  width: 100%;
+  color: var(--verdigris);
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  letter-spacing: 0.06em;
+}
+
+.challenge-hints {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(108, 184, 163, 0.18);
+  background: rgba(108, 184, 163, 0.035);
+}
+
+.challenge-hints__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.challenge-hints__button {
+  padding: 0;
+  background: transparent;
+  color: var(--verdigris);
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.challenge-hints__button:hover:not(:disabled) {
+  color: var(--brass-hi);
+}
+
+.challenge-hints__button:disabled {
+  color: var(--muted-2);
+  cursor: default;
+  opacity: 0.55;
+}
+
+.challenge-hints__empty {
+  margin-top: 6px;
+  color: var(--muted-2);
+  font-family: var(--font-serif);
+  font-size: 10px;
+  line-height: 1.75;
+}
+
+.challenge-hints__list {
+  margin: 7px 0 0 16px;
+  padding: 0;
+  color: var(--parchment-dim);
+  font-family: var(--font-serif);
+  font-size: 11px;
+  line-height: 1.8;
+}
+
+.challenge-hints__list li + li {
+  margin-top: 4px;
+}
+
+.challenge-result-stars {
+  display: flex;
+  justify-content: center;
+  gap: 9px;
+  margin-top: 11px;
+  color: rgba(255, 255, 255, 0.1);
+  font-size: 19px;
+}
+
+.challenge-result-stars .is-lit {
+  color: var(--brass-hi);
+  text-shadow: 0 0 12px rgba(240, 202, 131, 0.45);
+}
+
+/* --------------------------------------------------------------------------
    Small adjustments
    -------------------------------------------------------------------------- */
 
