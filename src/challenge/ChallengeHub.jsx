@@ -222,7 +222,7 @@ function ArtifactCard({ run, onOpen }) {
   );
 }
 
-export function ChallengeHub({ progress, questProgress, artifactRun, onOpen, onOpenQuest, onOpenArtifacts }) {
+export function ChallengeHub({ progress, questProgress, artifactRun, collection, onOpen, onOpenQuest, onOpenArtifacts, onOpenCollection }) {
   const completed = Object.keys(progress.completed).length;
   const total = CHALLENGES.length;
   const puzzleChallenges = CHALLENGES.filter((challenge) => challengeFamily(challenge) === "puzzle");
@@ -237,6 +237,17 @@ export function ChallengeHub({ progress, questProgress, artifactRun, onOpen, onO
   const exclusiveStarterCount = new Set(
     puzzleChallenges.flatMap((challenge) => challenge.starterIds).filter((id) => !isMainElement(id))
   ).size;
+  const collectionStats = collection?.stats || {
+    overallPercent: 0,
+    challengeCompleted: completed,
+    challengeTotal: total,
+    endingsSeen,
+    endingTotal: endingsTotal,
+    artifactsFound: artifactCountsNow.total,
+    artifactTotal: artifactCountsNow.totalMax,
+  };
+  const badgeUnlocked = collection?.badgeUnlocked ?? 0;
+  const badgeTotal = collection?.badges?.length ?? 14;
 
   const renderFamily = (family) => {
     const list = CHALLENGES.filter((challenge) => challengeFamily(challenge) === family);
@@ -295,6 +306,29 @@ export function ChallengeHub({ progress, questProgress, artifactRun, onOpen, onO
         <span><b>燃尽模式</b>旧四则仍有有限余烬，成功失败都扣。</span>
         <span><b>错误也有展签</b>遗物馆的 24 件赝品不是失败，是馆藏。</span>
       </div>
+
+      <section className="challenge-collection-strip panel">
+        <div className="challenge-collection-strip__copy">
+          <p className="eyebrow">COLLECTION · 炉外收藏总览</p>
+          <h3>把走过的路，收进同一本册子</h3>
+          <p>四族进度、十四枚徽章、十二个任务结局和全部馆藏。未抵达的格子和未获得的徽章也会显示空位。</p>
+          <div className="challenge-collection-strip__mini">
+            <span>试炼 <b>{collectionStats.challengeCompleted}</b>/{collectionStats.challengeTotal}</span>
+            <span>结局 <b>{collectionStats.endingsSeen}</b>/{collectionStats.endingTotal}</span>
+            <span>馆藏 <b>{collectionStats.artifactsFound}</b>/{collectionStats.artifactTotal}</span>
+          </div>
+        </div>
+        <div className="challenge-collection-strip__action">
+          <div className="challenge-collection-strip__meter">
+            <b>{collectionStats.overallPercent}%</b>
+            <span>炉外完成度</span>
+          </div>
+          <span className="challenge-collection-strip__badges">徽章 {badgeUnlocked} / {badgeTotal}</span>
+          <button type="button" className="primary-button" onClick={onOpenCollection}>
+            打开收藏总览
+          </button>
+        </div>
+      </section>
 
       {renderFamily("puzzle")}
 

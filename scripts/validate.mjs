@@ -43,6 +43,7 @@ import {
   forgeArtifact,
   tierProgress,
 } from "../src/artifact/engine.js";
+import { buildCollection } from "../src/challenge/collection.js";
 
 const errors = [];
 const warnings = [];
@@ -845,6 +846,71 @@ for (const tier of tierSummary) {
   if (tier.total !== 8) fail(`误会厅档位 ${tier.tier} 的进度总数不是 8`);
 }
 
+// ---------------------------------------------------------------------------
+// M5 收藏总览：四族进度、徽章与结局图鉴。
+// ---------------------------------------------------------------------------
+
+const emptyCollection = buildCollection(
+  { completed: {} },
+  { version: 1, quests: {} },
+  { trueIds: [], fakeIds: [], attempts: 0 }
+);
+if (emptyCollection.stats.overallPercent !== 0 || emptyCollection.badgeUnlocked !== 0) {
+  fail("空存档的收藏总览不应有任何进度或徽章");
+}
+if (emptyCollection.badges.length !== 14) {
+  fail(`徽章数量应为 14，目前 ${emptyCollection.badges.length}`);
+}
+
+const completeChallengeProgress = {
+  completed: Object.fromEntries(
+    CHALLENGES.map((challenge) => [challenge.id, { bestSteps: minimumSteps(challenge) }])
+  ),
+};
+const completeQuestProgress = {
+  version: 1,
+  quests: Object.fromEntries(
+    QUESTS.map((quest) => [
+      quest.id,
+      {
+        endings: quest.endings.map((ending) => ending.id),
+        optional: quest.optionalObjectives.map((objective) => objective.id),
+        bestSteps: 10,
+        checkpoint: null,
+      },
+    ])
+  ),
+};
+const completeArtifactRun = createArtifactRun({
+  trueIds: ARTIFACTS.map((artifact) => artifact.id),
+  fakeIds: MISIDENTIFIED.map((exhibit) => exhibit.id),
+  attempts: 32,
+});
+const completeCollection = buildCollection(
+  completeChallengeProgress,
+  completeQuestProgress,
+  completeArtifactRun
+);
+if (completeCollection.stats.overallPercent !== 100) {
+  fail(`全收集的完成度应为 100%，目前 ${completeCollection.stats.overallPercent}%`);
+}
+if (completeCollection.badgeUnlocked !== completeCollection.badges.length) {
+  fail(`全收集时仍有徽章未解锁：${completeCollection.badges.filter((badge) => !badge.unlocked).map((badge) => badge.name).join("、")}`);
+}
+if (!completeCollection.stats.museumComplete) fail("全收集时博物馆收尾条件未触发");
+if (completeCollection.stats.endingsSeen !== 12) fail("全收集时任务结局数量不是 12");
+if (completeCollection.stats.optionalDone !== 6) fail("全收集时可选目标数量不是 6");
+if (completeCollection.stats.parPuzzles !== 4) fail("全收集时 Par 谜题数量不是 4");
+
+const oneChallengeCollection = buildCollection(
+  { completed: { [CHALLENGES[0].id]: { bestSteps: minimumSteps(CHALLENGES[0]) } } },
+  { version: 1, quests: {} },
+  { trueIds: [], fakeIds: [], attempts: 0 }
+);
+if (oneChallengeCollection.badgeUnlocked !== 1 || !oneChallengeCollection.badges[0].unlocked) {
+  fail("完成第一则试炼后应只点亮「第一簇炉外火」");
+}
+
 if (errors.length) {
   console.error(`✕ 数据校验失败（${errors.length} 项）`);
   for (const error of errors) console.error(`  - ${error}`);
@@ -886,6 +952,9 @@ for (const summary of questSummaries) {
 }
 console.log(
   `\n失物招领博物馆：${ARTIFACT_FRAGMENTS.length} 碎片 · 真品 ${ARTIFACTS.length} · 赝品 ${MISIDENTIFIED.length}（8 / 8 / 8）· ${allArtifactKeys.size} 条有效组合`
+);
+console.log(
+  `收藏总览：${completeCollection.badges.length} 枚徽章 · 空存档 ${emptyCollection.stats.overallPercent}% · 全收集 ${completeCollection.stats.overallPercent}%`
 );
 if (warnings.length) {
   console.log("\n提醒：");

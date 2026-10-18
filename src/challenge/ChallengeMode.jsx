@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { CHALLENGES } from "../data/challenges.js";
 import { QUESTS } from "../data/quests.js";
 import { audio } from "../audio.js";
 import { ChallengeHub } from "./ChallengeHub.jsx";
+import { CollectionOverview } from "./CollectionOverview.jsx";
+import { buildCollection } from "./collection.js";
 import { ChallengePlay } from "./ChallengePlay.jsx";
 import { ChallengeIntroOverlay, ChallengeResultOverlay } from "./ChallengeOverlays.jsx";
 import { challengeFamily, resolveChallengeElement } from "./engine.js";
@@ -23,6 +25,7 @@ import { loadArtifactProgress, recordArtifactRun } from "../artifact/store.js";
 import { artifactCounts } from "../artifact/engine.js";
 import { ArtifactMode } from "../artifact/ArtifactMode.jsx";
 import "./challenge.css";
+import "./collection.css";
 import "../quest/quest.css";
 import "../artifact/artifact.css";
 
@@ -50,7 +53,9 @@ function ChallengeHeader({
         ? `任务 ${activeQuest.numeral} · ${activeQuest.title}`
         : view === "artifact"
           ? "失物招领博物馆"
-          : null;
+          : view === "collection"
+            ? "炉外收藏总览"
+            : null;
 
   return (
     <header className="challenge-topbar">
@@ -130,6 +135,10 @@ export function ChallengeMode({ onExit, sound, onToggleSound, reducedMotion }) {
   const endingsSeen = questEndingCount(questProgress);
   const endingsTotal = QUESTS.reduce((sum, quest) => sum + quest.endings.length, 0);
   const artifactNow = artifactCounts(artifactRun);
+  const collection = useMemo(
+    () => buildCollection(progress, questProgress, artifactRun),
+    [progress, questProgress, artifactRun]
+  );
   const familyChallenges = active
     ? CHALLENGES.filter((challenge) => challengeFamily(challenge) === challengeFamily(active))
     : [];
@@ -284,6 +293,13 @@ export function ChallengeMode({ onExit, sound, onToggleSound, reducedMotion }) {
     setQuestOverlay(null);
   };
 
+  const openCollection = () => {
+    audio.click();
+    setView("collection");
+    setOverlay(null);
+    setQuestOverlay(null);
+  };
+
   const handleArtifactRun = (run) => {
     const next = recordArtifactRun(run);
     setArtifactRun(next);
@@ -314,7 +330,19 @@ export function ChallengeMode({ onExit, sound, onToggleSound, reducedMotion }) {
           progress={progress}
           questProgress={questProgress}
           artifactRun={artifactRun}
+          collection={collection}
           onOpen={openChallenge}
+          onOpenQuest={openQuest}
+          onOpenArtifacts={openArtifacts}
+          onOpenCollection={openCollection}
+        />
+      )}
+
+      {view === "collection" && (
+        <CollectionOverview
+          collection={collection}
+          onBack={backToHub}
+          onOpenChallenge={openChallenge}
           onOpenQuest={openQuest}
           onOpenArtifacts={openArtifacts}
         />
