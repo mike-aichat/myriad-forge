@@ -32,7 +32,7 @@ export default [
   e("telescope", "望远镜", ["glass", "star"], "玻璃把远方拉近，星星被迫接受采访。", "telescope", "brass"),
   e("microscope", "显微镜", ["glass", "microbe"], "玻璃把微小放大，微生物开始有了肖像。", "telescope", "lab"),
   e("camera", "照相机", ["glass", "silver"], "银和光合谋，把某个下午钉在纸上。", "camera", "camera"),
-  e("printingpress", "印刷机", ["writing", "tool"], "文字学会复制自己，一次能印很多份。", "gear", "press"),
+  e("printingpress", "印刷机", ["writing", "tool"], "文字学会复制自己，一次能印很多份。", "printingpress", "press"),
   e("drum", "鼓", ["leather", "tree"], "皮革绷紧肚皮，替一群人放大心跳。", "drum", "drum"),
   e("instrument", "乐器", ["tree", "sound"], "木头开了几个口子，就能说人话之外的话。", "bell", "music"),
   e("clothes", "衣服", ["cloth", "human"], "布把人的身体收进一个可以更换的身份。", "shirt", "cloth"),

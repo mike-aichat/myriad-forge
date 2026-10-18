@@ -213,7 +213,7 @@ public/fonts/              方舟像素字体与 SIL OFL 许可证
 
 开发预览页：
 
-- `/dev/sprite-gallery.html`：平铺 389 个要素像素图。
+- `/dev/sprite-gallery.html`：平铺 389 个要素像素图；加 `?ids=plastic,rust` 只查看指定要素。
 - `/dev/seed.html?p=fresh`：显示开场。
 - `/dev/seed.html?p=chapter0`：序章只差「泥」。
 - `/dev/seed.html?p=ending`：除「万象归一」外全部发现，可直接测试终局。

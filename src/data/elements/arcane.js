@@ -34,7 +34,7 @@ export default [
   e("qilin", "麒麟", ["deer", "magic"], "鹿在魔法里洗了个澡，浑身冒起祥云。", "deer", "qilin", "cloud"),
   e("kitsune", "九尾狐", ["fox", "magic"], "狐狸把一条尾巴练成九条，也把谎言说了九遍。", "fox", "kitsune", "tails"),
   e("skeleton", "骷髅", ["human", "death"], "人把死亡穿在身上，发现意外地合身。", "skull", "skeleton"),
-  e("golem", "魔像", ["stone", "magic"], "石头被魔法叫醒，只学会了服从。", "rock", "golem", "rune"),
+  e("golem", "魔像", ["stone", "magic"], "石头被魔法叫醒，只学会了服从。", "golem", "golem", "rune"),
   e("oracle", "神谕", ["god", "writing"], "神借来文字，给未来写了一张含糊的便条。", "eye", "oracle", "glow"),
   e("mithril", "秘银", ["silver", "magic"], "银在魔法里泡过，变得轻，却比誓言更硬。", "ingot", "mithril", "glow"),
   e("adamant", "精金", ["gold", "magic"], "金被魔法反复追问，承认自己也能坚硬。", "ingot", "adamant", "glow"),

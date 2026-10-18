@@ -16,7 +16,7 @@ export default [
   e("logic", "逻辑", ["wisdom", "writing"], "思想学会走路之后，开始嫌弃自己的影子。", "gear", "logic"),
   e("philosophy", "哲学", ["wisdom", "book"], "一个问题生下的另一个问题，靠怀疑喂养。", "book", "philosophy", "ring"),
   e("science", "科学", ["philosophy", "tool"], "哲学愿意动手了，把世界拆开看看。", "potion", "science"),
-  e("math", "数学", ["logic", "symbol"], "人类发明的一种语言，宇宙居然也在用。", "rune", "math", "grid"),
+  e("math", "数学", ["logic", "symbol"], "人类发明的一种语言，宇宙居然也在用。", "math", "math", "grid"),
   e("law", "法律", ["writing", "sword"], "文字借来剑的力气，给人群画了边界。", "scales", "law"),
   e("money", "货币", ["gold", "writing"], "金子学会了写字，于是人人开始相信它。", "ingot", "money", "stamp"),
   e("crown", "王冠", ["gold", "gem"], "一块金子被众人注视太久，长出了尖角。", "crown", "crown"),

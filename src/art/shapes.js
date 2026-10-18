@@ -252,7 +252,43 @@ SHAPES.coral = (g, p, rng) => {
   speckle(g, rng, "h", 8, 2);
 };
 
-SHAPES.tree = (g, p, rng) => {
+SHAPES.tree = (g, p, rng, el) => {
+  if (el.motif === "many") {
+    g.rect(4, 14, 2, 7, "d");
+    g.disc(5, 10, 4, "b");
+    g.disc(3, 12, 3, "l");
+    g.disc(8, 12, 3, "b");
+    g.rect(11, 10, 2, 11, "d");
+    g.disc(12, 7, 5, "b");
+    g.disc(9, 10, 4, "l");
+    g.disc(15, 10, 4, "b");
+    g.rect(18, 13, 2, 8, "d");
+    g.disc(19, 9, 4, "b");
+    g.disc(17, 12, 3, "l");
+    g.disc(21, 12, 3, "b");
+    g.set(12, 4, "h");
+    g.set(5, 7, "h");
+    g.set(19, 6, "h");
+    g.line(2, 21, 22, 21, "s");
+    speckle(g, rng, "h", 10, 2);
+    return;
+  }
+  if (el.motif === "nodes") {
+    for (const x of [6, 12, 18]) {
+      g.rect(x - 1, 4, 3, 17, "b");
+      g.rect(x, 4, 1, 17, "l");
+      for (let y = 7; y < 21; y += 5) {
+        g.line(x - 1, y, x + 1, y, "d");
+      }
+    }
+    g.ellipse(4, 8, 2, 1, "a");
+    g.ellipse(9, 6, 2, 1, "a");
+    g.ellipse(15, 9, 2, 1, "a");
+    g.ellipse(21, 7, 2, 1, "a");
+    g.set(6, 4, "h");
+    g.set(18, 4, "h");
+    return;
+  }
   g.rect(10, 13, 4, 8, "d");
   g.rect(12, 14, 2, 7, "l");
   g.line(11, 18, 8, 21, "d");
@@ -270,7 +306,39 @@ SHAPES.tree = (g, p, rng) => {
   speckle(g, rng, "h", 10, 3);
 };
 
-SHAPES.star = (g, p) => {
+SHAPES.star = (g, p, rng, el) => {
+  if (el.motif === "lines") {
+    g.noOutline = true;
+    const points = [
+      [4, 17],
+      [8, 8],
+      [13, 13],
+      [18, 5],
+      [21, 18],
+    ];
+    for (let i = 0; i < points.length - 1; i += 1) {
+      g.line(points[i][0], points[i][1], points[i + 1][0], points[i + 1][1], "l");
+    }
+    for (const [x, y] of points) {
+      g.set(x, y, "w");
+      g.set(x - 1, y, "a");
+      g.set(x + 1, y, "a");
+      g.set(x, y - 1, "a");
+      g.set(x, y + 1, "a");
+    }
+    return;
+  }
+  if (el.motif === "beams") {
+    g.line(12, 12, 3, 4, "a");
+    g.line(12, 12, 21, 4, "a");
+    g.line(12, 12, 3, 20, "u");
+    g.line(12, 12, 21, 20, "u");
+    g.disc(12, 12, 4, "b");
+    g.disc(11, 11, 2, "l");
+    g.set(12, 12, "h");
+    g.ring(12, 12, 7, "a");
+    return;
+  }
   const points = [];
   const cx = 12;
   const cy = 12;
@@ -475,7 +543,65 @@ SHAPES.seed = (g, p) => {
   g.line(9, 17, 10, 19, "d");
 };
 
-SHAPES.leaf = (g, p) => {
+SHAPES.leaf = (g, p, rng, el) => {
+  if (el.motif === "blades") {
+    const blades = [
+      [5, 21, 4, 12],
+      [8, 21, 9, 9],
+      [12, 21, 12, 6],
+      [16, 21, 15, 10],
+      [19, 21, 21, 13],
+    ];
+    for (const [x0, y0, x1, y1] of blades) {
+      g.thickLine(x0, y0, x1, y1, "b", 1);
+    }
+    g.line(4, 12, 3, 9, "l");
+    g.line(9, 9, 10, 6, "l");
+    g.line(12, 6, 11, 3, "h");
+    g.line(15, 10, 17, 7, "l");
+    g.line(21, 13, 22, 10, "l");
+    g.set(8, 19, "d");
+    return;
+  }
+  if (el.motif === "curl") {
+    g.thickLine(7, 21, 7, 14, "b", 1);
+    g.line(7, 14, 10, 11, "b");
+    g.line(10, 11, 9, 8, "b");
+    g.line(9, 8, 6, 8, "b");
+    g.line(6, 8, 5, 11, "b");
+    g.ellipse(9, 15, 2, 1, "l");
+    g.ellipse(5, 12, 2, 1, "l");
+    g.ellipse(11, 9, 2, 1, "l");
+    g.ellipse(7, 6, 2, 1, "l");
+    g.line(12, 14, 15, 12, "d");
+    g.set(10, 13, "h");
+    return;
+  }
+  if (el.motif === "long") {
+    for (const [x, offset] of [[7, 0], [12, 2], [17, 1]]) {
+      g.line(x, 21, x - 2, 17, offset ? "l" : "b");
+      g.line(x - 2, 17, x, 13, offset ? "b" : "l");
+      g.line(x, 13, x - 2, 9, offset ? "l" : "b");
+      g.line(x - 2, 9, x, 5, offset ? "b" : "l");
+      g.ellipse(x + 2, 15, 2, 1, "a");
+      g.ellipse(x - 1, 10, 2, 1, "a");
+    }
+    g.set(7, 5, "h");
+    return;
+  }
+  if (el.motif === "steam") {
+    g.poly([[5, 10], [19, 10], [17, 16], [7, 16]], "b");
+    g.ellipse(12, 10, 6, 2, "d");
+    g.rect(7, 17, 10, 2, "d");
+    g.ellipse(12, 18, 7, 1, "s");
+    g.line(18, 11, 21, 11, "d");
+    g.line(21, 11, 21, 14, "d");
+    g.line(21, 14, 18, 14, "d");
+    g.line(9, 8, 8, 4, "l");
+    g.line(13, 8, 14, 4, "l");
+    g.set(8, 11, "h");
+    return;
+  }
   g.poly([[4, 17], [7, 8], [15, 4], [20, 9], [14, 17], [8, 20]], "b");
   g.poly([[6, 15], [8, 9], [14, 5], [16, 8], [10, 15]], "l");
   g.line(6, 19, 17, 7, "d");
@@ -587,7 +713,19 @@ SHAPES.spider = (g, p) => {
   g.line(15, 17, 18, 21, "d");
 };
 
-SHAPES.fish = (g, p) => {
+SHAPES.fish = (g, p, rng, el) => {
+  if (el.motif === "spout") {
+    g.ellipse(11, 14, 8, 5, "b");
+    g.ellipse(8, 12, 4, 2, "l");
+    g.poly([[19, 14], [23, 10], [22, 18]], "d");
+    g.ellipse(14, 16, 4, 2, "d");
+    g.set(6, 14, "k");
+    g.set(5, 14, "w");
+    g.line(10, 7, 10, 4, "a");
+    g.set(9, 3, "h");
+    g.set(11, 3, "h");
+    return;
+  }
   g.ellipse(12, 13, 7, 5, "b");
   g.poly([[19, 13], [23, 8], [22, 17]], "d");
   g.poly([[8, 9], [12, 6], [14, 9]], "d");
@@ -600,11 +738,13 @@ SHAPES.fish = (g, p) => {
 };
 
 SHAPES.bird = (g, p, rng, el) => {
-  const owl = el.shape === "owl";
-  const peacock = el.shape === "peacock";
-  const penguin = el.shape === "penguin";
-  const parrot = el.shape === "parrot";
-  const eagle = el.shape === "eagle";
+  const owl = el.motif === "eyes";
+  const peacock = el.motif === "fan";
+  const penguin = el.id === "penguin";
+  const parrot = el.motif === "beak";
+  const eagle = el.motif === "wing";
+  const phoenix = el.motif === "flame";
+  const griffin = el.id === "griffin";
   g.ellipse(12, 13, 5, 6, "b");
   g.disc(14, 7, 4, "b");
   if (peacock) {
@@ -623,6 +763,20 @@ SHAPES.bird = (g, p, rng, el) => {
   if (eagle) {
     g.poly([[15, 9], [21, 11], [18, 14]], "l");
   }
+  if (penguin) {
+    g.ellipse(11, 14, 3, 5, "w");
+    g.set(14, 6, "k");
+  }
+  if (griffin) {
+    g.poly([[6, 13], [0, 8], [4, 18]], "u");
+    g.line(5, 19, 2, 21, "d");
+    g.line(2, 21, 1, 18, "d");
+  }
+  if (phoenix) {
+    g.poly([[8, 18], [4, 22], [10, 21], [12, 23], [14, 20], [18, 22], [16, 17]], "a");
+    g.poly([[12, 3], [11, 0], [14, 2]], "h");
+    g.set(19, 4, "u");
+  }
   g.set(14, 6, "k");
   g.set(13, 6, "w");
   g.line(11, 19, 10, 21, "d");
@@ -632,6 +786,8 @@ SHAPES.bird = (g, p, rng, el) => {
     g.disc(16, 7, 2, "w");
     g.set(12, 7, "k");
     g.set(16, 7, "k");
+    g.poly([[10, 4], [9, 1], [12, 3]], "d");
+    g.poly([[15, 4], [16, 1], [13, 3]], "d");
   }
   if (parrot) {
     g.set(17, 6, "a");
@@ -682,6 +838,22 @@ SHAPES.beast = (g, p, rng, el) => {
 };
 
 SHAPES.human = (g, p, rng, el) => {
+  if (el.motif === "ribbon") {
+    g.disc(12, 5, 3, "b");
+    g.rect(10, 8, 5, 6, "b");
+    g.line(10, 9, 4, 6, "l");
+    g.line(15, 9, 21, 7, "l");
+    g.line(11, 14, 7, 21, "d");
+    g.line(14, 14, 19, 20, "d");
+    g.line(21, 4, 17, 3, "a");
+    g.line(17, 3, 14, 6, "a");
+    g.line(14, 6, 18, 8, "a");
+    g.set(11, 5, "k");
+    g.set(14, 5, "k");
+    g.set(4, 6, "h");
+    g.set(21, 7, "u");
+    return;
+  }
   g.disc(12, 6, 3, "b");
   g.rect(10, 9, 5, 7, "b");
   g.rect(8, 10, 2, 6, "l");
@@ -713,11 +885,6 @@ SHAPES.human = (g, p, rng, el) => {
     g.set(14, 6, "a");
     g.line(18, 8, 22, 21, "d");
     g.line(20, 8, 24, 19, "d");
-  }
-  if (el.shape === "dance") {
-    g.line(8, 12, 3, 9, "l");
-    g.line(16, 12, 21, 8, "l");
-    g.line(15, 17, 20, 20, "l");
   }
   speckle(g, rng, "h", 8, 1);
 };
@@ -826,7 +993,22 @@ SHAPES.key = (g, p) => {
   g.set(20, 20, "a");
 };
 
-SHAPES.shell = (g, p) => {
+SHAPES.shell = (g, p, rng, el) => {
+  if (el.motif === "eyes") {
+    g.ellipse(10, 17, 7, 3, "b");
+    g.disc(15, 12, 5, "d");
+    g.ring(15, 12, 4, "l");
+    g.ring(15, 12, 2, "b");
+    g.disc(6, 14, 2, "b");
+    g.line(6, 12, 5, 9, "d");
+    g.set(5, 8, "a");
+    g.line(8, 12, 8, 9, "d");
+    g.set(8, 8, "a");
+    g.set(5, 14, "k");
+    g.set(6, 13, "w");
+    g.line(4, 18, 2, 19, "d");
+    return;
+  }
   g.poly([[2, 17], [6, 5], [18, 5], [22, 17]], "b");
   g.poly([[5, 16], [8, 8], [16, 8], [19, 16]], "l");
   g.line(5, 16, 19, 16, "d");
@@ -995,6 +1177,24 @@ SHAPES.cat = (g, p) => {
 };
 
 SHAPES.horse = (g, p, rng, el) => {
+  if (el.motif === "human") {
+    g.ellipse(11, 15, 7, 4, "b");
+    g.line(6, 17, 6, 21, "d");
+    g.line(10, 17, 10, 21, "d");
+    g.line(15, 17, 15, 21, "d");
+    g.line(18, 17, 18, 21, "d");
+    g.line(4, 14, 1, 10, "d");
+    g.line(1, 10, 3, 7, "d");
+    g.rect(14, 5, 4, 8, "b");
+    g.disc(16, 4, 2, "b");
+    g.line(14, 7, 10, 10, "b");
+    g.line(17, 7, 20, 9, "b");
+    g.set(16, 3, "k");
+    g.set(17, 2, "w");
+    g.ellipse(10, 14, 4, 2, "l");
+    g.set(9, 13, "h");
+    return;
+  }
   g.ellipse(12, 13, 7, 4, "b");
   g.rect(17, 7, 4, 7, "b");
   g.poly([[17, 8], [21, 5], [22, 8], [20, 10]], "b");
@@ -1011,10 +1211,6 @@ SHAPES.horse = (g, p, rng, el) => {
   if (el.shape === "unicorn" || el.motif === "horn") {
     g.line(20, 5, 22, 1, "h");
     g.set(22, 0, "u");
-  }
-  if (el.shape === "centaur") {
-    g.disc(16, 7, 3, "b");
-    g.set(16, 6, "k");
   }
   speckle(g, rng, "h", 8, 2);
 };
@@ -1080,6 +1276,35 @@ SHAPES.bat = (g, p) => {
 };
 
 SHAPES.lizard = (g, p, rng, el) => {
+  if (el.motif === "tongue") {
+    g.ellipse(12, 16, 6, 3, "b");
+    g.disc(18, 13, 3, "b");
+    g.line(7, 16, 4, 13, "d");
+    g.line(4, 13, 2, 16, "d");
+    g.set(19, 12, "k");
+    g.set(20, 12, "w");
+    g.line(21, 14, 23, 14, "a");
+    g.line(21, 14, 23, 16, "a");
+    g.ellipse(10, 16, 3, 1, "l");
+    return;
+  }
+  if (el.motif === "teeth") {
+    g.ellipse(11, 14, 7, 3, "b");
+    g.poly([[16, 12], [23, 13], [22, 16], [15, 16]], "b");
+    g.disc(18, 12, 2, "b");
+    g.line(4, 14, 1, 10, "d");
+    g.line(1, 10, 4, 8, "d");
+    g.set(18, 11, "k");
+    g.set(19, 11, "w");
+    g.set(20, 15, "w");
+    g.set(18, 15, "w");
+    g.set(16, 15, "w");
+    g.line(8, 17, 6, 20, "d");
+    g.line(12, 17, 12, 20, "d");
+    g.line(15, 17, 17, 20, "d");
+    return;
+  }
+  const dinosaur = el.motif === "spikes";
   g.ellipse(12, 14, 6, 3, "b");
   g.disc(18, 12, 3, "b");
   g.poly([[4, 13], [1, 10], [2, 16]], "d");
@@ -1089,25 +1314,11 @@ SHAPES.lizard = (g, p, rng, el) => {
   g.set(19, 11, "k");
   g.set(20, 11, "w");
   g.line(16, 14, 21, 16, "a");
-  if (el.shape === "turtle") {
-    g.ellipse(12, 13, 7, 5, "d");
-    g.ellipse(12, 12, 6, 4, "b");
-    g.line(7, 12, 17, 12, "a");
-    g.line(12, 8, 12, 16, "a");
-  }
-  if (el.shape === "snake") {
-    g.noOutline = false;
-    g.ellipse(12, 15, 5, 3, "b");
-    g.disc(19, 12, 3, "b");
-    g.line(6, 15, 2, 11, "d");
-    g.line(2, 11, 4, 8, "d");
-    g.set(20, 11, "k");
-    g.line(21, 13, 23, 13, "a");
-  }
-  if (el.shape === "dinosaur" || el.shape === "croc") {
-    g.poly([[8, 11], [10, 8], [12, 11]], "d");
-    g.poly([[13, 11], [15, 8], [17, 11]], "d");
-    g.set(20, 12, "k");
+  if (dinosaur) {
+    g.poly([[7, 11], [9, 7], [11, 11]], "d");
+    g.poly([[11, 11], [13, 7], [15, 11]], "d");
+    g.line(3, 15, 1, 19, "d");
+    g.line(18, 11, 21, 9, "d");
   }
   speckle(g, rng, "h", 8, 2);
 };
@@ -1154,7 +1365,21 @@ SHAPES.octopus = (g, p, rng) => {
   speckle(g, rng, "h", 8, 2);
 };
 
-SHAPES.crab = (g, p) => {
+SHAPES.crab = (g, p, rng, el) => {
+  if (el.motif === "antenna") {
+    g.thickLine(6, 18, 12, 10, "b", 5);
+    g.disc(13, 9, 3, "b");
+    g.poly([[5, 18], [1, 22], [8, 21]], "d");
+    g.line(14, 7, 18, 4, "a");
+    g.line(17, 5, 21, 3, "a");
+    g.line(15, 6, 19, 2, "a");
+    g.set(14, 8, "k");
+    g.set(15, 9, "w");
+    g.line(8, 16, 9, 14, "d");
+    g.line(10, 13, 11, 11, "d");
+    g.set(4, 20, "u");
+    return;
+  }
   g.ellipse(12, 14, 7, 4, "b");
   g.disc(12, 10, 4, "b");
   g.disc(4, 12, 3, "d");
@@ -1927,6 +2152,238 @@ SHAPES.sunset = (g, p) => {
   g.set(20, 12, "h");
 };
 
+SHAPES.plastic = (g) => {
+  g.rect(9, 3, 6, 2, "d");
+  g.rect(10, 5, 4, 2, "l");
+  g.poly([[8, 8], [16, 8], [18, 14], [17, 20], [7, 20], [6, 14]], "b");
+  g.rect(9, 10, 6, 8, "l");
+  g.line(10, 12, 10, 17, "h");
+  g.line(14, 12, 14, 18, "d");
+  g.line(7, 9, 8, 19, "u");
+  g.set(14, 3, "h");
+};
+
+SHAPES.phone = (g) => {
+  g.poly([[2, 7], [6, 4], [10, 8], [7, 11], [3, 10]], "b");
+  g.poly([[14, 13], [18, 10], [22, 14], [19, 18], [15, 17]], "b");
+  g.thickLine(7, 9, 17, 15, "d", 2);
+  g.line(3, 7, 6, 5, "l");
+  g.line(19, 13, 21, 15, "h");
+  g.line(6, 12, 4, 15, "a");
+  g.line(4, 15, 7, 17, "a");
+  g.set(9, 8, "h");
+  g.set(15, 17, "u");
+};
+
+SHAPES.radio = (g) => {
+  g.rect(3, 9, 18, 11, "b");
+  g.rect(5, 11, 8, 7, "d");
+  g.rect(6, 12, 6, 5, "s");
+  g.line(6, 13, 11, 13, "l");
+  g.line(6, 15, 11, 15, "l");
+  g.disc(17, 14, 3, "l");
+  g.disc(17, 14, 1, "h");
+  g.rect(15, 18, 6, 1, "d");
+  g.line(18, 9, 21, 3, "d");
+  g.set(21, 2, "a");
+  g.set(4, 10, "h");
+};
+
+SHAPES.smartphone = (g) => {
+  g.rect(7, 2, 10, 20, "d");
+  g.rect(8, 3, 8, 18, "b");
+  g.rect(9, 5, 6, 12, "s");
+  g.rect(10, 6, 4, 8, "l");
+  g.line(10, 7, 13, 7, "h");
+  g.disc(12, 19, 1, "a");
+  g.set(16, 4, "u");
+};
+
+SHAPES.telegraph = (g) => {
+  g.rect(3, 17, 18, 4, "d");
+  g.rect(5, 15, 14, 2, "b");
+  g.rect(10, 11, 2, 5, "l");
+  g.poly([[7, 10], [16, 7], [17, 9], [8, 12]], "b");
+  g.disc(17, 8, 2, "a");
+  g.set(8, 9, "h");
+  g.line(19, 6, 22, 3, "u");
+  g.line(18, 5, 20, 2, "h");
+  g.set(6, 16, "l");
+};
+
+SHAPES.laser = (g) => {
+  g.poly([[3, 13], [10, 11], [13, 14], [12, 19], [4, 20]], "b");
+  g.rect(5, 14, 6, 3, "l");
+  g.rect(11, 14, 3, 3, "d");
+  g.line(14, 15, 23, 15, "a");
+  g.line(14, 16, 23, 16, "h");
+  g.line(14, 17, 23, 17, "a");
+  g.set(4, 13, "u");
+  g.set(15, 15, "w");
+};
+
+SHAPES.hologram = (g) => {
+  g.ellipse(12, 20, 8, 2, "d");
+  g.rect(9, 17, 6, 3, "b");
+  g.poly([[12, 15], [6, 7], [18, 7]], "u");
+  g.poly([[12, 12], [9, 8], [15, 8]], "a");
+  g.disc(12, 7, 2, "h");
+  g.rect(8, 19, 8, 1, "l");
+  g.set(6, 8, "u");
+  g.set(18, 8, "u");
+  g.line(9, 16, 15, 16, "h");
+};
+
+SHAPES.drone = (g) => {
+  g.rect(9, 10, 6, 5, "b");
+  g.rect(10, 11, 4, 3, "l");
+  g.line(4, 6, 20, 6, "d");
+  g.line(4, 18, 20, 18, "d");
+  g.line(10, 11, 5, 7, "d");
+  g.line(14, 11, 19, 7, "d");
+  g.line(10, 14, 5, 17, "d");
+  g.line(14, 14, 19, 17, "d");
+  g.ellipse(4, 5, 3, 1, "a");
+  g.ellipse(20, 5, 3, 1, "a");
+  g.ellipse(4, 19, 3, 1, "a");
+  g.ellipse(20, 19, 3, 1, "a");
+  g.set(12, 9, "h");
+  g.set(12, 15, "u");
+};
+
+SHAPES.sonar = (g) => {
+  g.disc(11, 12, 9, "d");
+  g.disc(11, 12, 8, "b");
+  g.ring(11, 12, 6, "l");
+  g.ring(11, 12, 3, "l");
+  g.line(11, 12, 17, 7, "h");
+  g.set(11, 12, "a");
+  g.set(17, 7, "w");
+  g.rect(3, 18, 16, 2, "d");
+  g.set(4, 17, "l");
+};
+
+SHAPES.printer3d = (g) => {
+  g.rect(3, 4, 18, 2, "d");
+  g.rect(3, 4, 2, 17, "d");
+  g.rect(19, 4, 2, 17, "d");
+  g.rect(3, 19, 18, 2, "d");
+  g.rect(5, 8, 14, 1, "d");
+  g.rect(10, 8, 4, 3, "b");
+  g.rect(9, 11, 6, 2, "l");
+  g.set(12, 13, "a");
+  g.rect(8, 18, 8, 1, "l");
+  g.rect(9, 16, 6, 1, "l");
+  g.rect(10, 14, 4, 1, "l");
+  g.set(6, 7, "h");
+};
+
+SHAPES.printingpress = (g) => {
+  g.rect(3, 4, 18, 3, "d");
+  g.rect(3, 18, 18, 3, "d");
+  g.rect(5, 7, 3, 11, "b");
+  g.rect(16, 7, 3, 11, "b");
+  g.disc(12, 12, 4, "b");
+  g.ring(12, 12, 4, "l");
+  g.set(12, 12, "a");
+  g.rect(8, 16, 8, 2, "w");
+  g.rect(7, 15, 10, 1, "h");
+  g.line(12, 7, 12, 16, "d");
+  g.set(6, 8, "h");
+};
+
+SHAPES.steamengine = (g, p, rng) => {
+  g.rect(3, 12, 10, 8, "b");
+  g.rect(4, 13, 8, 4, "l");
+  g.rect(9, 7, 3, 5, "d");
+  g.disc(18, 16, 4, "d");
+  g.ring(18, 16, 4, "l");
+  g.line(13, 15, 22, 15, "a");
+  g.line(13, 17, 22, 17, "a");
+  g.set(5, 14, "h");
+  g.disc(10, 5, 2, "u");
+  g.disc(7, 3, 1, "l");
+  g.set(4, 12, "u");
+  speckle(g, rng, "h", 8, 2);
+};
+
+SHAPES.press = (g) => {
+  g.rect(5, 3, 14, 5, "d");
+  g.rect(7, 2, 10, 2, "l");
+  g.rect(10, 8, 4, 4, "b");
+  g.rect(4, 18, 16, 3, "d");
+  g.rect(6, 12, 12, 6, "b");
+  g.rect(7, 13, 10, 2, "l");
+  g.line(3, 8, 3, 16, "a");
+  g.line(21, 8, 21, 16, "a");
+  g.set(3, 17, "a");
+  g.set(21, 17, "a");
+  g.set(12, 5, "h");
+  g.line(8, 16, 12, 18, "s");
+  g.line(16, 16, 12, 18, "s");
+};
+
+SHAPES.golem = (g, p, rng) => {
+  g.rect(9, 4, 6, 5, "b");
+  g.rect(6, 9, 12, 8, "b");
+  g.rect(3, 10, 4, 7, "d");
+  g.rect(17, 10, 4, 7, "d");
+  g.rect(7, 17, 4, 4, "d");
+  g.rect(13, 17, 4, 4, "d");
+  g.set(10, 6, "a");
+  g.set(14, 6, "a");
+  g.line(9, 11, 15, 11, "u");
+  g.line(12, 10, 12, 15, "u");
+  g.line(8, 14, 10, 16, "s");
+  g.line(16, 13, 14, 16, "s");
+  g.set(8, 5, "h");
+  speckle(g, rng, "h", 8, 2);
+};
+
+SHAPES.math = (g) => {
+  g.rect(2, 3, 20, 18, "d");
+  g.rect(3, 4, 18, 16, "b");
+  g.line(7, 8, 11, 8, "h");
+  g.line(9, 6, 9, 10, "h");
+  g.line(14, 7, 18, 7, "h");
+  g.line(14, 10, 18, 10, "h");
+  g.line(7, 14, 11, 14, "a");
+  g.set(9, 13, "a");
+  g.line(9, 14, 9, 18, "a");
+  g.set(14, 14, "a");
+  g.set(15, 14, "a");
+  g.set(16, 14, "a");
+  g.set(17, 14, "a");
+  g.line(14, 17, 18, 17, "u");
+  g.set(4, 5, "l");
+  g.set(19, 18, "s");
+};
+
+SHAPES.rust = (g, p, rng) => {
+  g.poly([[4, 16], [7, 8], [14, 5], [20, 11], [19, 18], [12, 21], [5, 19]], "b");
+  g.poly([[6, 14], [9, 9], [14, 7], [12, 12], [8, 15]], "l");
+  g.poly([[15, 7], [19, 12], [16, 16], [13, 12]], "d");
+  g.disc(9, 17, 2, "a");
+  g.disc(15, 18, 1, "a");
+  g.line(7, 12, 11, 14, "u");
+  g.line(13, 10, 17, 12, "u");
+  speckle(g, rng, "a", 10, 3);
+};
+
+SHAPES.vr = (g) => {
+  g.rect(3, 8, 18, 10, "d");
+  g.rect(4, 9, 16, 8, "b");
+  g.rect(6, 11, 5, 4, "l");
+  g.rect(13, 11, 5, 4, "l");
+  g.line(11, 12, 13, 12, "d");
+  g.line(2, 11, 4, 11, "d");
+  g.line(20, 11, 22, 11, "d");
+  g.set(8, 12, "h");
+  g.set(15, 12, "h");
+  g.rect(8, 18, 8, 2, "b");
+  g.set(5, 10, "u");
+};
+
 // Aliases keep the 129 authored shape names within a hand-drawn family.
 const SHAPE_ALIASES = {
   ant: "bug",
@@ -2272,6 +2729,42 @@ function applyMotif(g, element, rng) {
   }
   const accents = {
     spark: () => drawSpark(g, 19, 5, "h", "a"),
+    dot: () => {
+      g.disc(12, 12, 3, "u");
+      g.disc(12, 12, 1, "h");
+    },
+    fin: () => {
+      g.poly([[11, 8], [14, 3], [16, 9]], "d");
+      g.set(16, 12, "w");
+      g.set(17, 12, "w");
+    },
+    lure: () => {
+      g.line(12, 8, 10, 4, "l");
+      g.set(9, 3, "h");
+      g.set(8, 3, "a");
+    },
+    tails: () => {
+      for (let i = 0; i < 3; i += 1) {
+        g.line(4, 18, 1 + i * 2, 10 + i * 2, "a");
+      }
+    },
+    cloud: () => {
+      g.disc(4, 4, 2, "u");
+      g.disc(7, 3, 1, "h");
+      g.disc(20, 5, 2, "u");
+    },
+    storm: () => {
+      g.line(3, 4, 5, 7, "a");
+      g.line(5, 7, 3, 9, "h");
+    },
+    fangs: () => {
+      g.line(10, 15, 10, 17, "w");
+      g.line(14, 15, 14, 17, "w");
+    },
+    size: () => {
+      g.ellipse(12, 21, 7, 1, "s");
+      g.set(20, 4, "h");
+    },
     glow: () => {
       drawSpark(g, 4, 4, "h", "u");
       drawSpark(g, 20, 18, "u", "a");
@@ -2329,8 +2822,11 @@ function applyMotif(g, element, rng) {
       g.line(4, 22, 9, 17, "a");
     },
     chain: () => {
-      g.ring(6, 12, 2, "a");
-      g.ring(10, 12, 2, "u");
+      g.disc(6, 16, 2, "a");
+      g.disc(12, 9, 2, "h");
+      g.disc(18, 15, 2, "u");
+      g.line(7, 15, 11, 10, "l");
+      g.line(13, 10, 17, 14, "l");
     },
     spikes: () => {
       g.line(6, 7, 4, 3, "a");

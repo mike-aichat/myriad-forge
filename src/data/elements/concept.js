@@ -6,7 +6,7 @@ export default [
   e("color", "色彩", ["light", "fog"], "光在雾里洗了个澡，出来时带了颜色。", "palette", "color"),
   e("sound", "声音", ["cave", "air"], "空气在同一个小洞里挤来挤去，挤出了点什么。", "bell", "sound", "wave"),
   e("echo", "回声", ["sound", "mountain"], "声音撞上山，回来时已经不太像自己。", "bell", "echo", "ripple"),
-  e("pressure", "压力", ["mountain", "sea"], "海被山按住肩膀，石头互相交代起秘密。", "scales", "pressure"),
+  e("pressure", "压力", ["mountain", "sea"], "海被山按住肩膀，石头互相交代起秘密。", "press", "pressure"),
   e("energy", "能量", ["lightning", "light"], "闪电和光交换了一个眼神，世界多了点力气。", "bolt", "energy", "spark"),
   e("gravity", "重力", ["planet", "star"], "星星彼此惦记，惦记到把距离压弯。", "orb", "gravity", "rings"),
   e("void", "虚空", ["dark", "air"], "暗和风商量出的空地，什么都不摆。", "orb", "void"),

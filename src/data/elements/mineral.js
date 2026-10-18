@@ -27,7 +27,7 @@ export default [
   e("sulfur", "硫磺", ["lava", "smoke"], "岩浆和烟商量出的坏脾气，闻起来像地狱。", "gem", "sulfur"),
   e("saltpeter", "硝石", ["ash", "salt"], "灰烬和盐的孩子，脾气急躁，爱爆炸。", "crystal", "saltpeter"),
   e("gunpowder", "火药", ["sulfur", "saltpeter"], "三种不稳定的性格，被装进同一个罐子。", "dune", "gunpowder", "spark"),
-  e("rust", "锈", ["iron", "water"], "铁慢慢学会怀念水。", "ingot", "rust"),
+  e("rust", "锈", ["iron", "water"], "铁慢慢学会怀念水。", "rust", "rust"),
   e("magnet", "磁铁", ["iron", "lightning"], "铁记住了北方，不再随便转身。", "ingot", "magnet", "ring"),
   e("bronze", "青铜", ["copper", "steel"], "铜和钢的旧梦，曾经撑起一个时代。", "ingot", "bronze"),
   e("coal", "煤", ["tree", "earth"], "树把自己的影子压进地底，等了几百万年。", "rock", "coal"),
@@ -35,6 +35,6 @@ export default [
   e("diamond", "钻石", ["crystal", "pressure"], "碳在黑暗里挨着压，最后亮得刺眼。", "gem", "diamond"),
   e("pearl", "珍珠", ["shell", "sand"], "沙子闯进贝壳的房间，贝壳决定用眼泪包住它。", "orb", "pearl"),
   e("amber", "琥珀", ["resin", "earth"], "树脂失足掉进土里，把一只虫子的下午保存至今。", "gem", "amber"),
-  e("plastic", "塑料", ["oil", "fire"], "石油学会了变形，以及如何活得很久。", "orb", "plastic"),
+  e("plastic", "塑料", ["oil", "fire"], "石油学会了变形，以及如何活得很久。", "plastic", "plastic"),
   e("quicksilver", "水银", ["iron", "lava"], "金属里就它一个不肯站直走路。", "droplet", "quicksilver"),
 ];
