@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ELEMENTS } from "../data/elements/index.js";
 import { CATEGORIES, CATEGORY_MAP } from "../data/categories.js";
 import { buildPairHistoryMap } from "../game/craftedPairs.js";
@@ -121,6 +121,12 @@ export function Library({
   searchRef,
 }) {
   const discoveredSet = useMemo(() => new Set(state.discovered), [state.discovered]);
+  const [markFilter, setMarkFilter] = useState("all");
+  useEffect(() => {
+    if (!selected.length && (markFilter === "crafted" || markFilter === "failed")) {
+      setMarkFilter("all");
+    }
+  }, [selected.length, markFilter]);
   const useStatus = useMemo(() => buildElementUseStatus(state), [state]);
   const statusCounts = useMemo(() => countElementUseStatus(useStatus), [useStatus]);
   const orderIndex = useMemo(() => {
@@ -161,8 +167,22 @@ export function Library({
 
   const visible = useMemo(() => {
     const needle = query.trim().toLowerCase();
+    const matchesMark = (element) => {
+      if (markFilter === "all") return true;
+      if (!discoveredSet.has(element.id)) return false;
+      if (markFilter === "idle" || markFilter === "exhausted") {
+        return useStatus.get(element.id)?.kind === markFilter;
+      }
+      const entry = pairHistory.get(element.id);
+      if (markFilter === "crafted") return Boolean(entry?.crafted.length);
+      if (markFilter === "failed") {
+        return Boolean(entry?.failed.length) && !entry?.crafted.length;
+      }
+      return true;
+    };
     const list = ELEMENTS.filter((element) => {
       if (category !== "all" && element.category !== category) return false;
+      if (!matchesMark(element)) return false;
       if (needle) {
         return (
           discoveredSet.has(element.id) &&
@@ -181,7 +201,7 @@ export function Library({
       }
       return ELEMENTS.indexOf(a) - ELEMENTS.indexOf(b);
     });
-  }, [category, query, discoveredSet, showUnknown, orderIndex]);
+  }, [category, query, discoveredSet, markFilter, orderIndex, pairHistory, showUnknown, useStatus]);
 
   const foundInCategory =
     category === "all"
@@ -262,26 +282,74 @@ export function Library({
         })}
       </div>
 
-      <div className="library-status-legend" title="只统计已发现的要素">
+      <div
+        className="library-status-legend"
+        role="group"
+        aria-label="按图鉴标记筛选"
+        title="点击标记筛选要素"
+      >
         <span className="library-status-legend__title">图鉴标记</span>
-        <span title="当前没有已发现的搭档能造出新要素"><i data-kind="idle">闲</i>当前无新结果 {statusCounts.idle}</span>
-        <span title="会用到它的配方结果都已发现"><i data-kind="exhausted">尽</i>已无新结果 {statusCounts.exhausted}</span>
+        <button
+          type="button"
+          className={`library-status-legend__filter ${markFilter === "all" ? "is-active" : ""}`}
+          onClick={() => setMarkFilter("all")}
+          aria-pressed={markFilter === "all"}
+          title="显示所有要素"
+        >
+          全部
+        </button>
+        <button
+          type="button"
+          className={`library-status-legend__filter ${markFilter === "idle" ? "is-active" : ""}`}
+          data-kind="idle"
+          onClick={() => setMarkFilter((current) => (current === "idle" ? "all" : "idle"))}
+          aria-pressed={markFilter === "idle"}
+          title="只看当前无法造出新要素的材料"
+        >
+          <i data-kind="idle">闲</i>当前无新结果 {statusCounts.idle}
+        </button>
+        <button
+          type="button"
+          className={`library-status-legend__filter ${markFilter === "exhausted" ? "is-active" : ""}`}
+          data-kind="exhausted"
+          onClick={() => setMarkFilter((current) => (current === "exhausted" ? "all" : "exhausted"))}
+          aria-pressed={markFilter === "exhausted"}
+          title="只看配方结果都已发现的材料"
+        >
+          <i data-kind="exhausted">尽</i>已无新结果 {statusCounts.exhausted}
+        </button>
         {selected.length > 0 && (
           <>
-            <span className="library-status-legend__pair" title="与所选要素成功熔过的搭档">
+            <button
+              type="button"
+              className={`library-status-legend__filter library-status-legend__pair ${markFilter === "crafted" ? "is-active" : ""}`}
+              data-kind="crafted"
+              onClick={() => setMarkFilter((current) => (current === "crafted" ? "all" : "crafted"))}
+              aria-pressed={markFilter === "crafted"}
+              title="只看与所选要素成功熔过的搭档"
+            >
               <i data-kind="crafted">已</i>
               与{selectedNames.map((name) => `「${name}」`).join("")}熔过 {pairCounts.crafted}
-            </span>
-            <span className="library-status-legend__pair is-failed" title="与所选要素试过但没有结果的搭档">
+            </button>
+            <button
+              type="button"
+              className={`library-status-legend__filter library-status-legend__pair is-failed ${markFilter === "failed" ? "is-active" : ""}`}
+              data-kind="failed"
+              onClick={() => setMarkFilter((current) => (current === "failed" ? "all" : "failed"))}
+              aria-pressed={markFilter === "failed"}
+              title="只看与所选要素试过但没有结果的搭档"
+            >
               <i data-kind="failed">空</i>
               与{selectedNames.map((name) => `「${name}」`).join("")}无果 {pairCounts.failed}
-            </span>
+            </button>
           </>
         )}
         <span className="library-status-legend__note">
-          {selected.length
-            ? "试过的组合已标出，结果不会变。"
-            : "选中一项后，会标出已经试过的搭档。"}
+          {markFilter !== "all"
+            ? `已筛选 · ${visible.length} 个`
+            : selected.length
+              ? "试过的组合已标出，结果不会变。"
+              : "选中一项后，会标出已经试过的搭档。"}
         </span>
       </div>
 
@@ -309,7 +377,13 @@ export function Library({
         ) : (
           <div className="library-empty">
             <span className="library-empty__mark" aria-hidden="true">◇</span>
-            <p>{query ? "没有找到这样的要素。换一个词，或者先去熔炉里碰碰运气。" : "这一格还是空的。"}</p>
+            <p>
+              {query
+                ? "没有找到这样的要素。换一个词，或者先去熔炉里碰碰运气。"
+                : markFilter !== "all"
+                  ? "这一标记下没有要素。清掉标记，或换个类型。"
+                  : "这一格还是空的。"}
+            </p>
           </div>
         )}
       </div>
