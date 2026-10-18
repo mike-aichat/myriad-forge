@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sprite Gallery · 万象熔炉</title>
+    <style>
+      @font-face {
+        font-family: "Ark Pixel";
+        src: url("/fonts/ark-pixel-12px-zh-hans.woff2") format("woff2");
+        font-display: swap;
+      }
+      :root {
+        color-scheme: dark;
+        --bg: #081316;
+        --panel: #0f2028;
+        --line: rgba(213, 160, 91, 0.18);
+        --ink: #e7d5ae;
+        --muted: #8fa39c;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Ark Pixel", "Microsoft YaHei", sans-serif;
+        font-size: 12px;
+        padding: 24px;
+      }
+      h1 { font-size: 24px; font-weight: normal; margin: 0 0 4px; letter-spacing: 0.08em; }
+      .meta { color: var(--muted); margin-bottom: 24px; }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+        gap: 8px;
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        padding: 10px 8px 8px;
+        min-height: 132px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+      }
+      .card img {
+        width: 56px;
+        height: 56px;
+        image-rendering: pixelated;
+      }
+      .name { font-size: 12px; color: var(--ink); }
+      .shape { font-size: 10px; color: var(--muted); }
+      .cat { font-size: 10px; opacity: 0.7; }
+    </style>
+  </head>
+  <body>
+    <h1>万象熔炉 · 要素像素图预览</h1>
+    <div class="meta" id="meta"></div>
+    <div class="grid" id="grid"></div>
+    <script type="module" src="/dev/gallery.js"></script>
+  </body>
+</html>
