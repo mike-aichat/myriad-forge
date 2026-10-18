@@ -6,6 +6,14 @@ import { resolveShapeName } from "../src/art/shapes.js";
 import { createInitialState, fuseElements } from "../src/game/progress.js";
 import { RECIPES_BY_RESULT, findResult } from "../src/game/recipes.js";
 import { drawHint } from "../src/game/hints.js";
+import { CHALLENGES, CHALLENGE_ELEMENTS } from "../src/data/challenges.js";
+import {
+  createRun,
+  fuseRun,
+  minimumSteps,
+  recipeKey,
+  resolveChallengeElement,
+} from "../src/challenge/engine.js";
 
 const errors = [];
 const warnings = [];
@@ -236,6 +244,125 @@ if (!smokeHint || !smokeHint.ingredients.every((ingredient) => createInitialStat
   fail("灵光提示没有返回一对已拥有的要素");
 }
 
+// 炉外试炼：独立牌堆、故事节拍、目标与最少熔炼次数。
+const challengeIds = new Set();
+let mainTargetCount = 0;
+let challengeOnlyTargetCount = 0;
+const challengeSummaries = [];
+
+for (const element of CHALLENGE_ELEMENTS) {
+  if (byId.has(element.id)) fail(`试炼要素与主线要素 ID 冲突：${element.id}`);
+  if (!element.name || !element.description || element.description.trim().length < 8) {
+    fail(`试炼要素 ${element.id} 缺少名称或描述`);
+  }
+  if (!resolveShapeName(element.shape)) fail(`试炼要素 ${element.id} 的像素图形没有绘制：${element.shape}`);
+}
+
+if (!CHALLENGES.length) fail("没有任何炉外试炼");
+
+for (const challenge of CHALLENGES) {
+  if (challengeIds.has(challenge.id)) fail(`试炼 ID 重复：${challenge.id}`);
+  challengeIds.add(challenge.id);
+  for (const field of ["title", "subtitle", "quote", "intro", "objective", "clue", "opening", "outro", "fail"]) {
+    if (!challenge[field] || !String(challenge[field]).trim()) {
+      fail(`试炼「${challenge.id}」缺少故事字段：${field}`);
+    }
+  }
+  if (!Array.isArray(challenge.starterIds) || challenge.starterIds.length < 2) {
+    fail(`试炼「${challenge.title}」起始要素不足`);
+  }
+  if (new Set(challenge.starterIds).size !== challenge.starterIds.length) {
+    fail(`试炼「${challenge.title}」起始要素重复`);
+  }
+  if (!Number.isFinite(challenge.stepLimit) || challenge.stepLimit < 1) {
+    fail(`试炼「${challenge.title}」余烬上限无效`);
+  }
+  const targetElement = resolveChallengeElement(challenge.targetId);
+  if (!targetElement) fail(`试炼「${challenge.title}」的目标不存在：${challenge.targetId}`);
+  if (challenge.starterIds.includes(challenge.targetId)) {
+    fail(`试炼「${challenge.title}」的目标不能是起始要素`);
+  }
+  const isMainTarget = byId.has(challenge.targetId);
+  if (isMainTarget) mainTargetCount += 1;
+  else challengeOnlyTargetCount += 1;
+
+  for (const id of challenge.starterIds) {
+    if (!resolveChallengeElement(id)) fail(`试炼「${challenge.title}」的起始要素不存在：${id}`);
+  }
+
+  const pairSet = new Set();
+  for (const recipe of challenge.recipes || []) {
+    if (!recipe || !recipe.a || !recipe.b || !recipe.result) {
+      fail(`试炼「${challenge.title}」存在格式错误的配方`);
+      continue;
+    }
+    if (recipe.a === recipe.b) fail(`试炼「${challenge.title}」的配方不能自我合成：${recipe.a}`);
+    if (!resolveChallengeElement(recipe.a)) fail(`试炼「${challenge.title}」配方引用不存在的要素：${recipe.a}`);
+    if (!resolveChallengeElement(recipe.b)) fail(`试炼「${challenge.title}」配方引用不存在的要素：${recipe.b}`);
+    if (!resolveChallengeElement(recipe.result)) fail(`试炼「${challenge.title}」配方结果不存在：${recipe.result}`);
+    const key = recipeKey(recipe.a, recipe.b);
+    if (pairSet.has(key)) fail(`试炼「${challenge.title}」重复配方：${recipe.a} + ${recipe.b}`);
+    pairSet.add(key);
+  }
+
+  const reachable = new Set(challenge.starterIds);
+  let moving = true;
+  while (moving) {
+    moving = false;
+    for (const recipe of challenge.recipes || []) {
+      if (reachable.has(recipe.a) && reachable.has(recipe.b) && !reachable.has(recipe.result)) {
+        reachable.add(recipe.result);
+        moving = true;
+      }
+    }
+  }
+  for (const recipe of challenge.recipes || []) {
+    for (const id of [recipe.a, recipe.b, recipe.result]) {
+      if (!reachable.has(id)) fail(`试炼「${challenge.title}」的配方链超出了限定牌堆：${id}`);
+    }
+  }
+  for (const result of reachable) {
+    if (!challenge.starterIds.includes(result) && !challenge.beats?.[result]) {
+      fail(`试炼「${challenge.title}」的要素 ${resolveChallengeElement(result)?.name || result} 没有故事节拍`);
+    }
+  }
+
+  const best = minimumSteps(challenge);
+  if (!Number.isFinite(best)) fail(`试炼「${challenge.title}」的目标无法从起始要素抵达`);
+  if (best > challenge.stepLimit) {
+    fail(`试炼「${challenge.title}」最少需要 ${best} 次熔炼，但余烬上限只有 ${challenge.stepLimit}`);
+  }
+
+  // 用实际试炼引擎跑一次最短路线，确保完成判定与余烬结算可用。
+  let simulatedChallenge = createRun(challenge);
+  let guard = 0;
+  while (!simulatedChallenge.discovered.includes(challenge.targetId) && guard < challenge.stepLimit + 2) {
+    guard += 1;
+    const known = new Set(simulatedChallenge.discovered);
+    const nextRecipe = (challenge.recipes || []).find(
+      (recipe) => known.has(recipe.a) && known.has(recipe.b) && !known.has(recipe.result)
+    );
+    if (!nextRecipe) break;
+    const outcome = fuseRun(challenge, simulatedChallenge, nextRecipe.a, nextRecipe.b);
+    simulatedChallenge = outcome.run;
+    if (outcome.won) break;
+  }
+  if (!simulatedChallenge.discovered.includes(challenge.targetId) || simulatedChallenge.status !== "won") {
+    fail(`试炼「${challenge.title}」的试炼引擎无法在余烬上限内完成目标`);
+  }
+  challengeSummaries.push({
+    name: challenge.title,
+    target: targetElement?.name || challenge.targetId,
+    targetKind: isMainTarget ? "主线" : "限定",
+    steps: Number.isFinite(best) ? best : "?",
+    limit: challenge.stepLimit,
+  });
+}
+
+if (CHALLENGES.length !== 4) fail(`试炼数量应为 4，目前 ${CHALLENGES.length}`);
+if (mainTargetCount < 1) fail("至少需要一个以主线要素为目标的试炼");
+if (challengeOnlyTargetCount < 1) fail("至少需要一个以试炼限定要素为目标的试炼");
+
 if (errors.length) {
   console.error(`✕ 数据校验失败（${errors.length} 项）`);
   for (const error of errors) console.error(`  - ${error}`);
@@ -255,6 +382,12 @@ for (const [name, value] of deepest) console.log(`  ${name}：${value}`);
 console.log(
   `\n完整试玩：${simulationSteps} 次熔炼 · ${simulated.discovered.length} 个要素 · ${simulated.completedChapters.length} 章 · 结局${simulated.endingSeen ? "已触发" : "未触发"}`
 );
+console.log(`\n炉外试炼：${CHALLENGES.length} 则 · 主线目标 ${mainTargetCount} · 试炼限定目标 ${challengeOnlyTargetCount}`);
+for (const summary of challengeSummaries) {
+  console.log(
+    `  ${summary.name}：${summary.target}（${summary.targetKind}）· 最少 ${summary.steps} 次 / 余烬 ${summary.limit} 次`
+  );
+}
 if (warnings.length) {
   console.log("\n提醒：");
   for (const warning of warnings) console.log(`  - ${warning}`);
