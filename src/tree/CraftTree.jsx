@@ -1,0 +1,324 @@
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { CATEGORY_MAP } from "../data/categories.js";
+import { ELEMENTS } from "../data/elements/index.js";
+import { Sprite } from "../ui/Sprite.jsx";
+import { buildTreeLayout, TREE_NODE_HEIGHT, TREE_NODE_WIDTH } from "./layout.js";
+import "./tree.css";
+
+const MIN_SCALE = 0.08;
+const MAX_SCALE = 2.4;
+const LEVEL_FOCUS_SCALE = 0.9;
+
+function clampScale(value) {
+  return Math.min(MAX_SCALE, Math.max(MIN_SCALE, value));
+}
+
+const TreeCanvas = React.memo(function TreeCanvas({ layout }) {
+  return (
+    <>
+      <svg
+        className="tree-edges"
+        width={layout.stageWidth}
+        height={layout.stageHeight}
+        aria-hidden="true"
+      >
+        {layout.edges.map((edge) => {
+          const midY = (edge.y1 + edge.y2) / 2;
+          return (
+            <path
+              key={edge.id}
+              d={`M ${edge.x1} ${edge.y1} C ${edge.x1} ${midY}, ${edge.x2} ${midY}, ${edge.x2} ${edge.y2}`}
+            />
+          );
+        })}
+      </svg>
+
+      {layout.rows.map((row) => (
+        <React.Fragment key={row.level}>
+          <div
+            className={`tree-band ${row.level % 2 ? "is-alt" : ""}`}
+            style={{ top: row.y - 18, width: layout.stageWidth, height: TREE_NODE_HEIGHT + 38 }}
+            aria-hidden="true"
+          />
+          <span
+            className="tree-level-label"
+            style={{ top: row.y + TREE_NODE_HEIGHT / 2 - 6, left: row.offsetX - 62 }}
+          >
+            Lv{row.level}
+            <b>{row.count}</b>
+          </span>
+        </React.Fragment>
+      ))}
+
+      {layout.nodes.map((node) => {
+        const category = CATEGORY_MAP[node.element.category];
+        return (
+          <div
+            key={node.element.id}
+            className={`tree-node ${node.discovered ? "is-found" : "is-unknown"}`}
+            style={{
+              left: node.x,
+              top: node.y,
+              width: TREE_NODE_WIDTH,
+              height: TREE_NODE_HEIGHT,
+              "--cat": category.color,
+            }}
+            title={
+              node.discovered
+                ? `${node.element.name} · Lv${node.level}`
+                : `未发现 · Lv${node.level}`
+            }
+          >
+            <div className="tree-node__sprite">
+              <Sprite
+                element={node.element}
+                size={32}
+                silhouette={!node.discovered}
+                alt={node.discovered ? node.element.name : ""}
+              />
+            </div>
+            <span className="tree-node__name">
+              {node.discovered ? node.element.name : "？？？"}
+            </span>
+          </div>
+        );
+      })}
+    </>
+  );
+});
+
+export function CraftTree({ state, onExit }) {
+  const viewportRef = useRef(null);
+  const [view, setView] = useState({ x: 0, y: 0, scale: 1 });
+  const viewRef = useRef(view);
+  const dragRef = useRef(null);
+  const [dragging, setDragging] = useState(false);
+  const [focusLevel, setFocusLevel] = useState("");
+
+  const layout = useMemo(() => buildTreeLayout(state.discovered), [state.discovered]);
+
+  const updateView = useCallback((next) => {
+    viewRef.current = next;
+    setView(next);
+  }, []);
+
+  const fitToScreen = useCallback(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    const width = viewport.clientWidth;
+    const height = viewport.clientHeight;
+    if (!width || !height) return;
+    const scale = clampScale(
+      Math.min((width - 32) / layout.stageWidth, (height - 32) / layout.stageHeight, 1)
+    );
+    updateView({
+      x: (width - layout.stageWidth * scale) / 2,
+      y: (height - layout.stageHeight * scale) / 2,
+      scale,
+    });
+    setFocusLevel("");
+  }, [layout.stageWidth, layout.stageHeight, updateView]);
+
+  const focusTop = useCallback(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    const scale = clampScale(LEVEL_FOCUS_SCALE);
+    updateView({
+      x: (viewport.clientWidth - layout.stageWidth * scale) / 2,
+      y: 26,
+      scale,
+    });
+    setFocusLevel("0");
+  }, [layout.stageWidth, updateView]);
+
+  useEffect(() => {
+    focusTop();
+    const onResize = () => fitToScreen();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [focusTop, fitToScreen]);
+
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    const onWheel = (event) => {
+      event.preventDefault();
+      const bounds = viewport.getBoundingClientRect();
+      const pointerX = event.clientX - bounds.left;
+      const pointerY = event.clientY - bounds.top;
+      const current = viewRef.current;
+      const scale = clampScale(current.scale * Math.exp(-event.deltaY * 0.0015));
+      updateView({
+        x: pointerX - ((pointerX - current.x) / current.scale) * scale,
+        y: pointerY - ((pointerY - current.y) / current.scale) * scale,
+        scale,
+      });
+      setFocusLevel("");
+    };
+    viewport.addEventListener("wheel", onWheel, { passive: false });
+    return () => viewport.removeEventListener("wheel", onWheel);
+  }, [updateView]);
+
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") onExit();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onExit]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }, []);
+
+  const zoomAt = useCallback(
+    (pointerX, pointerY, factor) => {
+      const current = viewRef.current;
+      const scale = clampScale(current.scale * factor);
+      updateView({
+        x: pointerX - ((pointerX - current.x) / current.scale) * scale,
+        y: pointerY - ((pointerY - current.y) / current.scale) * scale,
+        scale,
+      });
+    },
+    [updateView]
+  );
+
+  const zoomBy = (factor) => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    zoomAt(viewport.clientWidth / 2, viewport.clientHeight / 2, factor);
+    setFocusLevel("");
+  };
+
+  const jumpToLevel = (level) => {
+    const viewport = viewportRef.current;
+    const row = layout.rows.find((item) => item.level === level);
+    if (!viewport || !row) return;
+    const scale = clampScale(LEVEL_FOCUS_SCALE);
+    updateView({
+      x: (viewport.clientWidth - layout.stageWidth * scale) / 2,
+      y: viewport.clientHeight / 2 - (row.y + TREE_NODE_HEIGHT / 2) * scale,
+      scale,
+    });
+    setFocusLevel(String(level));
+  };
+
+  const handlePointerDown = (event) => {
+    if (event.button !== 0) return;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    dragRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      originX: viewRef.current.x,
+      originY: viewRef.current.y,
+    };
+    setDragging(true);
+    setFocusLevel("");
+  };
+
+  const handlePointerMove = (event) => {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    updateView({
+      ...viewRef.current,
+      x: drag.originX + event.clientX - drag.startX,
+      y: drag.originY + event.clientY - drag.startY,
+    });
+  };
+
+  const endDrag = (event) => {
+    if (dragRef.current && dragRef.current.pointerId !== event.pointerId) return;
+    dragRef.current = null;
+    setDragging(false);
+  };
+
+  const discoveredCount = layout.nodes.filter((node) => node.discovered).length;
+  const zoomPercent = Math.round(view.scale * 100);
+
+  return (
+    <div className="tree-mode">
+      <header className="tree-header">
+        <button
+          type="button"
+          className="tree-back"
+          onClick={onExit}
+          title="返回主炉（Esc）"
+        >
+          <span aria-hidden="true">←</span> 返回主炉
+        </button>
+        <div className="tree-heading">
+          <p className="eyebrow">源流总览</p>
+          <h1>要素谱系</h1>
+          <p>从源初向下生长。未发现的要素只留剪影，不画来源线。</p>
+        </div>
+        <div className="tree-summary">
+          <span>
+            已发现 <b>{discoveredCount}</b> / {ELEMENTS.length}
+          </span>
+          <span>Lv0–Lv{layout.maxLevel}</span>
+        </div>
+      </header>
+
+      <div className="tree-toolbar">
+        <div className="tree-zoom" role="group" aria-label="缩放">
+          <button type="button" onClick={() => zoomBy(1 / 1.25)} aria-label="缩小">
+            −
+          </button>
+          <span>{zoomPercent}%</span>
+          <button type="button" onClick={() => zoomBy(1.25)} aria-label="放大">
+            ＋
+          </button>
+          <button type="button" className="tree-fit" onClick={fitToScreen}>
+            适应屏幕
+          </button>
+        </div>
+
+        <label className="tree-jump">
+          <span>跳到等级</span>
+          <select
+            value={focusLevel}
+            onChange={(event) => {
+              const value = event.target.value;
+              if (!value) {
+                setFocusLevel("");
+                return;
+              }
+              jumpToLevel(Number(value));
+            }}
+          >
+            <option value="">选择</option>
+            {layout.rows.map((row) => (
+              <option key={row.level} value={row.level}>
+                Lv{row.level} · {row.count} 个
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <p className="tree-hint">滚轮缩放 · 拖动画布 · 未发现要素没有来源线</p>
+      </div>
+
+      <div
+        ref={viewportRef}
+        className={`tree-viewport ${dragging ? "is-dragging" : ""}`}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+      >
+        <div
+          className="tree-stage"
+          style={{
+            width: layout.stageWidth,
+            height: layout.stageHeight,
+            transform: `translate3d(${view.x}px, ${view.y}px, 0) scale(${view.scale})`,
+          }}
+        >
+          <TreeCanvas layout={layout} />
+        </div>
+      </div>
+    </div>
+  );
+}

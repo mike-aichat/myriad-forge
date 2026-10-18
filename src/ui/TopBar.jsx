@@ -8,6 +8,7 @@ export function TopBar({
   onToggleSound,
   onHelp,
   onChallenges,
+  onTree,
 }) {
   return (
     <header className="topbar">
@@ -65,6 +66,15 @@ export function TopBar({
         <button className="plate-button" type="button" onClick={onStory} title="翻阅创世手记">
           <span className="plate-button__mark" aria-hidden="true">册</span>
           <span>手记</span>
+        </button>
+        <button
+          className="plate-button plate-button--tree"
+          type="button"
+          onClick={onTree}
+          title="查看要素谱系与合成来源"
+        >
+          <span className="plate-button__mark" aria-hidden="true">谱</span>
+          <span>谱系</span>
         </button>
         <button
           className={`icon-button ${sound ? "is-on" : ""}`}

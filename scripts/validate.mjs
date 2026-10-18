@@ -8,6 +8,7 @@ import { buildPairHistoryMap, inferCraftedPairs, normalizeCraftedPairs, normaliz
 import { ELEMENT_LEVEL, RECIPES_BY_RESULT, findResult, pairKey } from "../src/game/recipes.js";
 import { buildElementUseStatus } from "../src/game/recipeStatus.js";
 import { pickInspirationPair } from "../src/game/hints.js";
+import { buildTreeLayout } from "../src/tree/layout.js";
 import { CHALLENGES, CHALLENGE_ELEMENTS } from "../src/data/challenges.js";
 import { QUESTS, QUEST_ELEMENTS } from "../src/data/quests.js";
 import {
@@ -462,6 +463,40 @@ const allDiscoveredState = {
 };
 if (pickInspirationPair(allDiscoveredState) !== null) {
   fail("灵光不应该在全图鉴完成后返回配对");
+}
+
+const freshTree = buildTreeLayout(createInitialState().discovered);
+if (freshTree.nodes.length !== ELEMENTS.length) fail("谱系没有列出全部要素");
+if (freshTree.edges.length !== 0) fail("初始谱系不应该画出来源线");
+if (!(freshTree.stageWidth > 0 && freshTree.stageHeight > 0)) fail("谱系画布尺寸无效");
+const freshTreeIds = new Set(freshTree.nodes.map((node) => node.element.id));
+if (freshTreeIds.size !== ELEMENTS.length) fail("谱系里有重复要素");
+for (const node of freshTree.nodes) {
+  if (node.level !== ELEMENT_LEVEL.get(node.element.id)) {
+    fail(`谱系层级与要素等级不一致：${node.element.id}`);
+  }
+}
+const fullTree = buildTreeLayout(ELEMENTS.map((element) => element.id));
+const expectedTreeEdges = ELEMENTS.reduce((total, element) => {
+  if (!element.recipe) return total;
+  const recipes = Array.isArray(element.recipe[0]) ? element.recipe : [element.recipe];
+  return total + recipes.length * 2;
+}, 0);
+if (fullTree.edges.length !== expectedTreeEdges) fail("完整谱系没有画出全部配方来源线");
+const treeNodeById = new Map(fullTree.nodes.map((node) => [node.element.id, node]));
+for (const edge of fullTree.edges) {
+  const parent = treeNodeById.get(edge.parentId);
+  const result = treeNodeById.get(edge.resultId);
+  if (!parent || !result) fail("谱系来源线引用了不存在的要素");
+  if (parent.level >= result.level) fail("谱系来源线没有从低等级指向高等级");
+}
+const partialTree = buildTreeLayout(["fire", "water", "earth", "air", "steam"]);
+if (partialTree.edges.length !== 2 || !partialTree.edges.every((edge) => edge.resultId === "steam")) {
+  fail("未发现的结果不应该出现来源线");
+}
+const halfRecipeTree = buildTreeLayout(["fire", "water", "earth", "air", "stone"]);
+if (halfRecipeTree.edges.length !== 0) {
+  fail("材料没齐的配方不应该画出半截来源线");
 }
 
 // 炉外试炼：独立牌堆、故事节拍、目标与最少熔炼次数。

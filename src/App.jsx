@@ -18,6 +18,7 @@ import { TopBar } from "./ui/TopBar.jsx";
 import { ChapterOverlay, DiscoveryOverlay, EndingOverlay, IntroOverlay, Toast } from "./ui/Overlays.jsx";
 import { ElementDetailModal, HelpModal, StoryModal } from "./ui/Modals.jsx";
 import { ChallengeMode } from "./challenge/ChallengeMode.jsx";
+import { CraftTree } from "./tree/CraftTree.jsx";
 
 const BOREDOM_LINES = [
   "它们互相看了一眼，决定不熟。",
@@ -432,12 +433,25 @@ export default function App() {
     setMode("main");
   };
 
+  const enterTree = () => {
+    audio.click();
+    setPanel(null);
+    setMode("tree");
+  };
+
+  const exitTree = () => {
+    audio.click();
+    setMode("main");
+  };
+
   return (
-    <div className="app-shell">
+    <div className={`app-shell ${mode === "tree" ? "app-shell--tree" : ""}`}>
       <Skyfield reducedMotion={reducedMotion} />
       <div className="ambient-grain" aria-hidden="true" />
 
-      {mode === "challenges" ? (
+      {mode === "tree" ? (
+        <CraftTree state={game} onExit={exitTree} />
+      ) : mode === "challenges" ? (
         <ChallengeMode
           onExit={exitChallenges}
           sound={game.sound}
@@ -454,6 +468,7 @@ export default function App() {
         onToggleSound={toggleSound}
         onHelp={openHelp}
         onChallenges={enterChallenges}
+        onTree={enterTree}
       />
 
       <main className="game-layout">
