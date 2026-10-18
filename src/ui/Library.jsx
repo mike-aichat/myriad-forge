@@ -1,8 +1,16 @@
 import React, { useMemo } from "react";
 import { ELEMENTS } from "../data/elements/index.js";
 import { CATEGORIES, CATEGORY_MAP } from "../data/categories.js";
+import { buildCraftedPartnerMap } from "../game/craftedPairs.js";
+import { ELEMENT_BY_ID } from "../game/recipes.js";
 import { buildElementUseStatus, countElementUseStatus } from "../game/recipeStatus.js";
 import { Sprite } from "./Sprite.jsx";
+
+function craftedPairNote(links) {
+  return links
+    .map((link) => `与「${link.sourceName}」熔过，产物是「${link.resultName}」`)
+    .join("；");
+}
 
 function ElementCard({
   element,
@@ -12,8 +20,10 @@ function ElementCard({
   onInfo,
   onUnknown,
   status,
+  craftedLinks,
 }) {
   const category = CATEGORY_MAP[element.category];
+  const craftedNote = craftedLinks?.length ? craftedPairNote(craftedLinks) : "";
   const statusBadge = status?.label ? (
     <span
       className={`element-card__status is-${status.kind}`}
@@ -46,15 +56,15 @@ function ElementCard({
 
   return (
     <div
-      className={`element-card ${selectedIndex >= 0 ? "is-selected" : ""}`}
+      className={`element-card ${selectedIndex >= 0 ? "is-selected" : ""} ${craftedLinks ? "is-crafted-pair" : ""}`}
       style={{ "--cat": category.color }}
     >
       <button
         type="button"
         className="element-card__select"
         onClick={() => onSelect(element.id)}
-        title={`${element.name} · ${category.name}`}
-        aria-label={`选择${element.name}放入熔炉`}
+        title={`${element.name} · ${category.name}${craftedNote ? ` · ${craftedNote}` : ""}`}
+        aria-label={`选择${element.name}放入熔炉${craftedNote ? `；${craftedNote}` : ""}`}
       >
         <div className="element-card__sprite">
           <Sprite element={element} size={46} />
@@ -71,11 +81,15 @@ function ElementCard({
       >
         i
       </button>
-      {selectedIndex >= 0 && (
+      {selectedIndex >= 0 ? (
         <span className="element-card__slot-mark" aria-hidden="true">
           {selectedIndex === 0 ? "I" : "II"}
         </span>
-      )}
+      ) : craftedLinks ? (
+        <span className="element-card__pair-mark" aria-hidden="true">
+          已
+        </span>
+      ) : null}
       {statusBadge}
     </div>
   );
@@ -103,6 +117,14 @@ export function Library({
     state.order.forEach((id, index) => map.set(id, index));
     return map;
   }, [state.order]);
+  const craftedPartners = useMemo(
+    () => buildCraftedPartnerMap(state, selected),
+    [state, selected]
+  );
+  const selectedNames = useMemo(
+    () => selected.map((id) => ELEMENT_BY_ID.get(id)?.name).filter(Boolean),
+    [selected]
+  );
 
   const categoryCounts = useMemo(() => {
     const map = new Map();
@@ -220,11 +242,21 @@ export function Library({
         })}
       </div>
 
-      <div className="library-status-legend">
-        <span className="library-status-legend__title">材料标记</span>
+      <div className="library-status-legend" title="只统计已发现的要素">
+        <span className="library-status-legend__title">图鉴标记</span>
         <span title="当前没有已发现的搭档能造出新要素"><i data-kind="idle">闲</i>当前无新结果 {statusCounts.idle}</span>
         <span title="会用到它的配方结果都已发现"><i data-kind="exhausted">尽</i>已无新结果 {statusCounts.exhausted}</span>
-        <span className="library-status-legend__note">只统计已发现的要素。</span>
+        {selected.length > 0 && (
+          <span className="library-status-legend__pair">
+            <i data-kind="crafted">已</i>
+            与{selectedNames.map((name) => `「${name}」`).join("")}熔过的搭档 {craftedPartners.size}
+          </span>
+        )}
+        <span className="library-status-legend__note">
+          {selected.length
+            ? "再熔一遍，只会翻回旧页。"
+            : "选中一项后，会标出已经和它熔过的搭档。"}
+        </span>
       </div>
 
       <div className="library-grid-wrap">
@@ -232,6 +264,7 @@ export function Library({
           <div className="element-grid">
             {visible.map((element) => {
               const index = selected.indexOf(element.id);
+              const craftedEntry = index < 0 ? craftedPartners.get(element.id) : null;
               return (
                 <ElementCard
                   key={element.id}
@@ -242,6 +275,7 @@ export function Library({
                   onInfo={onInfo}
                   onUnknown={onUnknown}
                   status={useStatus.get(element.id)}
+                  craftedLinks={craftedEntry?.links}
                 />
               );
             })}

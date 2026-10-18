@@ -1,6 +1,7 @@
 import { CHAPTERS } from "../data/chapters.js";
 import { BASE_IDS, ENDGAME_IDS, state as schema } from "../data/schema.js";
-import { ELEMENT_BY_ID, findResult } from "./recipes.js";
+import { normalizeCraftedPairs } from "./craftedPairs.js";
+import { ELEMENT_BY_ID, findResult, pairKey } from "./recipes.js";
 
 export const SAVE_KEY = schema.storageKey;
 export const SAVE_VERSION = schema.version;
@@ -10,6 +11,7 @@ export function createInitialState() {
     version: SAVE_VERSION,
     discovered: [...BASE_IDS],
     order: [...BASE_IDS].reverse(),
+    craftedPairs: [],
     completedChapters: [],
     insight: 3,
     fusions: 0,
@@ -37,12 +39,14 @@ function normalizeLoadedState(raw) {
   const completedChapters = Array.isArray(raw.completedChapters)
     ? raw.completedChapters.filter((id) => CHAPTERS.some((chapter) => chapter.id === id))
     : [];
+  const craftedPairs = normalizeCraftedPairs(raw.craftedPairs, discovered);
   return {
     ...base,
     ...raw,
     version: SAVE_VERSION,
     discovered,
     order,
+    craftedPairs,
     completedChapters,
     insight: Number.isFinite(raw.insight) ? Math.max(0, Math.floor(raw.insight)) : base.insight,
     fusions: Number.isFinite(raw.fusions) ? Math.max(0, raw.fusions) : 0,
@@ -189,6 +193,11 @@ export function fuseElements(inputState, a, b) {
     successes: state.successes + 1,
     consecutiveFailures: 0,
   };
+  const craftedPairs = state.craftedPairs || [];
+  const craftedKey = pairKey(a, b);
+  if (!craftedPairs.includes(craftedKey)) {
+    state = { ...state, craftedPairs: [...craftedPairs, craftedKey] };
+  }
   const isNew = !state.discovered.includes(resultId);
   let milestone = false;
   let bonusInsight = 0;

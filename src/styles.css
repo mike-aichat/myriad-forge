@@ -1695,6 +1695,12 @@ kbd {
   pointer-events: none;
 }
 
+.element-card.is-crafted-pair {
+  border-color: rgba(108, 184, 163, 0.28);
+  background:
+    linear-gradient(180deg, rgba(19, 45, 48, 0.6), rgba(7, 22, 26, 0.72));
+}
+
 .element-card:hover {
   border-color: var(--line);
   background:
@@ -1792,6 +1798,24 @@ kbd {
   background: rgba(213, 160, 91, 0.08);
 }
 
+.element-card__pair-mark {
+  position: absolute;
+  z-index: 4;
+  top: 5px;
+  right: 6px;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--verdigris-dim);
+  color: var(--verdigris);
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  background: rgba(8, 26, 28, 0.86);
+  box-shadow: inset 0 0 8px rgba(108, 184, 163, 0.08);
+  pointer-events: none;
+}
+
 .element-card__status {
   position: absolute;
   z-index: 4;
@@ -1872,6 +1896,20 @@ kbd {
 .library-status-legend i[data-kind="exhausted"] {
   border-color: rgba(213, 160, 91, 0.34);
   color: var(--brass-hi);
+}
+
+.library-status-legend i[data-kind="crafted"] {
+  border-color: var(--verdigris-dim);
+  color: var(--verdigris);
+}
+
+.library-status-legend__pair {
+  color: var(--verdigris);
+}
+
+.library-status-legend__pair b {
+  color: var(--parchment);
+  font-weight: 400;
 }
 
 .library-status-legend__note {
