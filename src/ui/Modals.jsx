@@ -352,7 +352,7 @@ export function HelpModal({ state, sound, onToggleSound, onClose, onReset }) {
             <li>按下「熔炼」或 Enter。成功会永久收录新要素；失败不会损失任何东西。</li>
             <li>每个要素都有一段描述。小写的 i 可以打开它的档案。</li>
             <li>右侧「创世手记」会给出目标。写满当前页，就会解锁馈赠和新的故事。</li>
-            <li>卡住时点要素库标题旁的「灵光」，花 1 点让它挑一对能熔出新要素的组合，直接入炉熔炼。</li>
+            <li>卡住时点要素库标题旁的「灵光」，或按 R，花 1 点让它挑一对能熔出新要素的组合，直接入炉熔炼。</li>
           </ol>
         </section>
         <section>
@@ -360,6 +360,7 @@ export function HelpModal({ state, sound, onToggleSound, onClose, onReset }) {
           <dl className="shortcut-list">
             <div><dt><kbd>Enter</kbd></dt><dd>熔炼已选好的两种要素</dd></div>
             <div><dt><kbd>/</kbd></dt><dd>聚焦要素搜索</dd></div>
+            <div><dt><kbd>R</kbd></dt><dd>灵光：随机熔炼一对能产出新要素的组合</dd></div>
             <div><dt><kbd>M</kbd></dt><dd>开关声音</dd></div>
             <div><dt><kbd>Esc</kbd></dt><dd>关闭当前面板或取出要素</dd></div>
           </dl>

@@ -129,6 +129,12 @@ export default function App() {
         toggleSound();
         return;
       }
+      if (event.key.toLowerCase() === "r") {
+        if (panel || overlay) return;
+        event.preventDefault();
+        handleInspire();
+        return;
+      }
       if (event.key === "Escape") {
         if (panel) {
           setPanel(null);
