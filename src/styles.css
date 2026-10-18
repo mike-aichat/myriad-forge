@@ -1792,6 +1792,94 @@ kbd {
   background: rgba(213, 160, 91, 0.08);
 }
 
+.element-card__status {
+  position: absolute;
+  z-index: 4;
+  left: 5px;
+  bottom: 5px;
+  min-width: 15px;
+  height: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  border: 1px solid var(--line-soft);
+  background: rgba(5, 16, 19, 0.74);
+  font-family: var(--font-pixel);
+  font-size: 7px;
+  line-height: 1;
+  letter-spacing: 0;
+  pointer-events: none;
+}
+
+.element-card__status.is-idle {
+  border-color: rgba(223, 107, 67, 0.3);
+  color: var(--ember-hi);
+  background: rgba(42, 20, 16, 0.82);
+}
+
+.element-card__status.is-exhausted {
+  border-color: rgba(213, 160, 91, 0.34);
+  color: var(--brass-hi);
+  background: rgba(38, 30, 18, 0.82);
+}
+
+.library-status-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 13px;
+  margin-top: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--line-soft);
+  background: rgba(5, 16, 19, 0.24);
+  color: var(--muted-2);
+  font-family: var(--font-serif);
+  font-size: 10px;
+}
+
+.library-status-legend__title {
+  color: var(--brass);
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  letter-spacing: 0.08em;
+}
+
+.library-status-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.library-status-legend i {
+  min-width: 14px;
+  height: 14px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0 3px;
+  border: 1px solid var(--line-soft);
+  font-family: var(--font-pixel);
+  font-size: 7px;
+  font-style: normal;
+  line-height: 1;
+}
+
+.library-status-legend i[data-kind="idle"] {
+  border-color: rgba(223, 107, 67, 0.3);
+  color: var(--ember-hi);
+}
+
+.library-status-legend i[data-kind="exhausted"] {
+  border-color: rgba(213, 160, 91, 0.34);
+  color: var(--brass-hi);
+}
+
+.library-status-legend__note {
+  margin-left: auto;
+  color: var(--muted-2);
+  font-size: 9px;
+}
+
 .element-card--unknown {
   display: flex;
   flex-direction: column;
@@ -2207,6 +2295,26 @@ kbd {
 .recipe-result {
   font-family: var(--font-pixel);
   font-size: 10px;
+  color: var(--brass-hi);
+}
+
+.detail-use-status {
+  margin-top: 10px;
+  padding: 6px 8px;
+  border-left: 1px solid rgba(213, 160, 91, 0.26);
+  color: var(--muted);
+  font-family: var(--font-serif);
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.detail-use-status[data-kind="idle"] {
+  border-left-color: rgba(223, 107, 67, 0.46);
+  color: var(--ember-hi);
+}
+
+.detail-use-status[data-kind="exhausted"] {
+  border-left-color: var(--brass);
   color: var(--brass-hi);
 }
 

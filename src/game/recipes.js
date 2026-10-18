@@ -8,7 +8,7 @@ export const RECIPE_BY_PAIR = new Map();
 export const RECIPES_BY_RESULT = new Map();
 export const RECIPES_BY_INGREDIENT = new Map();
 
-function pairKey(a, b) {
+export function pairKey(a, b) {
   return [a, b].sort().join("+");
 }
 

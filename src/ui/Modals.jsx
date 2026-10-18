@@ -5,9 +5,9 @@ import { CATEGORY_MAP } from "../data/categories.js";
 import {
   ELEMENT_BY_ID,
   getResultRecipes,
-  getUses,
   isEndgame,
 } from "../game/recipes.js";
+import { getElementUseStatus } from "../game/recipeStatus.js";
 import {
   chapterIsUnlocked,
   chapterProgress,
@@ -102,8 +102,8 @@ export function ElementDetailModal({ element, state, selected, onAdd, onClose })
   if (!element) return null;
   const category = CATEGORY_MAP[element.category];
   const recipes = getResultRecipes(element.id);
-  const uses = getUses(element.id);
   const found = state.discovered.includes(element.id);
+  const useStatus = getElementUseStatus(state, element);
   const orderIndex = state.order.indexOf(element.id);
   const endgame = isEndgame(element.id);
   const inSlots = selected.includes(element.id);
@@ -127,6 +127,8 @@ export function ElementDetailModal({ element, state, selected, onAdd, onClose })
             <span className="category-chip" style={{ "--cat": category.color }}>{category.name}</span>
             {endgame && <span className="special-chip">终局要素</span>}
             {found && <span className="quiet-chip">第 {orderIndex + 1} 个发现</span>}
+            {useStatus.kind === "idle" && <span className="quiet-chip">当前无新结果</span>}
+            {useStatus.kind === "exhausted" && <span className="quiet-chip">已无新结果</span>}
           </div>
           <p className="detail-description">{element.description}</p>
           <p className="detail-note">{category.note}</p>
@@ -158,14 +160,22 @@ export function ElementDetailModal({ element, state, selected, onAdd, onClose })
               ))}
             </div>
           ) : (
-            <p className="detail-muted">它是开局要素，没有配方。</p>
+            <p className="detail-muted">它是源初或馈赠要素，没有配方。</p>
           )}
         </section>
         <section className="detail-section detail-section--aside">
           <div className="detail-fact">
-            <b>{uses.length}</b>
+            <b>{useStatus.uses}</b>
             <span>条已知配方会用到它</span>
           </div>
+          <p className="detail-use-status" data-kind={useStatus.kind}>
+            {useStatus.kind === "active" &&
+              `当前可与已发现要素合成 ${useStatus.currentResults} 个新要素；还有 ${useStatus.remainingResults} 个结果未发现。`}
+            {useStatus.kind === "idle" &&
+              `当前没有已发现的搭档能造出新要素；还有 ${useStatus.remainingResults} 个结果未发现。`}
+            {useStatus.kind === "exhausted" &&
+              (useStatus.uses ? "会用到它的配方结果都已发现。" : "没有配方会用到它。")}
+          </p>
           {endgame && (
             <p className="detail-muted">
               它需要一条至少六层深的熔炼链，才会从炉底浮上来。

@@ -5,6 +5,7 @@ import { BASE_IDS, GRANTED_IDS, ROOT_IDS, ENDGAME_IDS } from "../src/data/schema
 import { resolveShapeName } from "../src/art/shapes.js";
 import { createInitialState, fuseElements } from "../src/game/progress.js";
 import { RECIPES_BY_RESULT, findResult } from "../src/game/recipes.js";
+import { buildElementUseStatus } from "../src/game/recipeStatus.js";
 import { drawHint } from "../src/game/hints.js";
 import { CHALLENGES, CHALLENGE_ELEMENTS } from "../src/data/challenges.js";
 import { QUESTS, QUEST_ELEMENTS } from "../src/data/quests.js";
@@ -247,6 +248,27 @@ for (const id of ENDGAME_IDS) {
 }
 if (simulationSteps !== ELEMENTS.length - ROOT_IDS.length) {
   fail(`完整试玩熔炼次数异常：${simulationSteps}`);
+}
+const initialStatus = buildElementUseStatus(createInitialState());
+if (initialStatus.get("life")?.kind !== "unknown") fail("未发现要素不应显示材料用途标记");
+if (initialStatus.get("fire")?.kind !== "active") fail("初始的火应能作为材料造出新要素");
+if (initialStatus.get("water")?.kind !== "active") fail("初始的水应能作为材料造出新要素");
+
+const afterSteam = fuseElements(createInitialState(), "fire", "water").state;
+const afterSteamStatus = buildElementUseStatus(afterSteam);
+if (afterSteamStatus.get("steam")?.kind !== "idle") {
+  fail("蒸汽只有铁这一条用途，铁未发现时应标记为“当前无新结果”");
+}
+if (afterSteamStatus.get("fire")?.kind !== "active") {
+  fail("蒸汽发现后，火仍应能与其他已发现要素造出新要素");
+}
+
+const allKnownStatus = buildElementUseStatus({
+  ...createInitialState(),
+  discovered: ELEMENTS.map((element) => element.id),
+});
+if (![...allKnownStatus.values()].every((status) => status.kind === "exhausted")) {
+  fail("全部要素发现后，所有材料都应标记为“已无新结果”");
 }
 
 // 失败分支与灵光提示的烟雾测试。
@@ -955,6 +977,17 @@ console.log(
 );
 console.log(
   `收藏总览：${completeCollection.badges.length} 枚徽章 · 空存档 ${emptyCollection.stats.overallPercent}% · 全收集 ${completeCollection.stats.overallPercent}%`
+);
+const initialStatusCounts = [...initialStatus.values()].reduce(
+  (counts, status) => ({ ...counts, [status.kind]: (counts[status.kind] || 0) + 1 }),
+  {}
+);
+const allKnownStatusCounts = [...allKnownStatus.values()].reduce(
+  (counts, status) => ({ ...counts, [status.kind]: (counts[status.kind] || 0) + 1 }),
+  {}
+);
+console.log(
+  `材料标记：初始 闲 ${initialStatusCounts.idle || 0} · 尽 ${initialStatusCounts.exhausted || 0}；全收集 闲 ${allKnownStatusCounts.idle || 0} · 尽 ${allKnownStatusCounts.exhausted || 0}`
 );
 if (warnings.length) {
   console.log("\n提醒：");

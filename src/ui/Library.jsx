@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { ELEMENTS } from "../data/elements/index.js";
 import { CATEGORIES, CATEGORY_MAP } from "../data/categories.js";
+import { buildElementUseStatus, countElementUseStatus } from "../game/recipeStatus.js";
 import { Sprite } from "./Sprite.jsx";
 
 function ElementCard({
@@ -10,8 +11,19 @@ function ElementCard({
   onSelect,
   onInfo,
   onUnknown,
+  status,
 }) {
   const category = CATEGORY_MAP[element.category];
+  const statusBadge = status?.label ? (
+    <span
+      className={`element-card__status is-${status.kind}`}
+      title={status.title}
+      aria-label={status.title}
+    >
+      {status.label}
+    </span>
+  ) : null;
+
   if (!discovered) {
     return (
       <button
@@ -19,7 +31,7 @@ function ElementCard({
         className="element-card element-card--unknown"
         style={{ "--cat": category.color }}
         onClick={onUnknown}
-        title="尚未发现"
+        title={status?.title || "尚未发现"}
       >
         <div className="element-card__sprite">
           <Sprite element={element} size={46} silhouette alt="未发现的要素" />
@@ -27,6 +39,7 @@ function ElementCard({
         </div>
         <span className="element-card__name">？？？</span>
         <span className="element-card__cat" style={{ background: category.color }} aria-hidden="true" />
+        {statusBadge}
       </button>
     );
   }
@@ -63,6 +76,7 @@ function ElementCard({
           {selectedIndex === 0 ? "I" : "II"}
         </span>
       )}
+      {statusBadge}
     </div>
   );
 }
@@ -82,6 +96,8 @@ export function Library({
   searchRef,
 }) {
   const discoveredSet = useMemo(() => new Set(state.discovered), [state.discovered]);
+  const useStatus = useMemo(() => buildElementUseStatus(state), [state]);
+  const statusCounts = useMemo(() => countElementUseStatus(useStatus), [useStatus]);
   const orderIndex = useMemo(() => {
     const map = new Map();
     state.order.forEach((id, index) => map.set(id, index));
@@ -204,6 +220,13 @@ export function Library({
         })}
       </div>
 
+      <div className="library-status-legend">
+        <span className="library-status-legend__title">材料标记</span>
+        <span title="当前没有已发现的搭档能造出新要素"><i data-kind="idle">闲</i>当前无新结果 {statusCounts.idle}</span>
+        <span title="会用到它的配方结果都已发现"><i data-kind="exhausted">尽</i>已无新结果 {statusCounts.exhausted}</span>
+        <span className="library-status-legend__note">只统计已发现的要素。</span>
+      </div>
+
       <div className="library-grid-wrap">
         {visible.length > 0 ? (
           <div className="element-grid">
@@ -218,6 +241,7 @@ export function Library({
                   onSelect={onSelect}
                   onInfo={onInfo}
                   onUnknown={onUnknown}
+                  status={useStatus.get(element.id)}
                 />
               );
             })}
