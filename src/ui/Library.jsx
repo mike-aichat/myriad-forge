@@ -122,9 +122,11 @@ export function Library({
 }) {
   const discoveredSet = useMemo(() => new Set(state.discovered), [state.discovered]);
   const [markFilter, setMarkFilter] = useState("all");
+  const [markInvert, setMarkInvert] = useState(false);
   useEffect(() => {
     if (!selected.length && (markFilter === "crafted" || markFilter === "failed")) {
       setMarkFilter("all");
+      setMarkInvert(false);
     }
   }, [selected.length, markFilter]);
   const useStatus = useMemo(() => buildElementUseStatus(state), [state]);
@@ -165,20 +167,36 @@ export function Library({
     return map;
   }, [discoveredSet]);
 
+  const clearMarkFilter = () => {
+    setMarkFilter("all");
+    setMarkInvert(false);
+  };
+
+  const toggleMarkFilter = (value) => {
+    if (markFilter === value) {
+      clearMarkFilter();
+      return;
+    }
+    setMarkFilter(value);
+  };
+
   const visible = useMemo(() => {
     const needle = query.trim().toLowerCase();
     const matchesMark = (element) => {
       if (markFilter === "all") return true;
       if (!discoveredSet.has(element.id)) return false;
+      let hasMark = false;
       if (markFilter === "idle" || markFilter === "exhausted") {
-        return useStatus.get(element.id)?.kind === markFilter;
+        hasMark = useStatus.get(element.id)?.kind === markFilter;
+      } else {
+        const entry = pairHistory.get(element.id);
+        if (markFilter === "crafted") {
+          hasMark = Boolean(entry?.crafted.length);
+        } else if (markFilter === "failed") {
+          hasMark = Boolean(entry?.failed.length) && !entry?.crafted.length;
+        }
       }
-      const entry = pairHistory.get(element.id);
-      if (markFilter === "crafted") return Boolean(entry?.crafted.length);
-      if (markFilter === "failed") {
-        return Boolean(entry?.failed.length) && !entry?.crafted.length;
-      }
-      return true;
+      return markInvert ? !hasMark : hasMark;
     };
     const list = ELEMENTS.filter((element) => {
       if (category !== "all" && element.category !== category) return false;
@@ -201,7 +219,7 @@ export function Library({
       }
       return ELEMENTS.indexOf(a) - ELEMENTS.indexOf(b);
     });
-  }, [category, query, discoveredSet, markFilter, orderIndex, pairHistory, showUnknown, useStatus]);
+  }, [category, query, discoveredSet, markFilter, markInvert, orderIndex, pairHistory, showUnknown, useStatus]);
 
   const foundInCategory =
     category === "all"
@@ -286,13 +304,13 @@ export function Library({
         className="library-status-legend"
         role="group"
         aria-label="按图鉴标记筛选"
-        title="点击标记筛选要素"
+        title="点击标记筛选；反选可排除该标记"
       >
         <span className="library-status-legend__title">图鉴标记</span>
         <button
           type="button"
           className={`library-status-legend__filter ${markFilter === "all" ? "is-active" : ""}`}
-          onClick={() => setMarkFilter("all")}
+          onClick={clearMarkFilter}
           aria-pressed={markFilter === "all"}
           title="显示所有要素"
         >
@@ -300,9 +318,25 @@ export function Library({
         </button>
         <button
           type="button"
+          className={`library-status-legend__filter library-status-legend__invert ${markInvert ? "is-active" : ""}`}
+          onClick={() => setMarkInvert((value) => !value)}
+          aria-pressed={markInvert}
+          disabled={markFilter === "all"}
+          title={
+            markFilter === "all"
+              ? "先选一个标记，再打开反选"
+              : markInvert
+                ? "关闭反选"
+                : "反选：排除选中的标记"
+          }
+        >
+          反选
+        </button>
+        <button
+          type="button"
           className={`library-status-legend__filter ${markFilter === "idle" ? "is-active" : ""}`}
           data-kind="idle"
-          onClick={() => setMarkFilter((current) => (current === "idle" ? "all" : "idle"))}
+          onClick={() => toggleMarkFilter("idle")}
           aria-pressed={markFilter === "idle"}
           title="只看当前无法造出新要素的材料"
         >
@@ -312,7 +346,7 @@ export function Library({
           type="button"
           className={`library-status-legend__filter ${markFilter === "exhausted" ? "is-active" : ""}`}
           data-kind="exhausted"
-          onClick={() => setMarkFilter((current) => (current === "exhausted" ? "all" : "exhausted"))}
+          onClick={() => toggleMarkFilter("exhausted")}
           aria-pressed={markFilter === "exhausted"}
           title="只看配方结果都已发现的材料"
         >
@@ -324,7 +358,7 @@ export function Library({
               type="button"
               className={`library-status-legend__filter library-status-legend__pair ${markFilter === "crafted" ? "is-active" : ""}`}
               data-kind="crafted"
-              onClick={() => setMarkFilter((current) => (current === "crafted" ? "all" : "crafted"))}
+              onClick={() => toggleMarkFilter("crafted")}
               aria-pressed={markFilter === "crafted"}
               title="只看与所选要素成功熔过的搭档"
             >
@@ -335,7 +369,7 @@ export function Library({
               type="button"
               className={`library-status-legend__filter library-status-legend__pair is-failed ${markFilter === "failed" ? "is-active" : ""}`}
               data-kind="failed"
-              onClick={() => setMarkFilter((current) => (current === "failed" ? "all" : "failed"))}
+              onClick={() => toggleMarkFilter("failed")}
               aria-pressed={markFilter === "failed"}
               title="只看与所选要素试过但没有结果的搭档"
             >
@@ -346,7 +380,9 @@ export function Library({
         )}
         <span className="library-status-legend__note">
           {markFilter !== "all"
-            ? `已筛选 · ${visible.length} 个`
+            ? markInvert
+              ? `反向筛选 · 剩余 ${visible.length} 个`
+              : `已筛选 · ${visible.length} 个`
             : selected.length
               ? "试过的组合已标出，结果不会变。"
               : "选中一项后，会标出已经试过的搭档。"}
@@ -381,7 +417,7 @@ export function Library({
               {query
                 ? "没有找到这样的要素。换一个词，或者先去熔炉里碰碰运气。"
                 : markFilter !== "all"
-                  ? "这一标记下没有要素。清掉标记，或换个类型。"
+                  ? "当前筛选下没有要素。清掉标记，或换个类型。"
                   : "这一格还是空的。"}
             </p>
           </div>
