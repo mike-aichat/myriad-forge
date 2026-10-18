@@ -8,7 +8,7 @@ import { buildPairHistoryMap, inferCraftedPairs, normalizeCraftedPairs, normaliz
 import { ELEMENT_LEVEL, RECIPES_BY_RESULT, findResult, pairKey } from "../src/game/recipes.js";
 import { buildElementUseStatus } from "../src/game/recipeStatus.js";
 import { pickInspirationPair } from "../src/game/hints.js";
-import { buildTreeLayout } from "../src/tree/layout.js";
+import { buildTreeLayout, TREE_MAX_PER_ROW } from "../src/tree/layout.js";
 import { CHALLENGES, CHALLENGE_ELEMENTS } from "../src/data/challenges.js";
 import { QUESTS, QUEST_ELEMENTS } from "../src/data/quests.js";
 import {
@@ -483,6 +483,22 @@ const expectedTreeEdges = ELEMENTS.reduce((total, element) => {
   return total + recipes.length * 2;
 }, 0);
 if (fullTree.edges.length !== expectedTreeEdges) fail("完整谱系没有画出全部配方来源线");
+const totalLevelCount = fullTree.levels.reduce((sum, level) => sum + level.count, 0);
+if (totalLevelCount !== ELEMENTS.length) fail("谱系等级没有覆盖全部要素");
+const totalLevelRows = fullTree.levels.reduce((sum, level) => sum + level.rowCount, 0);
+if (totalLevelRows !== fullTree.rows.length) fail("谱系子行数量与等级行数不一致");
+for (const levelInfo of fullTree.levels) {
+  const expectedRows = Math.ceil(levelInfo.count / TREE_MAX_PER_ROW);
+  if (levelInfo.rowCount !== expectedRows) {
+    fail(`谱系等级 ${levelInfo.level} 的分行数量不正确`);
+  }
+  if (levelInfo.rowCount > 3) fail(`谱系等级 ${levelInfo.level} 超过 3 行`);
+}
+if (fullTree.rows.some((row) => row.count > TREE_MAX_PER_ROW)) fail("谱系单行超过上限");
+const widestLevel = fullTree.levels.reduce(
+  (widest, level) => (level.count > widest.count ? level : widest)
+);
+if (widestLevel.rowCount < 2) fail("最宽等级没有拆成多行");
 const treeNodeById = new Map(fullTree.nodes.map((node) => [node.element.id, node]));
 for (const edge of fullTree.edges) {
   const parent = treeNodeById.get(edge.parentId);

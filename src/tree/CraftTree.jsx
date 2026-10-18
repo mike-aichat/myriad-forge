@@ -13,7 +13,7 @@ function clampScale(value) {
   return Math.min(MAX_SCALE, Math.max(MIN_SCALE, value));
 }
 
-const TreeCanvas = React.memo(function TreeCanvas({ layout }) {
+const TreeCanvas = React.memo(function TreeCanvas({ layout, selectedId, relation, onNodeSelect }) {
   return (
     <>
       <svg
@@ -24,38 +24,62 @@ const TreeCanvas = React.memo(function TreeCanvas({ layout }) {
       >
         {layout.edges.map((edge) => {
           const midY = (edge.y1 + edge.y2) / 2;
+          const edgeState = !relation
+            ? ""
+            : relation.incomingEdges.has(edge.id)
+              ? "is-incoming"
+              : relation.outgoingEdges.has(edge.id)
+                ? "is-outgoing"
+                : "is-dimmed";
           return (
             <path
               key={edge.id}
+              className={edgeState}
               d={`M ${edge.x1} ${edge.y1} C ${edge.x1} ${midY}, ${edge.x2} ${midY}, ${edge.x2} ${edge.y2}`}
             />
           );
         })}
       </svg>
 
-      {layout.rows.map((row) => (
-        <React.Fragment key={row.level}>
+      {layout.levels.map((levelInfo) => (
+        <React.Fragment key={levelInfo.level}>
           <div
-            className={`tree-band ${row.level % 2 ? "is-alt" : ""}`}
-            style={{ top: row.y - 18, width: layout.stageWidth, height: TREE_NODE_HEIGHT + 38 }}
+            className={`tree-band ${levelInfo.level % 2 ? "is-alt" : ""}`}
+            style={{
+              top: levelInfo.y - 10,
+              width: layout.stageWidth,
+              height: levelInfo.height + 20,
+            }}
             aria-hidden="true"
           />
           <span
             className="tree-level-label"
-            style={{ top: row.y + TREE_NODE_HEIGHT / 2 - 6, left: row.offsetX - 62 }}
+            style={{ top: levelInfo.y - 20, left: levelInfo.labelX }}
           >
-            Lv{row.level}
-            <b>{row.count}</b>
+            Lv{levelInfo.level}
+            <b>{levelInfo.count}</b>
           </span>
         </React.Fragment>
       ))}
 
       {layout.nodes.map((node) => {
         const category = CATEGORY_MAP[node.element.category];
+        const isSelected = node.element.id === selectedId;
+        const isParent = relation?.parentIds.has(node.element.id) ?? false;
+        const isChild = relation?.childIds.has(node.element.id) ?? false;
+        const stateClass = !relation
+          ? ""
+          : isSelected
+            ? "is-selected"
+            : isParent
+              ? "is-parent"
+              : isChild
+                ? "is-child"
+                : "is-dimmed";
         return (
           <div
             key={node.element.id}
-            className={`tree-node ${node.discovered ? "is-found" : "is-unknown"}`}
+            className={`tree-node ${node.discovered ? "is-found" : "is-unknown"} ${stateClass}`}
             style={{
               left: node.x,
               top: node.y,
@@ -68,6 +92,21 @@ const TreeCanvas = React.memo(function TreeCanvas({ layout }) {
                 ? `${node.element.name} · Lv${node.level}`
                 : `未发现 · Lv${node.level}`
             }
+            data-element-id={node.discovered ? node.element.id : undefined}
+            onKeyDown={
+              node.discovered
+                ? (event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      onNodeSelect(event, node);
+                    }
+                  }
+                : undefined
+            }
+            role={node.discovered ? "button" : undefined}
+            tabIndex={node.discovered ? 0 : undefined}
+            aria-pressed={node.discovered ? isSelected : undefined}
+            aria-label={node.discovered ? `${node.element.name}，Lv${node.level}` : undefined}
           >
             <div className="tree-node__sprite">
               <Sprite
@@ -92,10 +131,38 @@ export function CraftTree({ state, onExit }) {
   const [view, setView] = useState({ x: 0, y: 0, scale: 1 });
   const viewRef = useRef(view);
   const dragRef = useRef(null);
+  const movedRef = useRef(false);
   const [dragging, setDragging] = useState(false);
   const [focusLevel, setFocusLevel] = useState("");
+  const [selectedId, setSelectedId] = useState(null);
 
   const layout = useMemo(() => buildTreeLayout(state.discovered), [state.discovered]);
+
+  const selectedNode = useMemo(
+    () => layout.nodes.find((node) => node.element.id === selectedId) || null,
+    [layout, selectedId]
+  );
+
+  const relation = useMemo(() => {
+    if (!selectedId) return null;
+    const node = layout.nodes.find((item) => item.element.id === selectedId);
+    if (!node || !node.discovered) return null;
+    const parentIds = new Set();
+    const childIds = new Set();
+    const incomingEdges = new Set();
+    const outgoingEdges = new Set();
+    for (const edge of layout.edges) {
+      if (edge.resultId === selectedId) {
+        parentIds.add(edge.parentId);
+        incomingEdges.add(edge.id);
+      }
+      if (edge.parentId === selectedId) {
+        childIds.add(edge.resultId);
+        outgoingEdges.add(edge.id);
+      }
+    }
+    return { parentIds, childIds, incomingEdges, outgoingEdges };
+  }, [layout, selectedId]);
 
   const updateView = useCallback((next) => {
     viewRef.current = next;
@@ -161,11 +228,16 @@ export function CraftTree({ state, onExit }) {
 
   useEffect(() => {
     const onKeyDown = (event) => {
-      if (event.key === "Escape") onExit();
+      if (event.key !== "Escape") return;
+      if (selectedId) {
+        setSelectedId(null);
+        return;
+      }
+      onExit();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [onExit]);
+  }, [onExit, selectedId]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
@@ -193,12 +265,12 @@ export function CraftTree({ state, onExit }) {
 
   const jumpToLevel = (level) => {
     const viewport = viewportRef.current;
-    const row = layout.rows.find((item) => item.level === level);
-    if (!viewport || !row) return;
+    const levelInfo = layout.levels.find((item) => item.level === level);
+    if (!viewport || !levelInfo) return;
     const scale = clampScale(LEVEL_FOCUS_SCALE);
     updateView({
       x: (viewport.clientWidth - layout.stageWidth * scale) / 2,
-      y: viewport.clientHeight / 2 - (row.y + TREE_NODE_HEIGHT / 2) * scale,
+      y: viewport.clientHeight / 2 - (levelInfo.y + levelInfo.height / 2) * scale,
       scale,
     });
     setFocusLevel(String(level));
@@ -207,12 +279,15 @@ export function CraftTree({ state, onExit }) {
   const handlePointerDown = (event) => {
     if (event.button !== 0) return;
     event.currentTarget.setPointerCapture(event.pointerId);
+    movedRef.current = false;
+    const nodeElement = event.target.closest?.(".tree-node");
     dragRef.current = {
       pointerId: event.pointerId,
       startX: event.clientX,
       startY: event.clientY,
       originX: viewRef.current.x,
       originY: viewRef.current.y,
+      nodeId: nodeElement?.dataset.elementId || null,
     };
     setDragging(true);
     setFocusLevel("");
@@ -221,6 +296,12 @@ export function CraftTree({ state, onExit }) {
   const handlePointerMove = (event) => {
     const drag = dragRef.current;
     if (!drag || drag.pointerId !== event.pointerId) return;
+    if (
+      Math.abs(event.clientX - drag.startX) > 4 ||
+      Math.abs(event.clientY - drag.startY) > 4
+    ) {
+      movedRef.current = true;
+    }
     updateView({
       ...viewRef.current,
       x: drag.originX + event.clientX - drag.startX,
@@ -228,11 +309,29 @@ export function CraftTree({ state, onExit }) {
     });
   };
 
-  const endDrag = (event) => {
+  const cancelDrag = (event) => {
     if (dragRef.current && dragRef.current.pointerId !== event.pointerId) return;
     dragRef.current = null;
     setDragging(false);
   };
+
+  const endDrag = (event) => {
+    const drag = dragRef.current;
+    if (drag && drag.pointerId !== event.pointerId) return;
+    dragRef.current = null;
+    setDragging(false);
+    if (!drag || movedRef.current) return;
+    if (drag.nodeId) {
+      setSelectedId((current) => (current === drag.nodeId ? null : drag.nodeId));
+    } else {
+      setSelectedId(null);
+    }
+  };
+
+  const handleNodeSelect = useCallback((event, node) => {
+    event.stopPropagation();
+    setSelectedId((current) => (current === node.element.id ? null : node.element.id));
+  }, []);
 
   const discoveredCount = layout.nodes.filter((node) => node.discovered).length;
   const zoomPercent = Math.round(view.scale * 100);
@@ -289,15 +388,20 @@ export function CraftTree({ state, onExit }) {
             }}
           >
             <option value="">选择</option>
-            {layout.rows.map((row) => (
-              <option key={row.level} value={row.level}>
-                Lv{row.level} · {row.count} 个
+            {layout.levels.map((levelInfo) => (
+              <option key={levelInfo.level} value={levelInfo.level}>
+                Lv{levelInfo.level} · {levelInfo.count} 个
+                {levelInfo.rowCount > 1 ? ` · ${levelInfo.rowCount} 行` : ""}
               </option>
             ))}
           </select>
         </label>
 
-        <p className="tree-hint">滚轮缩放 · 拖动画布 · 未发现要素没有来源线</p>
+        <p className={`tree-hint ${selectedNode ? "is-selected" : ""}`}>
+          {selectedNode
+            ? `已选「${selectedNode.element.name}」· Lv${selectedNode.level} · 绿线来源 / 金线产物 · 再点取消`
+            : "滚轮缩放 · 拖动画布 · 点已发现要素查看来源"}
+        </p>
       </div>
 
       <div
@@ -306,17 +410,22 @@ export function CraftTree({ state, onExit }) {
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={endDrag}
-        onPointerCancel={endDrag}
+        onPointerCancel={cancelDrag}
       >
         <div
-          className="tree-stage"
+          className={`tree-stage ${relation ? "has-selection" : ""}`}
           style={{
             width: layout.stageWidth,
             height: layout.stageHeight,
             transform: `translate3d(${view.x}px, ${view.y}px, 0) scale(${view.scale})`,
           }}
         >
-          <TreeCanvas layout={layout} />
+          <TreeCanvas
+            layout={layout}
+            selectedId={selectedId}
+            relation={relation}
+            onNodeSelect={handleNodeSelect}
+          />
         </div>
       </div>
     </div>

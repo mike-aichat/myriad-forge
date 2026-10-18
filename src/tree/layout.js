@@ -3,10 +3,11 @@ import { ELEMENT_LEVEL, getResultRecipes } from "../game/recipes.js";
 
 export const TREE_NODE_WIDTH = 92;
 export const TREE_NODE_HEIGHT = 58;
+export const TREE_MAX_PER_ROW = 20;
 
 const GAP_X = 18;
-const ROW_GAP = 52;
-const ROW_HEIGHT = TREE_NODE_HEIGHT + ROW_GAP;
+const SUBROW_GAP = 18;
+const LEVEL_GAP = 40;
 const PAD_X = 92;
 const PAD_TOP = 48;
 const PAD_BOTTOM = 30;
@@ -24,6 +25,19 @@ function parentCenters(resultId, positions) {
     }
   }
   return centers;
+}
+
+function splitRows(items, rowCount) {
+  const base = Math.floor(items.length / rowCount);
+  const extra = items.length % rowCount;
+  const rows = [];
+  let cursor = 0;
+  for (let rowIndex = 0; rowIndex < rowCount; rowIndex += 1) {
+    const size = base + (rowIndex < extra ? 1 : 0);
+    rows.push(items.slice(cursor, cursor + size));
+    cursor += size;
+  }
+  return rows;
 }
 
 export function buildTreeLayout(discovered) {
@@ -46,19 +60,34 @@ export function buildTreeLayout(discovered) {
   for (let level = 0; level <= maxLevel; level += 1) {
     counts[level] = (groups.get(level) || []).length;
   }
-  const widest = Math.max(1, ...counts);
-  const stageWidth = PAD_X * 2 + widest * (TREE_NODE_WIDTH + GAP_X) - GAP_X;
-  const stageHeight = PAD_TOP + (maxLevel + 1) * ROW_HEIGHT + PAD_BOTTOM;
+  const columns = Math.min(TREE_MAX_PER_ROW, Math.max(1, ...counts));
+  const stageWidth = PAD_X * 2 + columns * (TREE_NODE_WIDTH + GAP_X) - GAP_X;
+
+  const levels = [];
+  let cursorY = PAD_TOP;
+  for (let level = 0; level <= maxLevel; level += 1) {
+    const items = groups.get(level) || [];
+    const rowCount = Math.max(1, Math.ceil(items.length / TREE_MAX_PER_ROW));
+    const height = rowCount * TREE_NODE_HEIGHT + (rowCount - 1) * SUBROW_GAP;
+    levels.push({
+      level,
+      items,
+      count: items.length,
+      rowCount,
+      y: cursorY,
+      height,
+      labelX: stageWidth / 2,
+    });
+    cursorY += height + LEVEL_GAP;
+  }
+  const stageHeight = cursorY - LEVEL_GAP + PAD_BOTTOM;
 
   const positions = new Map();
   const nodes = [];
   const rows = [];
 
-  for (let level = 0; level <= maxLevel; level += 1) {
-    const items = groups.get(level) || [];
-    const rowWidth = items.length * (TREE_NODE_WIDTH + GAP_X) - GAP_X;
-    const offsetX = (stageWidth - rowWidth) / 2;
-    const y = PAD_TOP + level * ROW_HEIGHT;
+  for (const levelInfo of levels) {
+    const { level, items, rowCount, y } = levelInfo;
 
     items.sort((a, b) => {
       if (level === 0) return a.index - b.index;
@@ -72,24 +101,32 @@ export function buildTreeLayout(discovered) {
       return a.index - b.index;
     });
 
-    items.forEach((item, index) => {
-      const x = offsetX + index * (TREE_NODE_WIDTH + GAP_X);
-      const node = {
-        ...item,
-        x,
-        y,
-        centerX: x + TREE_NODE_WIDTH / 2,
-      };
-      positions.set(item.element.id, node);
-      nodes.push(node);
-    });
+    const chunks = splitRows(items, rowCount);
+    chunks.forEach((chunk, rowIndex) => {
+      const rowWidth = chunk.length * (TREE_NODE_WIDTH + GAP_X) - GAP_X;
+      const offsetX = (stageWidth - rowWidth) / 2;
+      const rowY = y + rowIndex * (TREE_NODE_HEIGHT + SUBROW_GAP);
 
-    rows.push({
-      level,
-      y,
-      offsetX,
-      width: rowWidth,
-      count: items.length,
+      chunk.forEach((item, index) => {
+        const x = offsetX + index * (TREE_NODE_WIDTH + GAP_X);
+        const node = {
+          ...item,
+          x,
+          y: rowY,
+          centerX: x + TREE_NODE_WIDTH / 2,
+        };
+        positions.set(item.element.id, node);
+        nodes.push(node);
+      });
+
+      rows.push({
+        level,
+        rowIndex,
+        y: rowY,
+        offsetX,
+        width: rowWidth,
+        count: chunk.length,
+      });
     });
   }
 
@@ -116,5 +153,5 @@ export function buildTreeLayout(discovered) {
     }
   }
 
-  return { stageWidth, stageHeight, nodes, rows, edges, maxLevel };
+  return { stageWidth, stageHeight, nodes, rows, levels, edges, maxLevel };
 }

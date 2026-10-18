@@ -151,6 +151,10 @@
   white-space: nowrap;
 }
 
+.tree-hint.is-selected {
+  color: var(--brass-hi);
+}
+
 .tree-viewport {
   position: relative;
   flex: 1;
@@ -209,6 +213,21 @@
   stroke: rgba(121, 174, 158, 0.24);
   stroke-width: 1;
   vector-effect: non-scaling-stroke;
+  transition: opacity 160ms ease, stroke 160ms ease, stroke-width 160ms ease;
+}
+
+.tree-edges path.is-incoming {
+  stroke: rgba(108, 184, 163, 0.96);
+  stroke-width: 1.8;
+}
+
+.tree-edges path.is-outgoing {
+  stroke: rgba(240, 202, 131, 0.94);
+  stroke-width: 1.8;
+}
+
+.tree-edges path.is-dimmed {
+  opacity: 0.07;
 }
 
 .tree-band {
@@ -225,18 +244,24 @@
 
 .tree-level-label {
   position: absolute;
-  width: 54px;
-  text-align: right;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border: 1px solid var(--line);
+  background: rgba(5, 16, 19, 0.86);
+  transform: translateX(-50%);
   font-family: var(--font-pixel);
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1;
   letter-spacing: 0.02em;
-  color: var(--muted-2);
+  color: var(--parchment-dim);
   pointer-events: none;
+  white-space: nowrap;
 }
 
 .tree-level-label b {
-  margin-left: 4px;
   font-size: 10px;
   font-weight: 400;
   color: var(--brass-dim);
@@ -253,7 +278,16 @@
   border: 1px solid var(--line-soft);
   background: linear-gradient(180deg, rgba(18, 40, 45, 0.92), rgba(7, 20, 24, 0.95));
   clip-path: polygon(0 5px, 5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%);
-  transition: border-color 140ms ease, background 140ms ease, box-shadow 140ms ease;
+  transition: opacity 160ms ease, border-color 140ms ease, background 140ms ease, box-shadow 140ms ease;
+}
+
+.tree-node[role="button"] {
+  cursor: pointer;
+}
+
+.tree-node[role="button"]:focus-visible {
+  outline: 1px solid var(--brass-hi);
+  outline-offset: 2px;
 }
 
 .tree-node.is-found {
@@ -281,6 +315,33 @@
   border-color: var(--brass);
   background: linear-gradient(180deg, rgba(33, 61, 64, 0.96), rgba(9, 25, 29, 0.98));
   box-shadow: 0 0 18px rgba(213, 160, 91, 0.12);
+}
+
+.tree-node.is-parent {
+  border-color: var(--verdigris);
+  box-shadow: 0 0 16px rgba(108, 184, 163, 0.2);
+}
+
+.tree-node.is-child {
+  border-color: var(--brass-hi);
+  box-shadow: 0 0 16px rgba(240, 202, 131, 0.18);
+}
+
+.tree-node.is-selected {
+  z-index: 4;
+  border-color: var(--brass-hi);
+  background: linear-gradient(180deg, rgba(48, 68, 61, 0.98), rgba(15, 34, 34, 0.98));
+  box-shadow:
+    0 0 0 1px var(--brass-hi),
+    0 0 26px rgba(240, 202, 131, 0.3);
+}
+
+.tree-node.is-dimmed {
+  opacity: 0.14;
+}
+
+.tree-node.is-unknown.is-dimmed {
+  opacity: 0.08;
 }
 
 .tree-node__sprite {
