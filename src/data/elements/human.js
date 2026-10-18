@@ -3,7 +3,7 @@ import { make } from "./_helpers.js";
 const e = make("human");
 
 export default [
-  e("human", "人", ["beast", "wisdom"], "野兽第一次抬头看星星，忽然想问为什么。", "human", "human"),
+  e("human", "人", [["beast", "wisdom"], ["beast", "tool"]], "野兽第一次抬头看星星，忽然想问为什么。", "human", "human"),
   e("language", "语言", ["human", "air"], "空气被人类修剪出形状，从此能搬运想法。", "rune", "language", "wave"),
   e("symbol", "符号", ["smoke", "fire"], "火和烟的即兴涂鸦，后来被当成了约定。", "rune", "symbol", "lines"),
   e("writing", "文字", ["symbol", "clay"], "符号在黏土上定居，学会了不依赖说话人。", "scroll", "writing", "lines"),
@@ -11,7 +11,7 @@ export default [
   e("music", "音乐", ["human", "sound"], "声音排好队，走进人的骨头里。", "bell", "music", "note"),
   e("dance", "舞蹈", ["music", "human"], "身体代替语言，说了一些更旧的话。", "human", "dance", "ribbon"),
   e("story", "故事", ["writing", "language"], "文字和语言生下的孩子，专门在夜里长大。", "book", "story", "spark"),
-  e("book", "书", ["writing", "paper"], "一片被折叠起来的时间，翻页时发出干草声。", "book", "book"),
+  e("book", "书", [["writing", "paper"], ["paper", "ink"]], "一片被折叠起来的时间，翻页时发出干草声。", "book", "book"),
   e("knowledge", "知识", ["book", "light"], "前人把火交给你，还附了一张不太清楚的地图。", "book", "knowledge", "halo"),
   e("logic", "逻辑", ["wisdom", "writing"], "思想学会走路之后，开始嫌弃自己的影子。", "gear", "logic"),
   e("philosophy", "哲学", ["wisdom", "book"], "一个问题生下的另一个问题，靠怀疑喂养。", "book", "philosophy", "ring"),
@@ -22,7 +22,7 @@ export default [
   e("crown", "王冠", ["gold", "gem"], "一块金子被众人注视太久，长出了尖角。", "crown", "crown"),
   e("king", "国王", ["human", "crown"], "一个人坐在众人目光搭成的椅子上。", "human", "king", "crown"),
   e("village", "村庄", ["house", "fire"], "火堆旁聚起几间屋，故事开始有了听众。", "building", "village", "smoke"),
-  e("city", "城市", ["house", "human"], "房屋越挤越近，人却越来越难认识邻居。", "building", "city", "lights"),
+  e("city", "城市", [["house", "human"], ["village", "human"]], "房屋越挤越近，人却越来越难认识邻居。", "building", "city", "lights"),
   e("house", "房屋", ["brick", "earth"], "砖和土商量出的一个可以关门的洞。", "house", "house"),
   e("empire", "帝国", ["city", "crown"], "城市穿上了王冠，开始觉得自己没有边界。", "tower", "empire", "flags"),
   e("war", "战争", ["human", "sword"], "人类把工具的用途想得太远了一步。", "sword", "war", "flame"),

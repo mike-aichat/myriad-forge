@@ -17,7 +17,7 @@ export default [
   e("silver", "银", ["iron", "moon"], "月亮的碎屑。据说碰一下就能听见远处的水声。", "ingot", "silver"),
   e("gem", "宝石", ["stone", "light"], "石头把光关在里面，收门票。", "gem", "gem"),
   e("crystal", "水晶", ["ice", "stone"], "冰和石头互相看久了，长出了同一种脾气。", "crystal", "crystal"),
-  e("glass", "玻璃", ["sand", "fire"], "沙在火里忘了自己是谁，变得透明。", "gem", "glass"),
+  e("glass", "玻璃", [["sand", "fire"], ["sand", "lava"]], "沙在火里忘了自己是谁，变得透明。", "gem", "glass"),
   e("pottery", "陶器", ["clay", "fire"], "黏土在火里住了一晚，出来时有了骨架。", "pot", "clay", "lines"),
   e("brick", "砖", ["clay", "air"], "城市的最小单位，来自一块被吹干的泥。", "brick", "brick"),
   e("lime", "石灰", ["ash", "stone"], "石头把自己烧成白粉，好去粘住别的东西。", "rock", "lime"),

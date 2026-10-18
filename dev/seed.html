@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dev seed</title>
+  </head>
+  <body>
+    <p>Seeding…</p>
+    <script type="module">
+      import { ELEMENTS } from "../src/data/elements/index.js";
+      import { CHAPTERS } from "../src/data/chapters.js";
+
+      const params = new URLSearchParams(location.search);
+      const preset = params.get("p") || "chapter0";
+      const base = {
+        version: 1,
+        discovered: ["fire", "water", "earth", "air"],
+        order: ["air", "earth", "water", "fire"],
+        completedChapters: [],
+        insight: 3,
+        fusions: 0,
+        successes: 0,
+        failures: 0,
+        consecutiveFailures: 0,
+        hintsUsed: 0,
+        introSeen: true,
+        endingSeen: false,
+        sound: false,
+      };
+
+      const add = (state, ids) => {
+        const discovered = [...new Set([...state.discovered, ...ids])];
+        const order = ids.filter((id) => !state.order.includes(id)).reduce((list, id) => [...list, id], state.order);
+        return { ...state, discovered, order };
+      };
+
+      let state = { ...base };
+      if (preset === "chapter0") {
+        state = add(state, ["steam", "smoke"]);
+      } else if (preset === "chapter1") {
+        state = {
+          ...base,
+          completedChapters: [CHAPTERS[0].id],
+          discovered: ["fire", "water", "earth", "air", "light", "steam", "smoke", "mud", "stone", "ice"],
+          order: ["fire", "water", "earth", "air", "light", "steam", "smoke", "mud", "stone", "ice"],
+          insight: 5,
+          fusions: 18,
+          successes: 9,
+          failures: 9,
+        };
+      } else if (preset === "ending") {
+        const allButLast = ELEMENTS.filter((element) => element.id !== "allinone").map((element) => element.id);
+        state = {
+          ...base,
+          discovered: allButLast,
+          order: allButLast,
+          completedChapters: CHAPTERS.slice(0, -1).map((chapter) => chapter.id),
+          insight: 9,
+          fusions: 420,
+          successes: 260,
+          failures: 160,
+          endingSeen: true,
+        };
+      } else if (preset === "fresh") {
+        state = { ...base, introSeen: false };
+      }
+
+      window.localStorage.setItem("myriad-forge.save.v1", JSON.stringify(state));
+      location.replace("/");
+    </script>
+  </body>
+</html>
