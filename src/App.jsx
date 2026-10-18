@@ -17,6 +17,7 @@ import { Library } from "./ui/Library.jsx";
 import { TopBar } from "./ui/TopBar.jsx";
 import { ChapterOverlay, DiscoveryOverlay, EndingOverlay, IntroOverlay, Toast } from "./ui/Overlays.jsx";
 import { ElementDetailModal, HelpModal, HintsModal, StoryModal } from "./ui/Modals.jsx";
+import { ChallengeMode } from "./challenge/ChallengeMode.jsx";
 
 const BOREDOM_LINES = [
   "它们互相看了一眼，决定不熟。",
@@ -36,6 +37,7 @@ function failureLine(a, b) {
 }
 
 export default function App() {
+  const [mode, setMode] = useState("main");
   const [game, setGame] = useState(() => loadState());
   const [selected, setSelected] = useState([]);
   const [overlayQueue, setOverlayQueue] = useState([]);
@@ -72,10 +74,10 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (selected.length === 2 && !locked && !isFusing) {
+    if (mode === "main" && selected.length === 2 && !locked && !isFusing) {
       fuseButtonRef.current?.focus();
     }
-  }, [selected.length, locked, isFusing]);
+  }, [mode, selected.length, locked, isFusing]);
 
   useEffect(() => {
     saveState(game);
@@ -107,6 +109,7 @@ export default function App() {
 
   useEffect(() => {
     const onKeyDown = (event) => {
+      if (mode !== "main") return;
       const tag = event.target?.tagName;
       const typing = ["INPUT", "TEXTAREA", "SELECT"].includes(tag) || event.target?.isContentEditable;
       if (typing) return;
@@ -362,11 +365,33 @@ export default function App() {
     setPanel({ type: "element", element });
   };
 
+  const enterChallenges = () => {
+    audio.click();
+    setPanel(null);
+    setOverlayQueue([]);
+    setToast(null);
+    setMode("challenges");
+  };
+
+  const exitChallenges = () => {
+    audio.click();
+    setMode("main");
+  };
+
   return (
     <div className="app-shell">
       <Skyfield reducedMotion={reducedMotion} />
       <div className="ambient-grain" aria-hidden="true" />
 
+      {mode === "challenges" ? (
+        <ChallengeMode
+          onExit={exitChallenges}
+          sound={game.sound}
+          onToggleSound={toggleSound}
+          reducedMotion={reducedMotion}
+        />
+      ) : (
+        <>
       <TopBar
         stats={stats}
         chapter={chapter}
@@ -376,6 +401,7 @@ export default function App() {
         onHints={openHints}
         onToggleSound={toggleSound}
         onHelp={openHelp}
+        onChallenges={enterChallenges}
       />
 
       <main className="game-layout">
@@ -463,6 +489,8 @@ export default function App() {
       {!game.introSeen && <IntroOverlay onStart={startGame} />}
 
       <Toast toast={toast} />
+        </>
+      )}
     </div>
   );
 }

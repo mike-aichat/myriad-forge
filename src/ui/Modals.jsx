@@ -436,6 +436,9 @@ export function HelpModal({ state, sound, onToggleSound, onClose, onReset }) {
           {stats.total} 个要素、{stats.chapters} / {stats.totalChapters} 页手记已经写下。
           所有要素图案都由项目内的像素绘制代码生成，没有外部美术素材。音效由 Web Audio 实时合成。
         </p>
+        <p>
+          主炉之外还有四则「炉外试炼」：固定起始要素、有限余烬与独立故事。入口在顶栏的「试炼」，进度单独保存，不会改变主图鉴。
+        </p>
         <p className="help-credit">
           玩法参考 Little Alchemy 与 Doodle God；配方结构研究参考 element-alchemy-cheater。字体为方舟像素字体（SIL OFL 1.1）。
         </p>

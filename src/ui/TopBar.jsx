@@ -9,6 +9,7 @@ export function TopBar({
   onHints,
   onToggleSound,
   onHelp,
+  onChallenges,
 }) {
   return (
     <header className="topbar">
@@ -54,6 +55,15 @@ export function TopBar({
       </div>
 
       <nav className="topbar__actions" aria-label="游戏菜单">
+        <button
+          className="plate-button plate-button--challenge"
+          type="button"
+          onClick={onChallenges}
+          title="离开主炉，进入独立的试炼故事"
+        >
+          <span className="plate-button__mark" aria-hidden="true">外</span>
+          <span>试炼</span>
+        </button>
         <button className="plate-button" type="button" onClick={onStory} title="翻阅创世手记">
           <span className="plate-button__mark" aria-hidden="true">册</span>
           <span>手记</span>
