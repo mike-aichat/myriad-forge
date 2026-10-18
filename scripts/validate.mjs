@@ -397,14 +397,6 @@ if (!onlyPair || pairKey(onlyPair[0].id, onlyPair[1].id) !== "fire+water") {
 if (pickInspirationPair({ ...onlyPairState, discovered: ["fire", "water", "steam"] }) !== null) {
   fail("灵光不应该在可行组合的产物都已发现时继续挑选");
 }
-const materialPriorityState = {
-  ...createInitialState(),
-  completedChapters: ["prologue"],
-};
-const materialPair = pickInspirationPair(materialPriorityState);
-if (!materialPair || findResult(materialPair[0].id, materialPair[1].id) !== "lava") {
-  fail("灵光没有优先为当前手记目标准备材料");
-}
 const shallowState = {
   ...createInitialState(),
   discovered: ["fire", "water", "earth", "air", "steam", "smoke", "mud", "lava", "dust"],

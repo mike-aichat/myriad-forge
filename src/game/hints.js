@@ -1,5 +1,5 @@
 import { currentChapter } from "./progress.js";
-import { ELEMENT_BY_ID, ELEMENT_DEPTH, findResult, getResultRecipes } from "./recipes.js";
+import { ELEMENT_BY_ID, ELEMENT_DEPTH, findResult } from "./recipes.js";
 
 function pickRandom(items) {
   return items[Math.floor(Math.random() * items.length)];
@@ -30,17 +30,6 @@ function prioritize(candidates, state, discoveredSet) {
   const targetSet = new Set(openTargets);
   const direct = candidates.filter((candidate) => targetSet.has(candidate.result));
   if (direct.length) return pickRandom(direct);
-
-  const materials = new Set();
-  for (const target of openTargets) {
-    for (const recipe of getResultRecipes(target)) {
-      for (const id of recipe) {
-        if (!discoveredSet.has(id)) materials.add(id);
-      }
-    }
-  }
-  const materialCandidates = candidates.filter((candidate) => materials.has(candidate.result));
-  if (materialCandidates.length) return pickRandom(materialCandidates);
 
   let shallowest = Infinity;
   for (const candidate of candidates) {
