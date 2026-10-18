@@ -361,29 +361,38 @@ if (!failurePair) {
   }
 }
 
-const inspiration = pickInspirationPair(createInitialState());
-if (
-  !inspiration ||
-  inspiration[0].id === inspiration[1].id ||
-  !inspiration.every((element) => createInitialState().discovered.includes(element.id))
-) {
-  fail("灵光没有返回一对不同的已拥有要素");
+const inspirationState = createInitialState();
+for (let i = 0; i < 50; i += 1) {
+  const inspiration = pickInspirationPair(inspirationState);
+  if (
+    !inspiration ||
+    inspiration[0].id === inspiration[1].id ||
+    !inspiration.every((element) => inspirationState.discovered.includes(element.id))
+  ) {
+    fail("灵光没有返回一对不同的已拥有要素");
+  }
+  const inspirationResult = findResult(inspiration[0].id, inspiration[1].id);
+  if (!inspirationResult || inspirationState.discovered.includes(inspirationResult)) {
+    fail("灵光挑中的组合不能熔出未发现的新要素");
+  }
 }
 const onlyPairState = {
   ...createInitialState(),
   discovered: ["fire", "water"],
-  craftedPairs: [],
-  failedPairs: [],
 };
 const onlyPair = pickInspirationPair(onlyPairState);
 if (!onlyPair || pairKey(onlyPair[0].id, onlyPair[1].id) !== "fire+water") {
-  fail("灵光没有在只剩一对要素时选中它");
+  fail("灵光没有在只有一种可行组合时选中它");
 }
-if (pickInspirationPair({ ...onlyPairState, craftedPairs: ["fire+water"] }) !== null) {
-  fail("灵光不应该重复挑选已熔过的组合");
+if (pickInspirationPair({ ...onlyPairState, discovered: ["fire", "water", "steam"] }) !== null) {
+  fail("灵光不应该在可行组合的产物都已发现时继续挑选");
 }
-if (pickInspirationPair({ ...onlyPairState, failedPairs: ["fire+water"] }) !== null) {
-  fail("灵光不应该重复挑选无果的组合");
+const allDiscoveredState = {
+  ...createInitialState(),
+  discovered: ELEMENTS.map((element) => element.id),
+};
+if (pickInspirationPair(allDiscoveredState) !== null) {
+  fail("灵光不应该在全图鉴完成后返回配对");
 }
 
 // 炉外试炼：独立牌堆、故事节拍、目标与最少熔炼次数。

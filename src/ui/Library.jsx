@@ -252,9 +252,9 @@ export function Library({
                 title={
                   insight < 1
                     ? "灵光用尽了。发现新要素、写完手记，或者连续失败都会让灵光重新聚起来。"
-                    : "花 1 点灵光，随机挑一对还没试过的要素直接熔炼"
+                    : "花 1 点灵光，随机挑一对能熔出新要素的组合直接熔炼"
                 }
-                aria-label={`灵光 ${insight} 点，随机熔炼一对要素`}
+                aria-label={`灵光 ${insight} 点，随机熔炼一对能产出新要素的组合`}
               >
                 <span className="library-insight__mark" aria-hidden="true">✦</span>
                 <span>灵光</span>

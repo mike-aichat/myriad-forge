@@ -302,7 +302,7 @@ export default function App() {
     }
     const pair = pickInspirationPair(game);
     if (!pair) {
-      pushToast("现有要素的组合都试过了。先去熔出新的要素。", "warn");
+      pushToast("现有的要素凑不出新东西了。去试炼里找找别的出路吧。", "warn");
       return;
     }
     const [a, b] = pair;
