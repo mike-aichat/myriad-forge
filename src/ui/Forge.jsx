@@ -122,7 +122,10 @@ export function Forge({
             {selectedElements.length === 2 ? (
               <span>{selectedElements[0].name} ＋ {selectedElements[1].name}</span>
             ) : (
-              <span>从要素库点选，或按 Enter 熔炼</span>
+              <>
+                <span className="forge-hint--keys">从要素库点选，或按 Enter 熔炼</span>
+                <span className="forge-hint--touch">从要素库点选两样东西</span>
+              </>
             )}
           </div>
         </div>

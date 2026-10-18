@@ -195,7 +195,7 @@ export default function App() {
       text:
         next.length === 1
           ? `「${element.name}」已经就位。再选一样。`
-          : "两种要素就位。按下熔炼，或者按 Enter。",
+          : "两种要素就位。按下熔炼。",
     });
   };
 
@@ -445,7 +445,11 @@ export default function App() {
   };
 
   return (
-    <div className={`app-shell ${mode === "tree" ? "app-shell--tree" : ""}`}>
+    <div
+      className={`app-shell ${mode === "tree" ? "app-shell--tree" : ""} ${
+        mode === "main" && selected.length === 2 && !locked ? "has-mobile-fuse" : ""
+      }`}
+    >
       <Skyfield reducedMotion={reducedMotion} />
       <div className="ambient-grain" aria-hidden="true" />
 
@@ -487,15 +491,6 @@ export default function App() {
           sectionRef={forgeRef}
         />
 
-        <Journal
-          chapter={chapter}
-          state={game}
-          onOpenStory={openStory}
-          onOpenElement={openElement}
-          allComplete={allComplete}
-          stats={stats}
-        />
-
         <Library
           state={game}
           selected={selected}
@@ -514,7 +509,44 @@ export default function App() {
           inspireDisabled={isFusing || isInspiring}
           isInspiring={isInspiring}
         />
+
+        <Journal
+          chapter={chapter}
+          state={game}
+          onOpenStory={openStory}
+          onOpenElement={openElement}
+          allComplete={allComplete}
+          stats={stats}
+        />
       </main>
+
+      {selected.length === 2 && !locked && (
+        <div className="mobile-fuse" role="region" aria-label="快速熔炼">
+          <div className="mobile-fuse__pair">
+            <span>{selectedElements[0]?.name}</span>
+            <i aria-hidden="true">＋</i>
+            <span>{selectedElements[1]?.name}</span>
+          </div>
+          <button
+            type="button"
+            className="mobile-fuse__clear"
+            onClick={handleClear}
+            disabled={isFusing || isInspiring}
+          >
+            清空
+          </button>
+          <button
+            type="button"
+            className="fuse-button"
+            onClick={handleFuse}
+            disabled={isFusing || isInspiring}
+          >
+            <span className="fuse-button__spark" aria-hidden="true">✦</span>
+            <span>熔炼</span>
+            <span className="fuse-button__spark" aria-hidden="true">✦</span>
+          </button>
+        </div>
+      )}
 
       <footer className="footer">
         <p>万象熔炉 · 要素合成游戏</p>

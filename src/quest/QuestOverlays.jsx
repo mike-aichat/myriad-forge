@@ -77,6 +77,14 @@ export function QuestIntroOverlay({ quest, progress, onStart, onRestart, onBack 
         style={{ "--challenge-accent": quest.accent }}
       >
         <div className="challenge-intro-card__number">{quest.numeral}</div>
+        <button
+          type="button"
+          className="challenge-intro-close"
+          onClick={onBack}
+          aria-label="返回任务目录"
+        >
+          ×
+        </button>
         <p className="overlay-kicker">炉外任务 · QUEST · 第{quest.numeral}则</p>
         <h2 id="quest-intro-title">{quest.title}</h2>
         <p className="challenge-intro-card__subtitle">{quest.subtitle}</p>

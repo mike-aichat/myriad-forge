@@ -132,6 +132,8 @@ export function CraftTree({ state, onExit }) {
   const viewRef = useRef(view);
   const dragRef = useRef(null);
   const movedRef = useRef(false);
+  const pointersRef = useRef(new Map());
+  const pinchRef = useRef(null);
   const [dragging, setDragging] = useState(false);
   const [focusLevel, setFocusLevel] = useState("");
   const [selectedId, setSelectedId] = useState(null);
@@ -279,6 +281,24 @@ export function CraftTree({ state, onExit }) {
   const handlePointerDown = (event) => {
     if (event.button !== 0) return;
     event.currentTarget.setPointerCapture(event.pointerId);
+    pointersRef.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+    if (pointersRef.current.size === 2) {
+      const [a, b] = [...pointersRef.current.values()];
+      const bounds = event.currentTarget.getBoundingClientRect();
+      pinchRef.current = {
+        distance: Math.hypot(a.x - b.x, a.y - b.y),
+        centerX: (a.x + b.x) / 2 - bounds.left,
+        centerY: (a.y + b.y) / 2 - bounds.top,
+        view: viewRef.current,
+      };
+      dragRef.current = null;
+      movedRef.current = true;
+      setDragging(false);
+      setFocusLevel("");
+      return;
+    }
+
     movedRef.current = false;
     const nodeElement = event.target.closest?.(".tree-node");
     dragRef.current = {
@@ -294,6 +314,24 @@ export function CraftTree({ state, onExit }) {
   };
 
   const handlePointerMove = (event) => {
+    if (!pointersRef.current.has(event.pointerId)) return;
+    pointersRef.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+    const pinch = pinchRef.current;
+    if (pinch && pointersRef.current.size >= 2) {
+      const [a, b] = [...pointersRef.current.values()];
+      const distance = Math.hypot(a.x - b.x, a.y - b.y);
+      if (!pinch.distance) return;
+      const scale = clampScale(pinch.view.scale * (distance / pinch.distance));
+      updateView({
+        x: pinch.centerX - ((pinch.centerX - pinch.view.x) / pinch.view.scale) * scale,
+        y: pinch.centerY - ((pinch.centerY - pinch.view.y) / pinch.view.scale) * scale,
+        scale,
+      });
+      movedRef.current = true;
+      return;
+    }
+
     const drag = dragRef.current;
     if (!drag || drag.pointerId !== event.pointerId) return;
     if (
@@ -310,17 +348,29 @@ export function CraftTree({ state, onExit }) {
   };
 
   const cancelDrag = (event) => {
+    pointersRef.current.delete(event.pointerId);
+    pinchRef.current = null;
+    movedRef.current = false;
     if (dragRef.current && dragRef.current.pointerId !== event.pointerId) return;
     dragRef.current = null;
     setDragging(false);
   };
 
   const endDrag = (event) => {
+    const wasPinching = Boolean(pinchRef.current);
+    pointersRef.current.delete(event.pointerId);
+    pinchRef.current = null;
+
     const drag = dragRef.current;
     if (drag && drag.pointerId !== event.pointerId) return;
     dragRef.current = null;
     setDragging(false);
-    if (!drag || movedRef.current) return;
+
+    if (wasPinching || movedRef.current) {
+      movedRef.current = false;
+      return;
+    }
+    if (!drag) return;
     if (drag.nodeId) {
       setSelectedId((current) => (current === drag.nodeId ? null : drag.nodeId));
     } else {

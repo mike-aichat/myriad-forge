@@ -59,11 +59,18 @@ export function TopBar({
           type="button"
           onClick={onChallenges}
           title="离开主炉，进入独立的试炼故事"
+          aria-label="试炼"
         >
           <span className="plate-button__mark" aria-hidden="true">外</span>
           <span>试炼</span>
         </button>
-        <button className="plate-button" type="button" onClick={onStory} title="翻阅创世手记">
+        <button
+          className="plate-button"
+          type="button"
+          onClick={onStory}
+          title="翻阅创世手记"
+          aria-label="手记"
+        >
           <span className="plate-button__mark" aria-hidden="true">册</span>
           <span>手记</span>
         </button>
@@ -72,6 +79,7 @@ export function TopBar({
           type="button"
           onClick={onTree}
           title="查看要素谱系与合成来源"
+          aria-label="谱系"
         >
           <span className="plate-button__mark" aria-hidden="true">谱</span>
           <span>谱系</span>
@@ -81,6 +89,7 @@ export function TopBar({
           type="button"
           onClick={onToggleSound}
           aria-pressed={sound}
+          aria-label={sound ? "关闭声音" : "打开声音"}
           title={sound ? "关闭声音（M）" : "打开声音（M）"}
         >
           <span className="sound-bars" aria-hidden="true">
@@ -90,7 +99,13 @@ export function TopBar({
           </span>
           <span className="icon-button__text">{sound ? "有声" : "静音"}</span>
         </button>
-        <button className="icon-button" type="button" onClick={onHelp} title="玩法与快捷键">
+        <button
+          className="icon-button"
+          type="button"
+          onClick={onHelp}
+          title="玩法与快捷键"
+          aria-label="指南"
+        >
           <span className="help-glyph" aria-hidden="true">?</span>
           <span className="icon-button__text">指南</span>
         </button>

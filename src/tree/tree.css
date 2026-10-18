@@ -372,3 +372,98 @@
     display: none;
   }
 }
+
+/* --------------------------------------------------------------------------
+   Narrow screens & touch layout
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .app-shell--tree {
+    width: calc(100% - 16px);
+    padding-bottom: 8px;
+  }
+
+  .tree-mode {
+    height: calc(100vh - 16px);
+    height: calc(100dvh - 16px);
+    min-height: 0;
+  }
+
+  .tree-header {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px 12px;
+    padding: 10px 2px 8px;
+  }
+
+  .tree-back {
+    grid-row: 1;
+    min-height: 44px;
+  }
+
+  .tree-summary {
+    grid-row: 1;
+    grid-column: 2;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 0;
+  }
+
+  .tree-heading {
+    grid-column: 1 / -1;
+  }
+
+  .tree-heading h1 {
+    margin: 2px 0;
+    font-size: 22px;
+  }
+
+  .tree-heading > p:last-child {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .tree-toolbar {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 2px;
+  }
+
+  .tree-zoom button {
+    min-width: 44px;
+    height: 44px;
+  }
+
+  .tree-jump {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .tree-jump select {
+    width: 100%;
+    height: 44px;
+  }
+
+  .tree-viewport {
+    min-height: 360px;
+  }
+
+  .tree-level-label {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tree-heading > p:last-child {
+    display: none;
+  }
+
+  .tree-summary {
+    font-size: 11px;
+  }
+
+  .tree-jump > span {
+    display: none;
+  }
+}

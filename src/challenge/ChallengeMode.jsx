@@ -82,7 +82,13 @@ function ChallengeHeader({
 
       <nav className="challenge-topbar__actions" aria-label="炉外菜单">
         {view !== "hub" && (
-          <button type="button" className="plate-button" onClick={onBackToHub} title="返回炉外总目录">
+          <button
+            type="button"
+            className="plate-button"
+            onClick={onBackToHub}
+            title="返回炉外总目录"
+            aria-label="炉外目录"
+          >
             <span className="plate-button__mark" aria-hidden="true">册</span>
             <span>炉外目录</span>
           </button>
@@ -92,6 +98,7 @@ function ChallengeHeader({
           type="button"
           onClick={onToggleSound}
           aria-pressed={sound}
+          aria-label={sound ? "关闭声音" : "打开声音"}
           title={sound ? "关闭声音" : "打开声音"}
         >
           <span className="sound-bars" aria-hidden="true">
@@ -101,7 +108,13 @@ function ChallengeHeader({
           </span>
           <span className="icon-button__text">{sound ? "有声" : "静音"}</span>
         </button>
-        <button type="button" className="plate-button challenge-exit" onClick={onExit} title="回到主炉">
+        <button
+          type="button"
+          className="plate-button challenge-exit"
+          onClick={onExit}
+          title="回到主炉"
+          aria-label="回到主炉"
+        >
           <span className="plate-button__mark" aria-hidden="true">炉</span>
           <span>回到主炉</span>
         </button>

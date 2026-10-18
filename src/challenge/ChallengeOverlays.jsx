@@ -73,6 +73,14 @@ export function ChallengeIntroOverlay({ challenge, target, onStart, onBack }) {
         style={{ "--challenge-accent": challenge.accent }}
       >
         <div className="challenge-intro-card__number">{challenge.numeral}</div>
+        <button
+          type="button"
+          className="challenge-intro-close"
+          onClick={onBack}
+          aria-label="返回炉外目录"
+        >
+          ×
+        </button>
         <p className="overlay-kicker">
           {puzzle ? "炉外谜题" : "炉外试炼"} · 第{challenge.numeral}则
         </p>
