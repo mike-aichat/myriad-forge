@@ -339,90 +339,6 @@ export function StoryModal({ state, onClose, onOpenElement }) {
   );
 }
 
-export function HintsModal({ state, hint, onDraw, onClose }) {
-  const canDraw = state.insight > 0;
-  return (
-    <Modal
-      open
-      kicker="灵光"
-      title={hint ? "让它们见一面" : "借一束光"}
-      onClose={onClose}
-      size="compact"
-      className="hint-modal"
-    >
-      {hint ? (
-        <>
-          <div className="hint-pair">
-            <div className="hint-ingredient">
-              <Sprite element={hint.ingredients[0]} size={64} />
-              <span>{hint.ingredients[0].name}</span>
-            </div>
-            <span className="hint-plus" aria-hidden="true">＋</span>
-            <div className="hint-ingredient">
-              <Sprite element={hint.ingredients[1]} size={64} />
-              <span>{hint.ingredients[1].name}</span>
-            </div>
-            <span className="hint-arrow" aria-hidden="true">→</span>
-            <div className="hint-unknown" aria-label="尚未命名的结果">
-              <span>？</span>
-            </div>
-          </div>
-          <p className="hint-copy">
-            把这两样放进熔炉。灵光不会直接告诉你结果。
-          </p>
-          <p className="hint-foot">灵光优先指向当前手记的目标，但不会替你按下熔炼。</p>
-          <div className="modal-actions">
-            <button
-              type="button"
-              className="primary-button"
-              onClick={onDraw}
-              disabled={!canDraw}
-              data-autofocus
-            >
-              {canDraw ? `再借一束 · 1 灵光` : "灵光用尽了"}
-            </button>
-            <button type="button" className="text-button" onClick={onClose}>
-              关闭
-            </button>
-          </div>
-        </>
-      ) : (
-        <>
-          <div className="hint-intro-mark" aria-hidden="true">
-            <span>✦</span>
-            <i />
-            <span>✦</span>
-          </div>
-          <p className="hint-copy">
-            灵光不是答案，只是一根指路的手指。它会挑一对已经在你手里的要素，提示它们也许能碰出新的东西。
-          </p>
-          <p className="hint-foot">
-            每束灵光消耗 1 点。发现新要素、写完手记，或者连续失败很多次，都会让灵光重新聚起来。
-          </p>
-          <div className="hint-balance">
-            <span>当前灵光</span>
-            <b>{state.insight}</b>
-          </div>
-          <div className="modal-actions">
-            <button
-              type="button"
-              className="primary-button"
-              onClick={onDraw}
-              disabled={!canDraw}
-              data-autofocus
-            >
-              {canDraw ? "借一束光 · 消耗 1" : "灵光用尽了"}
-            </button>
-            <button type="button" className="text-button" onClick={onClose}>
-              再想想
-            </button>
-          </div>
-        </>
-      )}
-    </Modal>
-  );
-}
-
 export function HelpModal({ state, sound, onToggleSound, onClose, onReset }) {
   const [armed, setArmed] = useState(false);
   const stats = getStats(state);
@@ -436,7 +352,7 @@ export function HelpModal({ state, sound, onToggleSound, onClose, onReset }) {
             <li>按下「熔炼」或 Enter。成功会永久收录新要素；失败不会损失任何东西。</li>
             <li>每个要素都有一段描述。小写的 i 可以打开它的档案。</li>
             <li>右侧「创世手记」会给出目标。写满当前页，就会解锁馈赠和新的故事。</li>
-            <li>卡住时花 1 点灵光，换取一对可行要素。灵光优先指向手记目标。</li>
+            <li>卡住时点要素库标题旁的「灵光」，花 1 点随机试一对还没试过的要素，并直接熔炼。</li>
           </ol>
         </section>
         <section>

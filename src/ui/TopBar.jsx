@@ -3,10 +3,8 @@ import React from "react";
 export function TopBar({
   stats,
   chapter,
-  insight,
   sound,
   onStory,
-  onHints,
   onToggleSound,
   onHelp,
   onChallenges,
@@ -67,11 +65,6 @@ export function TopBar({
         <button className="plate-button" type="button" onClick={onStory} title="翻阅创世手记">
           <span className="plate-button__mark" aria-hidden="true">册</span>
           <span>手记</span>
-        </button>
-        <button className="plate-button plate-button--insight" type="button" onClick={onHints} title="借一束灵光">
-          <span className="plate-button__mark" aria-hidden="true">✦</span>
-          <span>灵光</span>
-          <b>{insight}</b>
         </button>
         <button
           className={`icon-button ${sound ? "is-on" : ""}`}

@@ -16,6 +16,7 @@ function Slot({ index, element, onRemove, onOpenInfo, disabled }) {
             onClick={onRemove}
             aria-label={`从熔炉中取出${element.name}`}
             title="取出"
+            disabled={disabled}
           >
             ×
           </button>
@@ -47,14 +48,21 @@ export function Forge({
   onFuse,
   onOpenInfo,
   isFusing,
+  isInspiring,
   message,
   stats,
   reducedMotion,
   fuseButtonRef,
+  sectionRef,
 }) {
   const ready = selectedElements.length === 2;
+  const busy = isFusing || isInspiring;
   return (
-    <section className={`forge panel ${isFusing ? "is-fusing" : ""}`} aria-labelledby="forge-title">
+    <section
+      ref={sectionRef}
+      className={`forge panel ${isFusing ? "is-fusing" : ""} ${isInspiring ? "is-inspiring" : ""}`}
+      aria-labelledby="forge-title"
+    >
       <div className="panel__topline">
         <div>
           <p className="eyebrow">熔炉台</p>
@@ -82,7 +90,7 @@ export function Forge({
             element={selectedElements[0]}
             onRemove={() => onRemove(0)}
             onOpenInfo={() => selectedElements[0] && onOpenInfo(selectedElements[0])}
-            disabled={isFusing}
+            disabled={busy}
           />
           <div className="forge-stage__center-mark" aria-hidden="true">
             <span />
@@ -94,7 +102,7 @@ export function Forge({
             element={selectedElements[1]}
             onRemove={() => onRemove(1)}
             onOpenInfo={() => selectedElements[1] && onOpenInfo(selectedElements[1])}
-            disabled={isFusing}
+            disabled={busy}
           />
         </div>
 
@@ -104,7 +112,7 @@ export function Forge({
             type="button"
             className="fuse-button"
             onClick={onFuse}
-            disabled={!ready || isFusing}
+            disabled={!ready || busy}
           >
             <span className="fuse-button__spark" aria-hidden="true">✦</span>
             <span>{ready ? "熔炼" : "选择两种要素"}</span>
@@ -120,7 +128,7 @@ export function Forge({
         </div>
 
         {selectedElements.length > 0 && (
-          <button type="button" className="forge-clear" onClick={onClear} disabled={isFusing}>
+          <button type="button" className="forge-clear" onClick={onClear} disabled={busy}>
             清空熔炉
           </button>
         )}

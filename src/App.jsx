@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Skyfield } from "./art/Skyfield.jsx";
 import { audio } from "./audio.js";
-import { drawHint } from "./game/hints.js";
+import { pickInspirationPair } from "./game/hints.js";
 import {
   currentChapter,
   fuseElements,
@@ -16,7 +16,7 @@ import { Journal } from "./ui/Journal.jsx";
 import { Library } from "./ui/Library.jsx";
 import { TopBar } from "./ui/TopBar.jsx";
 import { ChapterOverlay, DiscoveryOverlay, EndingOverlay, IntroOverlay, Toast } from "./ui/Overlays.jsx";
-import { ElementDetailModal, HelpModal, HintsModal, StoryModal } from "./ui/Modals.jsx";
+import { ElementDetailModal, HelpModal, StoryModal } from "./ui/Modals.jsx";
 import { ChallengeMode } from "./challenge/ChallengeMode.jsx";
 
 const BOREDOM_LINES = [
@@ -42,12 +42,12 @@ export default function App() {
   const [selected, setSelected] = useState([]);
   const [overlayQueue, setOverlayQueue] = useState([]);
   const [panel, setPanel] = useState(null);
-  const [hint, setHint] = useState(null);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
   const [showUnknown, setShowUnknown] = useState(false);
   const [toast, setToast] = useState(null);
   const [isFusing, setIsFusing] = useState(false);
+  const [isInspiring, setIsInspiring] = useState(false);
   const [forgeMessage, setForgeMessage] = useState({
     tone: "idle",
     text: "从要素库里挑两样东西，放进熔炉。",
@@ -55,7 +55,11 @@ export default function App() {
   const [reducedMotion, setReducedMotion] = useState(false);
 
   const fusingRef = useRef(false);
+  const inspiringRef = useRef(false);
   const fuseTimerRef = useRef(null);
+  const inspireTimerRef = useRef(null);
+  const gameRef = useRef(game);
+  const forgeRef = useRef(null);
   const searchRef = useRef(null);
   const fuseButtonRef = useRef(null);
 
@@ -74,12 +78,13 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (mode === "main" && selected.length === 2 && !locked && !isFusing) {
+    if (mode === "main" && selected.length === 2 && !locked && !isFusing && !isInspiring) {
       fuseButtonRef.current?.focus();
     }
-  }, [mode, selected.length, locked, isFusing]);
+  }, [mode, selected.length, locked, isFusing, isInspiring]);
 
   useEffect(() => {
+    gameRef.current = game;
     saveState(game);
   }, [game]);
 
@@ -104,6 +109,7 @@ export default function App() {
   useEffect(() => {
     return () => {
       if (fuseTimerRef.current) window.clearTimeout(fuseTimerRef.current);
+      if (inspireTimerRef.current) window.clearTimeout(inspireTimerRef.current);
     };
   }, []);
 
@@ -134,7 +140,7 @@ export default function App() {
         }
         return;
       }
-      if (event.key === "Enter" && selected.length === 2 && !locked) {
+      if (event.key === "Enter" && selected.length === 2 && !locked && !isInspiring) {
         const inAlchemyArea =
           event.target?.closest?.(".forge") || event.target?.closest?.(".element-grid");
         if (inAlchemyArea) {
@@ -159,7 +165,7 @@ export default function App() {
   };
 
   const handleSelect = (id) => {
-    if (isFusing || locked) return;
+    if (isFusing || locked || inspiringRef.current) return;
     const element = ELEMENT_BY_ID.get(id);
     if (!element || !game.discovered.includes(id)) return;
     if (selected.includes(id)) {
@@ -187,7 +193,7 @@ export default function App() {
   };
 
   const handleRemove = (index) => {
-    if (isFusing) return;
+    if (isFusing || inspiringRef.current) return;
     const next = selected.filter((_, itemIndex) => itemIndex !== index);
     setSelected(next);
     audio.click();
@@ -195,14 +201,14 @@ export default function App() {
   };
 
   const handleClear = () => {
-    if (isFusing) return;
+    if (isFusing || inspiringRef.current) return;
     setSelected([]);
     audio.click();
     setForgeMessage({ tone: "idle", text: "熔炉清空了。" });
   };
 
   const handleAddFromDetail = (id) => {
-    if (locked || isFusing) return;
+    if (locked || isFusing || inspiringRef.current) return;
     if (selected.includes(id)) {
       pushToast("它已经在炉里了。", "warn");
       return;
@@ -218,13 +224,12 @@ export default function App() {
     setForgeMessage({ tone: "idle", text: `「${element.name}」被放进了熔炉。` });
   };
 
-  const handleFuse = () => {
-    if (fusingRef.current || locked || selected.length !== 2) return;
+  const fusePair = (aId, bId) => {
+    if (fusingRef.current || locked || mode !== "main" || !aId || !bId) return;
     fusingRef.current = true;
-    const [aId, bId] = selected;
     const a = ELEMENT_BY_ID.get(aId);
     const b = ELEMENT_BY_ID.get(bId);
-    const result = fuseElements(game, aId, bId);
+    const result = fuseElements(gameRef.current, aId, bId);
     setGame(result.state);
     setIsFusing(true);
     audio.fuse();
@@ -235,7 +240,6 @@ export default function App() {
       setIsFusing(false);
       setSelected([]);
       fusingRef.current = false;
-      setHint(null);
 
       if (!result.resultId) {
         audio.fail();
@@ -285,20 +289,44 @@ export default function App() {
     }, 620);
   };
 
-  const handleDrawHint = () => {
+  const handleFuse = () => {
+    if (inspiringRef.current || selected.length !== 2) return;
+    fusePair(selected[0], selected[1]);
+  };
+
+  const handleInspire = () => {
+    if (locked || isFusing || inspiringRef.current) return;
     if (game.insight < 1) {
-      pushToast("灵光用尽了。先去发现一些新东西，或写完一页手记。", "warn");
+      pushToast("灵光用尽了。发现新要素、写完手记，或者连续失败都会让灵光重新聚起来。", "warn");
       return;
     }
-    const nextHint = drawHint(game);
-    if (!nextHint) {
-      pushToast("炉子暂时想不出什么。把已经发现的要素再碰一碰。", "warn");
+    const pair = pickInspirationPair(game);
+    if (!pair) {
+      pushToast("现有要素的组合都试过了。先去熔出新的要素。", "warn");
       return;
     }
-    setGame({ ...game, insight: game.insight - 1, hintsUsed: game.hintsUsed + 1 });
-    setHint(nextHint);
-    setPanel({ type: "hints" });
+    const [a, b] = pair;
+    inspiringRef.current = true;
+    setIsInspiring(true);
+    setGame((current) => ({ ...current, insight: current.insight - 1 }));
+    setSelected([a.id, b.id]);
+    setForgeMessage({
+      tone: "idle",
+      text: `灵光挑中了「${a.name}」和「${b.name}」。炉火正在把它们推到一处……`,
+    });
+    pushToast(`灵光挑中了「${a.name}」与「${b.name}」。`, "insight");
     audio.select();
+    forgeRef.current?.scrollIntoView({
+      behavior: reducedMotion ? "auto" : "smooth",
+      block: "center",
+    });
+    if (inspireTimerRef.current) window.clearTimeout(inspireTimerRef.current);
+    inspireTimerRef.current = window.setTimeout(() => {
+      inspireTimerRef.current = null;
+      inspiringRef.current = false;
+      setIsInspiring(false);
+      fusePair(a.id, b.id);
+    }, 650);
   };
 
   const toggleSound = () => {
@@ -311,11 +339,6 @@ export default function App() {
   const openStory = () => {
     audio.click();
     setPanel({ type: "story" });
-  };
-
-  const openHints = () => {
-    audio.click();
-    setPanel({ type: "hints" });
   };
 
   const openHelp = () => {
@@ -340,12 +363,17 @@ export default function App() {
       window.clearTimeout(fuseTimerRef.current);
       fuseTimerRef.current = null;
     }
+    if (inspireTimerRef.current) {
+      window.clearTimeout(inspireTimerRef.current);
+      inspireTimerRef.current = null;
+    }
     fusingRef.current = false;
+    inspiringRef.current = false;
     setIsFusing(false);
+    setIsInspiring(false);
     setGame(resetState());
     setSelected([]);
     setPanel(null);
-    setHint(null);
     setOverlayQueue([]);
     setToast(null);
     setQuery("");
@@ -367,6 +395,13 @@ export default function App() {
 
   const enterChallenges = () => {
     audio.click();
+    if (inspireTimerRef.current) {
+      window.clearTimeout(inspireTimerRef.current);
+      inspireTimerRef.current = null;
+    }
+    inspiringRef.current = false;
+    setIsInspiring(false);
+    setSelected([]);
     setPanel(null);
     setOverlayQueue([]);
     setToast(null);
@@ -395,10 +430,8 @@ export default function App() {
       <TopBar
         stats={stats}
         chapter={chapter}
-        insight={game.insight}
         sound={game.sound}
         onStory={openStory}
-        onHints={openHints}
         onToggleSound={toggleSound}
         onHelp={openHelp}
         onChallenges={enterChallenges}
@@ -412,10 +445,12 @@ export default function App() {
           onFuse={handleFuse}
           onOpenInfo={openElement}
           isFusing={isFusing}
+          isInspiring={isInspiring}
           message={forgeMessage}
           stats={stats}
           reducedMotion={reducedMotion}
           fuseButtonRef={fuseButtonRef}
+          sectionRef={forgeRef}
         />
 
         <Journal
@@ -440,6 +475,10 @@ export default function App() {
           showUnknown={showUnknown}
           setShowUnknown={setShowUnknown}
           searchRef={searchRef}
+          insight={game.insight}
+          onInspire={handleInspire}
+          inspireDisabled={isFusing || isInspiring}
+          isInspiring={isInspiring}
         />
       </main>
 
@@ -472,9 +511,6 @@ export default function App() {
       )}
       {!overlay && panel?.type === "story" && (
         <StoryModal state={game} onClose={closePanel} onOpenElement={handleOpenElementFromStory} />
-      )}
-      {!overlay && panel?.type === "hints" && (
-        <HintsModal state={game} hint={hint} onDraw={handleDrawHint} onClose={closePanel} />
       )}
       {!overlay && panel?.type === "help" && (
         <HelpModal

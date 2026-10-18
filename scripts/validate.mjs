@@ -7,7 +7,7 @@ import { createInitialState, fuseElements } from "../src/game/progress.js";
 import { buildPairHistoryMap, inferCraftedPairs, normalizeCraftedPairs, normalizeFailedPairs } from "../src/game/craftedPairs.js";
 import { RECIPES_BY_RESULT, findResult, pairKey } from "../src/game/recipes.js";
 import { buildElementUseStatus } from "../src/game/recipeStatus.js";
-import { drawHint } from "../src/game/hints.js";
+import { pickInspirationPair } from "../src/game/hints.js";
 import { CHALLENGES, CHALLENGE_ELEMENTS } from "../src/data/challenges.js";
 import { QUESTS, QUEST_ELEMENTS } from "../src/data/quests.js";
 import {
@@ -361,9 +361,29 @@ if (!failurePair) {
   }
 }
 
-const smokeHint = drawHint(createInitialState());
-if (!smokeHint || !smokeHint.ingredients.every((ingredient) => createInitialState().discovered.includes(ingredient.id))) {
-  fail("灵光提示没有返回一对已拥有的要素");
+const inspiration = pickInspirationPair(createInitialState());
+if (
+  !inspiration ||
+  inspiration[0].id === inspiration[1].id ||
+  !inspiration.every((element) => createInitialState().discovered.includes(element.id))
+) {
+  fail("灵光没有返回一对不同的已拥有要素");
+}
+const onlyPairState = {
+  ...createInitialState(),
+  discovered: ["fire", "water"],
+  craftedPairs: [],
+  failedPairs: [],
+};
+const onlyPair = pickInspirationPair(onlyPairState);
+if (!onlyPair || pairKey(onlyPair[0].id, onlyPair[1].id) !== "fire+water") {
+  fail("灵光没有在只剩一对要素时选中它");
+}
+if (pickInspirationPair({ ...onlyPairState, craftedPairs: ["fire+water"] }) !== null) {
+  fail("灵光不应该重复挑选已熔过的组合");
+}
+if (pickInspirationPair({ ...onlyPairState, failedPairs: ["fire+water"] }) !== null) {
+  fail("灵光不应该重复挑选无果的组合");
 }
 
 // 炉外试炼：独立牌堆、故事节拍、目标与最少熔炼次数。

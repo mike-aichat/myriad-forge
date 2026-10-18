@@ -27,6 +27,7 @@ function ElementCard({
   onUnknown,
   status,
   pairEntry,
+  isInspiring,
 }) {
   const category = CATEGORY_MAP[element.category];
   const markKind = pairEntry?.crafted.length
@@ -67,7 +68,7 @@ function ElementCard({
 
   return (
     <div
-      className={`element-card ${selectedIndex >= 0 ? "is-selected" : ""} ${markKind === "crafted" ? "is-crafted-pair" : ""} ${markKind === "failed" ? "is-failed-pair" : ""}`}
+      className={`element-card ${selectedIndex >= 0 ? "is-selected" : ""} ${isInspiring && selectedIndex >= 0 ? "is-inspired" : ""} ${markKind === "crafted" ? "is-crafted-pair" : ""} ${markKind === "failed" ? "is-failed-pair" : ""}`}
       style={{ "--cat": category.color }}
     >
       <button
@@ -119,6 +120,10 @@ export function Library({
   showUnknown,
   setShowUnknown,
   searchRef,
+  insight,
+  onInspire,
+  inspireDisabled,
+  isInspiring,
 }) {
   const discoveredSet = useMemo(() => new Set(state.discovered), [state.discovered]);
   const [markFilters, setMarkFilters] = useState([]);
@@ -235,9 +240,27 @@ export function Library({
     <section className="library panel" aria-labelledby="library-title">
       <div className="library-head">
         <div className="library-title">
-          <div>
+          <div className="library-title__name">
             <p className="eyebrow">标本柜</p>
-            <h2 id="library-title">要素库</h2>
+            <div className="library-title__row">
+              <h2 id="library-title">要素库</h2>
+              <button
+                type="button"
+                className={`library-insight ${isInspiring ? "is-casting" : ""}`}
+                onClick={onInspire}
+                disabled={inspireDisabled || insight < 1}
+                title={
+                  insight < 1
+                    ? "灵光用尽了。发现新要素、写完手记，或者连续失败都会让灵光重新聚起来。"
+                    : "花 1 点灵光，随机挑一对还没试过的要素直接熔炼"
+                }
+                aria-label={`灵光 ${insight} 点，随机熔炼一对要素`}
+              >
+                <span className="library-insight__mark" aria-hidden="true">✦</span>
+                <span>灵光</span>
+                <b>{insight}</b>
+              </button>
+            </div>
           </div>
           <div className="library-count">
             <b>{foundInCategory}</b>
@@ -404,6 +427,7 @@ export function Library({
                   onUnknown={onUnknown}
                   status={useStatus.get(element.id)}
                   pairEntry={pairEntry}
+                  isInspiring={isInspiring}
                 />
               );
             })}
