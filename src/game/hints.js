@@ -1,5 +1,5 @@
 import { currentChapter } from "./progress.js";
-import { ELEMENT_BY_ID, ELEMENT_DEPTH, findResult } from "./recipes.js";
+import { ELEMENT_BY_ID, ELEMENT_LEVEL, findResult } from "./recipes.js";
 
 function pickRandom(items) {
   return items[Math.floor(Math.random() * items.length)];
@@ -31,12 +31,12 @@ function prioritize(candidates, state, discoveredSet) {
   const direct = candidates.filter((candidate) => targetSet.has(candidate.result));
   if (direct.length) return pickRandom(direct);
 
-  let shallowest = Infinity;
+  let lowestLevel = Infinity;
   for (const candidate of candidates) {
-    shallowest = Math.min(shallowest, ELEMENT_DEPTH.get(candidate.result) ?? Infinity);
+    lowestLevel = Math.min(lowestLevel, ELEMENT_LEVEL.get(candidate.result) ?? Infinity);
   }
   const lowest = candidates.filter(
-    (candidate) => (ELEMENT_DEPTH.get(candidate.result) ?? Infinity) === shallowest
+    (candidate) => (ELEMENT_LEVEL.get(candidate.result) ?? Infinity) === lowestLevel
   );
   return pickRandom(lowest);
 }

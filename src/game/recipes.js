@@ -30,22 +30,22 @@ for (const element of ELEMENTS) {
   }
 }
 
-export const ELEMENT_DEPTH = new Map(ROOT_IDS.map((id) => [id, 0]));
+export const ELEMENT_LEVEL = new Map(ROOT_IDS.map((id) => [id, 0]));
 
-let depthChanged = true;
-while (depthChanged) {
-  depthChanged = false;
+let levelChanged = true;
+while (levelChanged) {
+  levelChanged = false;
   for (const element of ELEMENTS) {
-    if (ELEMENT_DEPTH.has(element.id)) continue;
+    if (ELEMENT_LEVEL.has(element.id)) continue;
     let best = Infinity;
     for (const [a, b] of RECIPES_BY_RESULT.get(element.id) || []) {
-      if (ELEMENT_DEPTH.has(a) && ELEMENT_DEPTH.has(b)) {
-        best = Math.min(best, 1 + Math.max(ELEMENT_DEPTH.get(a), ELEMENT_DEPTH.get(b)));
+      if (ELEMENT_LEVEL.has(a) && ELEMENT_LEVEL.has(b)) {
+        best = Math.min(best, 1 + Math.max(ELEMENT_LEVEL.get(a), ELEMENT_LEVEL.get(b)));
       }
     }
     if (Number.isFinite(best)) {
-      ELEMENT_DEPTH.set(element.id, best);
-      depthChanged = true;
+      ELEMENT_LEVEL.set(element.id, best);
+      levelChanged = true;
     }
   }
 }

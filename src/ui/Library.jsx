@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { ELEMENTS } from "../data/elements/index.js";
 import { CATEGORIES, CATEGORY_MAP } from "../data/categories.js";
 import { buildPairHistoryMap } from "../game/craftedPairs.js";
-import { ELEMENT_BY_ID } from "../game/recipes.js";
+import { ELEMENT_BY_ID, ELEMENT_LEVEL } from "../game/recipes.js";
 import { buildElementUseStatus, countElementUseStatus } from "../game/recipeStatus.js";
 import { Sprite } from "./Sprite.jsx";
 
@@ -30,6 +30,7 @@ function ElementCard({
   isInspiring,
 }) {
   const category = CATEGORY_MAP[element.category];
+  const level = ELEMENT_LEVEL.get(element.id) ?? 0;
   const markKind = pairEntry?.crafted.length
     ? "crafted"
     : pairEntry?.failed.length
@@ -75,14 +76,15 @@ function ElementCard({
         type="button"
         className="element-card__select"
         onClick={() => onSelect(element.id)}
-        title={`${element.name} · ${category.name}${pairNote ? ` · ${pairNote}` : ""}`}
-        aria-label={`选择${element.name}放入熔炉${pairNote ? `；${pairNote}` : ""}`}
+        title={`${element.name} · ${category.name} · Lv${level}${pairNote ? ` · ${pairNote}` : ""}`}
+        aria-label={`选择${element.name}放入熔炉，等级 ${level}${pairNote ? `；${pairNote}` : ""}`}
       >
         <div className="element-card__sprite">
           <Sprite element={element} size={46} />
         </div>
         <span className="element-card__name">{element.name}</span>
         <span className="element-card__cat" style={{ background: category.color }} aria-hidden="true" />
+        <span className="element-card__level" title={`熔炼等级：Lv${level}`}>Lv{level}</span>
       </button>
       <button
         type="button"

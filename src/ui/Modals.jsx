@@ -4,6 +4,7 @@ import { CHAPTERS } from "../data/chapters.js";
 import { CATEGORY_MAP } from "../data/categories.js";
 import {
   ELEMENT_BY_ID,
+  ELEMENT_LEVEL,
   getResultRecipes,
   isEndgame,
 } from "../game/recipes.js";
@@ -102,6 +103,7 @@ export function Modal({ open, kicker, title, onClose, children, className = "", 
 export function ElementDetailModal({ element, state, selected, onAdd, onClose }) {
   if (!element) return null;
   const category = CATEGORY_MAP[element.category];
+  const level = ELEMENT_LEVEL.get(element.id) ?? 0;
   const recipes = getResultRecipes(element.id);
   const found = state.discovered.includes(element.id);
   const useStatus = getElementUseStatus(state, element);
@@ -126,6 +128,12 @@ export function ElementDetailModal({ element, state, selected, onAdd, onClose })
         <div className="detail-hero__copy">
           <div className="detail-tags">
             <span className="category-chip" style={{ "--cat": category.color }}>{category.name}</span>
+            <span
+              className="quiet-chip"
+              title="熔炼等级：源初与馈赠为 Lv0，合成品为材料中较高等级 + 1"
+            >
+              Lv{level}
+            </span>
             {endgame && <span className="special-chip">终局要素</span>}
             {found && <span className="quiet-chip">第 {orderIndex + 1} 个发现</span>}
             {useStatus.kind === "idle" && <span className="quiet-chip">当前无新结果</span>}
@@ -351,8 +359,9 @@ export function HelpModal({ state, sound, onToggleSound, onClose, onReset }) {
             <li>从要素库点选两种要素，把它们放进熔炉。</li>
             <li>按下「熔炼」或 Enter。成功会永久收录新要素；失败不会损失任何东西。</li>
             <li>每个要素都有一段描述。小写的 i 可以打开它的档案。</li>
+            <li>要素也分等级：源初和馈赠是 Lv0，合成品的等级取两种材料中较高的等级再加一。</li>
             <li>右侧「创世手记」会给出目标。写满当前页，就会解锁馈赠和新的故事。</li>
-            <li>卡住时点要素库标题旁的「灵光」，或按 R。它会先凑当前手记的目标；炉里只放了一个要素时，会先给这个要素找搭档。</li>
+            <li>卡住时点要素库标题旁的「灵光」，或按 R。它会先凑当前手记的目标；没有目标可合时，挑等级最低的新要素。炉里只放了一个要素时，会先给这个要素找搭档。</li>
           </ol>
         </section>
         <section>

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { CATEGORY_MAP } from "../data/categories.js";
-import { ELEMENT_BY_ID } from "../game/recipes.js";
+import { ELEMENT_BY_ID, ELEMENT_LEVEL } from "../game/recipes.js";
 import { Sprite } from "./Sprite.jsx";
 
 function useOverlayFocus(onClose, autoFocus = true) {
@@ -47,6 +47,7 @@ export function DiscoveryOverlay({ overlay, onClose, discoveredCount }) {
   const ref = useOverlayFocus(onClose);
   const { element, recipeNames = [], endgame = false, milestone = false } = overlay;
   const category = CATEGORY_MAP[element.category];
+  const level = ELEMENT_LEVEL.get(element.id) ?? 0;
   return createPortal(
     <div className={`overlay discovery-overlay ${endgame ? "is-endgame" : ""}`} role="presentation">
       <div className="overlay__stars" aria-hidden="true" />
@@ -75,6 +76,8 @@ export function DiscoveryOverlay({ overlay, onClose, discoveredCount }) {
           </p>
         )}
         <div className="discovery-meta">
+          <span title="熔炼等级">Lv{level}</span>
+          <span className="meta-dot" aria-hidden="true" />
           <span>第 {discoveredCount} 个要素</span>
           <span className="meta-dot" aria-hidden="true" />
           <span>{milestone ? "灵光 +1" : "已收入要素库"}</span>

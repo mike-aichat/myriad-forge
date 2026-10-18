@@ -1876,6 +1876,32 @@ kbd {
   opacity: 0.48;
 }
 
+.element-card__level {
+  position: absolute;
+  z-index: 4;
+  right: 5px;
+  bottom: 5px;
+  min-width: 15px;
+  height: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  border: 1px solid var(--line-soft);
+  background: rgba(5, 16, 19, 0.74);
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.element-card:hover .element-card__level {
+  border-color: var(--brass-dim);
+  color: var(--brass-hi);
+}
+
 .element-card__info {
   position: absolute;
   z-index: 4;

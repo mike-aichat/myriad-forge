@@ -5,7 +5,7 @@ import { BASE_IDS, GRANTED_IDS, ROOT_IDS, ENDGAME_IDS } from "../src/data/schema
 import { resolveShapeName } from "../src/art/shapes.js";
 import { createInitialState, fuseElements } from "../src/game/progress.js";
 import { buildPairHistoryMap, inferCraftedPairs, normalizeCraftedPairs, normalizeFailedPairs } from "../src/game/craftedPairs.js";
-import { ELEMENT_DEPTH, RECIPES_BY_RESULT, findResult, pairKey } from "../src/game/recipes.js";
+import { ELEMENT_LEVEL, RECIPES_BY_RESULT, findResult, pairKey } from "../src/game/recipes.js";
 import { buildElementUseStatus } from "../src/game/recipeStatus.js";
 import { pickInspirationPair } from "../src/game/hints.js";
 import { CHALLENGES, CHALLENGE_ELEMENTS } from "../src/data/challenges.js";
@@ -361,9 +361,21 @@ if (!failurePair) {
   }
 }
 
+for (const id of ROOT_IDS) {
+  if (ELEMENT_LEVEL.get(id) !== 0) fail(`源初或馈赠要素不是 Lv0：${id}`);
+}
 for (const element of ELEMENTS) {
-  if (ELEMENT_DEPTH.get(element.id) !== depth.get(element.id)) {
-    fail(`灵光使用的配方深度与校验深度不一致：${element.id}`);
+  if (ELEMENT_LEVEL.get(element.id) !== depth.get(element.id)) {
+    fail(`要素等级与校验深度不一致：${element.id}`);
+  }
+  if (element.recipe) {
+    const recipes = Array.isArray(element.recipe[0]) ? element.recipe : [element.recipe];
+    const expected = Math.min(
+      ...recipes.map(([a, b]) => 1 + Math.max(ELEMENT_LEVEL.get(a), ELEMENT_LEVEL.get(b)))
+    );
+    if (ELEMENT_LEVEL.get(element.id) !== expected) {
+      fail(`要素等级不符合“较高材料等级 + 1”：${element.id}`);
+    }
   }
 }
 
@@ -403,7 +415,7 @@ const shallowState = {
 };
 const shallowPair = pickInspirationPair(shallowState);
 if (!shallowPair || pairKey(shallowPair[0].id, shallowPair[1].id) !== "air+water") {
-  fail("灵光没有在无任务可推进时选择配方深度最浅的新要素");
+  fail("灵光没有在无任务可推进时选择等级最低的新要素");
 }
 const focusedEarth = pickInspirationPair(inspirationState, "earth");
 if (!focusedEarth || pairKey(focusedEarth[0].id, focusedEarth[1].id) !== "earth+water") {
