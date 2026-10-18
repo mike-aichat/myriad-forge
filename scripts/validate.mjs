@@ -4,8 +4,8 @@ import { CHAPTERS } from "../src/data/chapters.js";
 import { BASE_IDS, GRANTED_IDS, ROOT_IDS, ENDGAME_IDS } from "../src/data/schema.js";
 import { resolveShapeName } from "../src/art/shapes.js";
 import { createInitialState, fuseElements } from "../src/game/progress.js";
-import { buildCraftedPartnerMap, inferCraftedPairs, normalizeCraftedPairs } from "../src/game/craftedPairs.js";
-import { RECIPES_BY_RESULT, findResult } from "../src/game/recipes.js";
+import { buildPairHistoryMap, inferCraftedPairs, normalizeCraftedPairs, normalizeFailedPairs } from "../src/game/craftedPairs.js";
+import { RECIPES_BY_RESULT, findResult, pairKey } from "../src/game/recipes.js";
 import { buildElementUseStatus } from "../src/game/recipeStatus.js";
 import { drawHint } from "../src/game/hints.js";
 import { CHALLENGES, CHALLENGE_ELEMENTS } from "../src/data/challenges.js";
@@ -65,6 +65,7 @@ function normalizeRecipes(element) {
 
 for (const element of ELEMENTS) {
   if (byId.has(element.id)) fail(`重复 ID：${element.id}`);
+  if (element.id.includes("+")) fail(`要素 ID 不能包含用于配对键的加号：${element.id}`);
   if (byName.has(element.name)) fail(`重复名称：${element.name}（${byId.get(byName.get(element.name))?.id}）`);
   byId.set(element.id, element);
   byName.set(element.name, element.id);
@@ -272,9 +273,11 @@ if (![...allKnownStatus.values()].every((status) => status.kind === "exhausted")
   fail("全部要素发现后，所有材料都应标记为“已无新结果”");
 }
 
-// 已熔配对：成功才记，重复熔炼不重复记；选中材料后在图鉴里标出旧搭档。
+// 配对历史：成功记产物，失败记无果；选中材料后在图鉴里标出两类旧搭档。
 const freshState = createInitialState();
-if (freshState.craftedPairs.length !== 0) fail("初始存档不应带有已熔配对");
+if (freshState.craftedPairs.length !== 0 || freshState.failedPairs.length !== 0) {
+  fail("初始存档不应带有配对历史");
+}
 const craftedSteam = fuseElements(freshState, "fire", "water");
 if (!craftedSteam.state.craftedPairs.includes("fire+water")) {
   fail("成功熔炼没有记录配对：fire+water");
@@ -282,15 +285,31 @@ if (!craftedSteam.state.craftedPairs.includes("fire+water")) {
 if (craftedSteam.state.craftedPairs.length !== 1) {
   fail(`首次成功熔炼应只记录一对，目前 ${craftedSteam.state.craftedPairs.length}`);
 }
-const firePartners = buildCraftedPartnerMap(craftedSteam.state, ["fire"]);
+const firePartners = buildPairHistoryMap(craftedSteam.state, ["fire"]);
 if (!firePartners.has("water")) fail("选中火时，图鉴没有标出已经熔过的水");
-if (firePartners.get("water")?.links?.[0]?.resultName !== "蒸汽") {
+if (firePartners.get("water")?.crafted?.[0]?.resultName !== "蒸汽") {
   fail("已熔配对的提示没有带上当时的产物");
 }
-const waterPartners = buildCraftedPartnerMap(craftedSteam.state, ["water"]);
+const waterPartners = buildPairHistoryMap(craftedSteam.state, ["water"]);
 if (!waterPartners.has("fire")) fail("选中水时，图鉴没有标出已经熔过的火");
-const bothSelected = buildCraftedPartnerMap(craftedSteam.state, ["fire", "water"]);
-if (bothSelected.size !== 0) fail("已经放进熔炉的搭档不应再重复加“已”标记");
+const bothSelected = buildPairHistoryMap(craftedSteam.state, ["fire", "water"]);
+if (bothSelected.size !== 0) fail("已经放进熔炉的搭档不应再重复加配对标记");
+
+const failedSteam = fuseElements(craftedSteam.state, "fire", "steam");
+if (failedSteam.resultId !== null) fail("火 + 蒸汽不应产生结果");
+if (!failedSteam.state.failedPairs.includes("fire+steam")) {
+  fail("失败熔炼没有记录无果配对：fire+steam");
+}
+if (failedSteam.state.craftedPairs.length !== 1) {
+  fail("失败熔炼不应该写入已熔配对");
+}
+const fireHistory = buildPairHistoryMap(failedSteam.state, ["fire"]);
+if (!fireHistory.get("steam")?.failed?.length) fail("选中火时，图鉴没有标出试过无果的蒸汽");
+if (!fireHistory.get("water")?.crafted?.length) fail("失败记录不能覆盖已经熔过的水");
+const failedAgain = fuseElements(failedSteam.state, "fire", "steam").state;
+if (failedAgain.failedPairs.filter((key) => key === "fire+steam").length !== 1) {
+  fail("重复失败同一对要素时，无果配对被重复记录");
+}
 const replayedSteam = fuseElements(craftedSteam.state, "fire", "water").state;
 if (replayedSteam.craftedPairs.filter((key) => key === "fire+water").length !== 1) {
   fail("重复熔炼同一对要素时，已熔配对被重复记录");
@@ -299,8 +318,17 @@ const inferredPairs = inferCraftedPairs(["fire", "water", "steam"]);
 if (!inferredPairs.includes("fire+water")) fail("旧存档迁移没有从已发现图鉴补出已熔配对");
 const migratedPairs = normalizeCraftedPairs(undefined, ["fire", "water", "steam"]);
 if (!migratedPairs.includes("fire+water")) fail("缺少 craftedPairs 字段的旧存档没有补出已熔配对");
+const migratedFailed = normalizeFailedPairs(undefined);
+if (migratedFailed.length !== 0) fail("缺少 failedPairs 字段的旧存档不应凭空补出失败记录");
+const sanitizedFailed = normalizeFailedPairs(["fire+steam", "fire+water"]);
+if (sanitizedFailed.length !== 1 || sanitizedFailed[0] !== "fire+steam") {
+  fail("失败记录不应接受会产生结果的配对");
+}
 if (simulated.craftedPairs.length !== simulationSteps) {
   fail(`完整试玩后已熔配对数 ${simulated.craftedPairs.length} 与熔炼次数 ${simulationSteps} 不一致`);
+}
+if (simulated.failedPairs.length !== 0) {
+  fail(`完整试玩不应产生失败配对，目前 ${simulated.failedPairs.length}`);
 }
 
 // 失败分支与灵光提示的烟雾测试。
@@ -323,6 +351,13 @@ if (!failurePair) {
   }
   if (failed.state.craftedPairs.length !== simulated.craftedPairs.length) {
     fail("失败熔炼不应该写入已熔配对");
+  }
+  const failedKey = pairKey(failurePair[0], failurePair[1]);
+  if (!failed.state.failedPairs.includes(failedKey)) {
+    fail("失败熔炼没有写入无果配对");
+  }
+  if (failed.state.failedPairs.length !== simulated.failedPairs.length + 1) {
+    fail("失败熔炼写入无果配对的数量不正确");
   }
 }
 
@@ -1025,7 +1060,7 @@ console.log(
   `材料标记：初始 闲 ${initialStatusCounts.idle || 0} · 尽 ${initialStatusCounts.exhausted || 0}；全收集 闲 ${allKnownStatusCounts.idle || 0} · 尽 ${allKnownStatusCounts.exhausted || 0}`
 );
 console.log(
-  `已熔配对：初始 ${freshState.craftedPairs.length} · 完整试玩 ${simulated.craftedPairs.length}`
+  `已熔配对：初始 ${freshState.craftedPairs.length} · 完整试玩 ${simulated.craftedPairs.length}；无果配对：初始 ${freshState.failedPairs.length} · 完整试玩 ${simulated.failedPairs.length}`
 );
 if (warnings.length) {
   console.log("\n提醒：");

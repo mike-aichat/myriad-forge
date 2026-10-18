@@ -28,7 +28,7 @@
   margin-top: 10px;
   color: var(--parchment-dim);
   font-family: var(--font-serif);
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1.95;
 }
 
@@ -41,7 +41,7 @@
   border-top: 1px solid var(--line-soft);
   color: var(--muted);
   font-family: var(--font-pixel);
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .artifact-hero__stats span {
@@ -53,7 +53,7 @@
 .artifact-hero__stats b {
   color: var(--brass-hi);
   font-weight: normal;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .artifact-hero__seal {
@@ -134,14 +134,14 @@
   background: transparent;
   color: var(--muted);
   font-family: var(--font-pixel);
-  font-size: 11px;
+  font-size: 13px;
   cursor: pointer;
 }
 
 .artifact-tabs button em {
   color: var(--muted-2);
   font-family: var(--font-pixel);
-  font-size: 8px;
+  font-size: 11px;
   font-style: normal;
 }
 
@@ -155,7 +155,7 @@
   margin-left: auto;
   color: var(--muted-2) !important;
   font-family: var(--font-serif) !important;
-  font-size: 11px !important;
+  font-size: 13px !important;
 }
 
 .artifact-layout {
@@ -181,7 +181,7 @@
   margin-top: 4px;
   color: var(--muted-2);
   font-family: var(--font-serif);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.65;
 }
 
@@ -225,7 +225,7 @@
   overflow: hidden;
   color: var(--parchment-dim);
   font-family: var(--font-pixel);
-  font-size: 9px;
+  font-size: 12px;
   font-weight: normal;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -236,7 +236,7 @@
   margin-top: 2px;
   color: var(--muted-2);
   font-family: var(--font-serif);
-  font-size: 8px;
+  font-size: 11px;
   font-style: normal;
 }
 
@@ -256,21 +256,21 @@
   padding-left: 2px;
   color: var(--parchment-dim);
   font-family: var(--font-serif);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.75;
 }
 
 .artifact-case-detail li::marker {
   color: var(--brass);
   font-family: var(--font-pixel);
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .artifact-case-detail > p {
   margin-top: 10px;
   color: var(--muted-2);
   font-family: var(--font-serif);
-  font-size: 9px;
+  font-size: 12px;
   line-height: 1.7;
 }
 
@@ -307,7 +307,7 @@
   left: 8px;
   color: var(--brass);
   font-family: var(--font-pixel);
-  font-size: 8px;
+  font-size: 11px;
   opacity: 0.6;
 }
 
@@ -317,10 +317,13 @@
   right: 5px;
   width: 19px;
   height: 19px;
+  display: grid;
+  place-items: center;
   background: transparent;
   color: var(--muted-2);
   font-family: var(--font-pixel);
-  font-size: 12px;
+  font-size: 14px;
+  line-height: 1;
   cursor: pointer;
 }
 
@@ -331,7 +334,7 @@
 .artifact-slot > b {
   color: var(--parchment);
   font-family: var(--font-pixel);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: normal;
 }
 
@@ -340,7 +343,7 @@
   overflow: hidden;
   color: var(--muted-2);
   font-family: var(--font-serif);
-  font-size: 9px;
+  font-size: 12px;
   line-height: 1.5;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -349,7 +352,7 @@
 .artifact-slot__empty {
   color: var(--muted-2);
   font-family: var(--font-pixel);
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .artifact-bench__action {
@@ -367,7 +370,7 @@
   max-width: 240px;
   color: var(--muted-2);
   font-family: var(--font-serif);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.6;
 }
 
@@ -383,13 +386,13 @@
 
 .artifact-message > span {
   color: var(--brass);
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .artifact-message p {
   color: var(--muted);
   font-family: var(--font-serif);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.65;
 }
 
@@ -404,13 +407,13 @@
   margin-top: 4px;
   color: var(--verdigris);
   font-family: var(--font-serif);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.7;
 }
 
 .artifact-hint .text-button {
   margin-top: 5px;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .artifact-result {
@@ -424,7 +427,7 @@
   margin-top: 4px;
   color: var(--muted-2);
   font-family: var(--font-serif);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.7;
 }
 
@@ -455,7 +458,7 @@
 
 .artifact-result__head h3 {
   font-family: var(--font-pixel);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: normal;
   color: var(--parchment);
 }
@@ -464,7 +467,7 @@
   margin-top: 3px;
   color: var(--muted);
   font-family: var(--font-serif);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.6;
 }
 
@@ -472,7 +475,7 @@
   margin-top: 8px;
   color: var(--parchment-dim);
   font-family: var(--font-serif);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.8;
 }
 
@@ -482,7 +485,7 @@
   border-left: 1px solid rgba(213, 160, 91, 0.28);
   color: var(--muted);
   font-family: var(--font-serif);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.7;
 }
 
@@ -490,7 +493,7 @@
   margin-top: 7px;
   color: var(--muted-2);
   font-family: var(--font-serif);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.7;
 }
 
@@ -501,13 +504,13 @@
   border: 1px solid rgba(108, 184, 163, 0.3);
   color: var(--verdigris);
   font-family: var(--font-pixel);
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .artifact-result > .text-button {
   display: block;
   margin-top: 7px;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .artifact-auto-hint {
@@ -519,7 +522,7 @@
 .artifact-auto-hint b {
   color: var(--verdigris);
   font-family: var(--font-pixel);
-  font-size: 8px;
+  font-size: 11px;
   font-weight: normal;
 }
 
@@ -527,7 +530,7 @@
   margin-top: 4px;
   color: var(--muted);
   font-family: var(--font-serif);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.7;
 }
 
@@ -538,7 +541,7 @@
   border: 1px solid rgba(181, 138, 212, 0.32);
   color: var(--magic, #b58ad4);
   font-family: var(--font-pixel);
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .artifact-tier[data-tier="almost"] {
@@ -581,7 +584,7 @@
 .artifact-curator__stage b {
   color: var(--parchment);
   font-family: var(--font-pixel);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: normal;
 }
 
@@ -589,7 +592,7 @@
   margin-top: 4px;
   color: var(--muted);
   font-family: var(--font-serif);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.7;
 }
 
@@ -600,14 +603,14 @@
 .artifact-curator__meter > span {
   color: var(--muted-2);
   font-family: var(--font-pixel);
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .artifact-curator__meter > b {
   float: right;
   color: var(--brass-hi);
   font-family: var(--font-pixel);
-  font-size: 9px;
+  font-size: 12px;
   font-weight: normal;
 }
 
@@ -631,7 +634,7 @@
   background: rgba(108, 184, 163, 0.05);
   color: var(--verdigris);
   font-family: var(--font-pixel);
-  font-size: 9px;
+  font-size: 12px;
   cursor: pointer;
 }
 
@@ -642,7 +645,7 @@
 .artifact-curator > .text-button {
   margin-top: 7px;
   text-align: left;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .artifact-detail {
@@ -661,7 +664,7 @@
 .artifact-detail__head b {
   color: var(--parchment);
   font-family: var(--font-pixel);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: normal;
 }
 
@@ -669,7 +672,7 @@
   margin-top: 6px;
   color: var(--muted-2);
   font-family: var(--font-serif);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.7;
 }
 
@@ -685,7 +688,7 @@
   border: 1px solid var(--line-soft);
   color: var(--muted);
   font-family: var(--font-serif);
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .artifact-pool {
@@ -730,13 +733,14 @@
   min-height: 9px;
   color: var(--brass-hi);
   font-family: var(--font-pixel);
-  font-size: 7px;
+  font-size: 11px;
+  line-height: 1;
 }
 
 .artifact-fragment__name {
   color: var(--parchment-dim);
   font-family: var(--font-serif);
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .artifact-fragment.is-selected .artifact-fragment__name {
@@ -771,7 +775,7 @@
   margin-top: 6px;
   color: var(--muted);
   font-family: var(--font-serif);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.8;
 }
 
@@ -781,7 +785,7 @@
   border: 1px solid var(--line-soft);
   color: var(--brass-hi);
   font-family: var(--font-pixel);
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .artifact-gallery__grid {
@@ -826,7 +830,7 @@
 .artifact-card__copy h3 {
   margin-top: 3px;
   font-family: var(--font-pixel);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: normal;
   line-height: 1.45;
   color: var(--parchment);
@@ -836,7 +840,7 @@
   margin-top: 4px;
   color: var(--muted);
   font-family: var(--font-serif);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.65;
 }
 
@@ -850,7 +854,7 @@
   border-left: 1px solid rgba(213, 160, 91, 0.22);
   color: var(--muted-2);
   font-family: var(--font-serif);
-  font-size: 9px;
+  font-size: 12px;
   line-height: 1.65;
 }
 
@@ -863,7 +867,7 @@
   margin-top: 3px;
   color: var(--muted);
   font-family: var(--font-serif);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.6;
 }
 
@@ -872,7 +876,7 @@
   margin-top: 5px;
   color: var(--muted-2);
   font-family: var(--font-pixel);
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .artifact-card__silent {
@@ -900,13 +904,13 @@
 .artifact-tier-progress__item span {
   color: var(--muted);
   font-family: var(--font-serif);
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .artifact-tier-progress__item b {
   color: var(--brass-hi);
   font-family: var(--font-pixel);
-  font-size: 9px;
+  font-size: 12px;
   font-weight: normal;
   white-space: nowrap;
 }
@@ -941,7 +945,7 @@
   margin-top: 5px;
   color: var(--muted);
   font-family: var(--font-serif);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.8;
 }
 
@@ -967,7 +971,7 @@
   border-top: 1px solid var(--line-soft);
   color: var(--muted-2);
   font-family: var(--font-serif);
-  font-size: 10px;
+  font-size: 12px;
 }
 
 /* Artifact feature card in the hub */
@@ -1001,7 +1005,7 @@
   margin-top: 7px;
   color: var(--muted);
   font-family: var(--font-serif);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.85;
 }
 
@@ -1014,13 +1018,13 @@
   border-top: 1px solid var(--line-soft);
   color: var(--muted);
   font-family: var(--font-pixel);
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .artifact-card-feature__stats b {
   color: var(--brass-hi);
   font-weight: normal;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .artifact-card-feature blockquote {
@@ -1029,7 +1033,7 @@
   border-left: 1px solid rgba(181, 138, 212, 0.32);
   color: var(--parchment-dim);
   font-family: var(--font-serif);
-  font-size: 10px;
+  font-size: 12px;
   font-style: italic;
   line-height: 1.7;
 }
@@ -1044,7 +1048,7 @@
 .artifact-card-feature__actions > span {
   color: var(--muted-2);
   font-family: var(--font-serif);
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .artifact-card-feature__preview {

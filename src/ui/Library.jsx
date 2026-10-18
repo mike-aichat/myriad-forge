@@ -1,15 +1,21 @@
 import React, { useMemo } from "react";
 import { ELEMENTS } from "../data/elements/index.js";
 import { CATEGORIES, CATEGORY_MAP } from "../data/categories.js";
-import { buildCraftedPartnerMap } from "../game/craftedPairs.js";
+import { buildPairHistoryMap } from "../game/craftedPairs.js";
 import { ELEMENT_BY_ID } from "../game/recipes.js";
 import { buildElementUseStatus, countElementUseStatus } from "../game/recipeStatus.js";
 import { Sprite } from "./Sprite.jsx";
 
-function craftedPairNote(links) {
-  return links
-    .map((link) => `与「${link.sourceName}」熔过，产物是「${link.resultName}」`)
-    .join("；");
+function pairHistoryNote(entry) {
+  if (!entry) return "";
+  const notes = [];
+  for (const link of entry.crafted) {
+    notes.push(`与「${link.sourceName}」熔过，产物是「${link.resultName}」`);
+  }
+  for (const link of entry.failed) {
+    notes.push(`与「${link.sourceName}」试过，没有结果`);
+  }
+  return notes.join("；");
 }
 
 function ElementCard({
@@ -20,10 +26,15 @@ function ElementCard({
   onInfo,
   onUnknown,
   status,
-  craftedLinks,
+  pairEntry,
 }) {
   const category = CATEGORY_MAP[element.category];
-  const craftedNote = craftedLinks?.length ? craftedPairNote(craftedLinks) : "";
+  const markKind = pairEntry?.crafted.length
+    ? "crafted"
+    : pairEntry?.failed.length
+      ? "failed"
+      : null;
+  const pairNote = pairHistoryNote(pairEntry);
   const statusBadge = status?.label ? (
     <span
       className={`element-card__status is-${status.kind}`}
@@ -56,15 +67,15 @@ function ElementCard({
 
   return (
     <div
-      className={`element-card ${selectedIndex >= 0 ? "is-selected" : ""} ${craftedLinks ? "is-crafted-pair" : ""}`}
+      className={`element-card ${selectedIndex >= 0 ? "is-selected" : ""} ${markKind === "crafted" ? "is-crafted-pair" : ""} ${markKind === "failed" ? "is-failed-pair" : ""}`}
       style={{ "--cat": category.color }}
     >
       <button
         type="button"
         className="element-card__select"
         onClick={() => onSelect(element.id)}
-        title={`${element.name} · ${category.name}${craftedNote ? ` · ${craftedNote}` : ""}`}
-        aria-label={`选择${element.name}放入熔炉${craftedNote ? `；${craftedNote}` : ""}`}
+        title={`${element.name} · ${category.name}${pairNote ? ` · ${pairNote}` : ""}`}
+        aria-label={`选择${element.name}放入熔炉${pairNote ? `；${pairNote}` : ""}`}
       >
         <div className="element-card__sprite">
           <Sprite element={element} size={46} />
@@ -85,9 +96,9 @@ function ElementCard({
         <span className="element-card__slot-mark" aria-hidden="true">
           {selectedIndex === 0 ? "I" : "II"}
         </span>
-      ) : craftedLinks ? (
-        <span className="element-card__pair-mark" aria-hidden="true">
-          已
+      ) : markKind ? (
+        <span className={`element-card__pair-mark is-${markKind}`} aria-hidden="true">
+          {markKind === "crafted" ? "已" : "空"}
         </span>
       ) : null}
       {statusBadge}
@@ -117,10 +128,19 @@ export function Library({
     state.order.forEach((id, index) => map.set(id, index));
     return map;
   }, [state.order]);
-  const craftedPartners = useMemo(
-    () => buildCraftedPartnerMap(state, selected),
+  const pairHistory = useMemo(
+    () => buildPairHistoryMap(state, selected),
     [state, selected]
   );
+  const pairCounts = useMemo(() => {
+    let crafted = 0;
+    let failed = 0;
+    for (const entry of pairHistory.values()) {
+      if (entry.crafted.length) crafted += 1;
+      if (entry.failed.length) failed += 1;
+    }
+    return { crafted, failed };
+  }, [pairHistory]);
   const selectedNames = useMemo(
     () => selected.map((id) => ELEMENT_BY_ID.get(id)?.name).filter(Boolean),
     [selected]
@@ -247,15 +267,21 @@ export function Library({
         <span title="当前没有已发现的搭档能造出新要素"><i data-kind="idle">闲</i>当前无新结果 {statusCounts.idle}</span>
         <span title="会用到它的配方结果都已发现"><i data-kind="exhausted">尽</i>已无新结果 {statusCounts.exhausted}</span>
         {selected.length > 0 && (
-          <span className="library-status-legend__pair">
-            <i data-kind="crafted">已</i>
-            与{selectedNames.map((name) => `「${name}」`).join("")}熔过的搭档 {craftedPartners.size}
-          </span>
+          <>
+            <span className="library-status-legend__pair" title="与所选要素成功熔过的搭档">
+              <i data-kind="crafted">已</i>
+              与{selectedNames.map((name) => `「${name}」`).join("")}熔过 {pairCounts.crafted}
+            </span>
+            <span className="library-status-legend__pair is-failed" title="与所选要素试过但没有结果的搭档">
+              <i data-kind="failed">空</i>
+              与{selectedNames.map((name) => `「${name}」`).join("")}无果 {pairCounts.failed}
+            </span>
+          </>
         )}
         <span className="library-status-legend__note">
           {selected.length
-            ? "再熔一遍，只会翻回旧页。"
-            : "选中一项后，会标出已经和它熔过的搭档。"}
+            ? "试过的组合已标出，结果不会变。"
+            : "选中一项后，会标出已经试过的搭档。"}
         </span>
       </div>
 
@@ -264,7 +290,7 @@ export function Library({
           <div className="element-grid">
             {visible.map((element) => {
               const index = selected.indexOf(element.id);
-              const craftedEntry = index < 0 ? craftedPartners.get(element.id) : null;
+              const pairEntry = index < 0 ? pairHistory.get(element.id) : null;
               return (
                 <ElementCard
                   key={element.id}
@@ -275,7 +301,7 @@ export function Library({
                   onInfo={onInfo}
                   onUnknown={onUnknown}
                   status={useStatus.get(element.id)}
-                  craftedLinks={craftedEntry?.links}
+                  pairEntry={pairEntry}
                 />
               );
             })}

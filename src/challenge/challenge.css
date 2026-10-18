@@ -63,7 +63,7 @@
 
 .challenge-topbar__overline {
   font-family: var(--font-pixel);
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 0.18em;
   color: var(--muted-2);
 }
@@ -78,7 +78,7 @@
 .challenge-topbar__count em {
   margin-left: 3px;
   font-style: normal;
-  font-size: 9px;
+  font-size: 12px;
   color: var(--muted-2);
 }
 
@@ -95,19 +95,19 @@
   gap: 3px;
   color: var(--muted-2);
   font-family: var(--font-pixel);
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .challenge-topbar__meters b {
   color: var(--brass-hi);
   font-weight: normal;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .challenge-topbar__meters em {
   color: var(--muted-2);
   font-style: normal;
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .challenge-topbar__active {
@@ -115,7 +115,7 @@
   padding-left: 16px;
   border-left: 1px solid var(--line-soft);
   font-family: var(--font-pixel);
-  font-size: 10px;
+  font-size: 12px;
   color: var(--verdigris);
   white-space: nowrap;
   overflow: hidden;
@@ -181,7 +181,7 @@
   margin-top: 12px;
   color: var(--parchment-dim);
   font-family: var(--font-serif);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 2;
   text-wrap: pretty;
 }
@@ -195,7 +195,7 @@
   border-top: 1px solid var(--line-soft);
   color: var(--muted);
   font-family: var(--font-pixel);
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .challenge-hero__stats span {
@@ -207,7 +207,7 @@
 .challenge-hero__stats b {
   color: var(--brass-hi);
   font-weight: normal;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .challenge-hero__sigil {
@@ -290,7 +290,7 @@
   border-right: 1px solid var(--line-soft);
   color: var(--muted-2);
   font-family: var(--font-serif);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.8;
 }
 
@@ -304,7 +304,7 @@
   color: var(--brass);
   font-family: var(--font-pixel);
   font-weight: normal;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .challenge-grid {
@@ -344,7 +344,7 @@
 
 .challenge-card__state {
   font-family: var(--font-pixel);
-  font-size: 8px;
+  font-size: 11px;
   color: var(--muted-2);
   letter-spacing: 0.04em;
 }
@@ -366,7 +366,7 @@
 .challenge-card__subtitle {
   margin-top: -5px;
   font-family: var(--font-serif);
-  font-size: 11px;
+  font-size: 13px;
   color: var(--muted);
 }
 
@@ -376,7 +376,7 @@
   border-left: 1px solid color-mix(in srgb, var(--challenge-accent) 58%, transparent);
   color: var(--parchment-dim);
   font-family: var(--font-serif);
-  font-size: 11px;
+  font-size: 13px;
   font-style: italic;
   line-height: 1.9;
 }
@@ -426,7 +426,7 @@
   border: 1px solid var(--line-soft);
   color: var(--muted);
   font-family: var(--font-pixel);
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.04em;
   white-space: nowrap;
 }
@@ -455,7 +455,7 @@
   min-width: 56px;
   color: var(--muted);
   font-family: var(--font-pixel);
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .challenge-starter i {
@@ -475,7 +475,7 @@
 
 .challenge-ember-count {
   font-family: var(--font-pixel);
-  font-size: 9px;
+  font-size: 12px;
   color: var(--brass);
   white-space: nowrap;
 }
@@ -483,7 +483,7 @@
 .challenge-open {
   min-width: 130px;
   padding: 9px 15px;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .challenge-hub__complete {
@@ -497,7 +497,7 @@
   background: rgba(213, 160, 91, 0.035);
   color: var(--parchment-dim);
   font-family: var(--font-serif);
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .challenge-hub__complete span {
@@ -545,7 +545,7 @@
 .challenge-play__head p:last-child {
   margin-top: 3px;
   font-family: var(--font-serif);
-  font-size: 11px;
+  font-size: 13px;
   color: var(--muted);
 }
 
@@ -564,7 +564,7 @@
 .challenge-ember-readout > span:first-child {
   width: 100%;
   font-family: var(--font-pixel);
-  font-size: 9px;
+  font-size: 12px;
   color: var(--muted-2);
 }
 
@@ -578,7 +578,7 @@
 .challenge-ember-readout em {
   font-style: normal;
   font-family: var(--font-pixel);
-  font-size: 9px;
+  font-size: 12px;
   color: var(--muted-2);
 }
 
@@ -656,7 +656,7 @@
   top: 6px;
   left: 8px;
   font-family: var(--font-pixel);
-  font-size: 8px;
+  font-size: 11px;
   color: var(--brass);
   opacity: 0.55;
 }
@@ -673,7 +673,8 @@
   background: transparent;
   color: var(--muted-2);
   font-family: var(--font-pixel);
-  font-size: 13px;
+  font-size: 15px;
+  line-height: 1;
   cursor: pointer;
 }
 
@@ -691,7 +692,7 @@
 
 .challenge-slot__body > span {
   font-family: var(--font-pixel);
-  font-size: 11px;
+  font-size: 13px;
   color: var(--parchment);
 }
 
@@ -720,7 +721,7 @@
 
 .challenge-slot__empty i {
   font-family: var(--font-pixel);
-  font-size: 8px;
+  font-size: 11px;
   font-style: normal;
   letter-spacing: 0.06em;
 }
@@ -767,12 +768,16 @@
 .challenge-fuse .fuse-button {
   min-width: 174px;
   padding: 12px 21px;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .challenge-fuse__hint {
+  padding: 2px 7px;
+  border: 1px solid rgba(141, 164, 156, 0.12);
+  background: rgba(6, 17, 21, 0.76);
   font-family: var(--font-pixel);
-  font-size: 8px;
+  font-size: 11px;
+  line-height: 1.35;
   color: var(--muted-2);
   white-space: nowrap;
 }
@@ -786,7 +791,7 @@
   background: transparent;
   color: var(--muted-2);
   font-family: var(--font-pixel);
-  font-size: 8px;
+  font-size: 11px;
   cursor: pointer;
 }
 
@@ -817,13 +822,13 @@
 .challenge-message > span {
   padding-top: 2px;
   color: var(--brass);
-  font-size: 9px;
+  font-size: 12px;
   opacity: 0.6;
 }
 
 .challenge-message p {
   font-family: var(--font-serif);
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.8;
 }
 
@@ -872,7 +877,7 @@
 .challenge-discovery b {
   display: block;
   font-family: var(--font-pixel);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: normal;
   color: var(--verdigris);
 }
@@ -881,7 +886,7 @@
   margin-top: 1px;
   color: var(--muted);
   font-family: var(--font-serif);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.7;
 }
 
@@ -901,7 +906,7 @@
 .challenge-tray__head > span:last-child {
   color: var(--muted-2);
   font-family: var(--font-serif);
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .challenge-tray__grid {
@@ -956,7 +961,7 @@
   left: 5px;
   color: var(--muted-2);
   font-family: var(--font-pixel);
-  font-size: 7px;
+  font-size: 11px;
   opacity: 0.55;
 }
 
@@ -966,12 +971,12 @@
   right: 4px;
   color: var(--brass-hi);
   font-family: var(--font-pixel);
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .challenge-element__name {
   font-family: var(--font-pixel);
-  font-size: 10px;
+  font-size: 12px;
   white-space: nowrap;
 }
 
@@ -1001,7 +1006,7 @@
   margin-top: 5px;
   color: var(--muted);
   font-family: var(--font-serif);
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.85;
   text-wrap: pretty;
 }
@@ -1056,7 +1061,7 @@
 .challenge-target__copy > p {
   color: var(--muted-2);
   font-family: var(--font-serif);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.7;
 }
 
@@ -1083,14 +1088,14 @@
 .challenge-constraints span {
   color: var(--muted-2);
   font-family: var(--font-pixel);
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .challenge-constraints b {
   color: var(--parchment-dim);
   font-family: var(--font-pixel);
   font-weight: normal;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .challenge-clue {
@@ -1099,7 +1104,7 @@
   border-left: 1px solid rgba(213, 160, 91, 0.3);
   color: var(--muted);
   font-family: var(--font-serif);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.85;
 }
 
@@ -1108,7 +1113,7 @@
   margin-right: 7px;
   color: var(--brass);
   font-family: var(--font-pixel);
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.06em;
 }
 
@@ -1124,7 +1129,7 @@
   gap: 5px;
   color: var(--muted-2);
   font-family: var(--font-pixel);
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.04em;
   cursor: pointer;
   list-style: none;
@@ -1137,7 +1142,7 @@
 .challenge-opening summary::before {
   content: "＋";
   color: var(--brass);
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .challenge-opening[open] summary::before {
@@ -1148,7 +1153,7 @@
   margin-top: 7px;
   color: var(--muted);
   font-family: var(--font-serif);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.95;
   text-wrap: pretty;
 }
@@ -1173,7 +1178,7 @@
   gap: 7px;
   color: var(--parchment-dim);
   font-family: var(--font-serif);
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.85;
   font-style: italic;
 }
@@ -1206,7 +1211,7 @@
   display: block;
   margin-bottom: 2px;
   font-family: var(--font-pixel);
-  font-size: 9px;
+  font-size: 12px;
   font-weight: normal;
   color: var(--brass);
 }
@@ -1214,7 +1219,7 @@
 .challenge-beat p {
   color: var(--parchment-dim);
   font-family: var(--font-serif);
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.85;
   text-wrap: pretty;
 }
@@ -1223,7 +1228,7 @@
   padding: 13px 0;
   color: var(--muted-2);
   font-family: var(--font-serif);
-  font-size: 11px;
+  font-size: 13px;
   font-style: italic;
 }
 
@@ -1257,7 +1262,7 @@
   border-top: 1px solid rgba(141, 164, 156, 0.08);
   color: var(--muted-2);
   font-family: var(--font-pixel);
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.06em;
 }
 
@@ -1332,7 +1337,7 @@
   margin-top: 4px;
   color: var(--muted);
   font-family: var(--font-serif);
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .challenge-intro-card blockquote {
@@ -1342,7 +1347,7 @@
   border-left: 1px solid color-mix(in srgb, var(--challenge-accent) 62%, transparent);
   color: var(--parchment-dim);
   font-family: var(--font-serif);
-  font-size: 13px;
+  font-size: 15px;
   font-style: italic;
   line-height: 1.9;
 }
@@ -1360,14 +1365,14 @@
   margin-top: 7px;
   color: var(--parchment-dim);
   font-family: var(--font-serif);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 2.05;
   text-wrap: pretty;
 }
 
 .challenge-intro-copy .challenge-clue {
   margin-top: 14px;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .challenge-intro-target {
@@ -1425,7 +1430,7 @@
   margin-top: 9px;
   color: var(--muted);
   font-family: var(--font-serif);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.8;
 }
 
@@ -1455,14 +1460,14 @@
   gap: 5px;
   color: var(--parchment-dim);
   font-family: var(--font-pixel);
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .challenge-intro-rule {
   margin-top: 15px;
   color: var(--muted-2);
   font-family: var(--font-serif);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.8;
 }
 
@@ -1582,7 +1587,7 @@
   margin: 14px auto 0;
   color: var(--parchment);
   font-family: var(--font-serif);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.9;
   text-wrap: pretty;
 }
@@ -1592,7 +1597,7 @@
   margin: 12px auto 0;
   color: var(--parchment-dim);
   font-family: var(--font-serif);
-  font-size: 13px;
+  font-size: 15px;
   line-height: 2;
   text-wrap: pretty;
 }
@@ -1620,14 +1625,14 @@
 .challenge-result-stats span {
   color: var(--muted-2);
   font-family: var(--font-pixel);
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .challenge-result-stats b {
   color: var(--brass-hi);
   font-family: var(--font-pixel);
   font-weight: normal;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .challenge-result-actions {
@@ -1659,7 +1664,7 @@
   margin-top: 13px;
   color: var(--muted-2);
   font-family: var(--font-pixel);
-  font-size: 8px;
+  font-size: 11px;
   line-height: 1.7;
 }
 
@@ -1698,7 +1703,7 @@
 .challenge-family__meta span {
   color: var(--brass);
   font-family: var(--font-pixel);
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.06em;
 }
 
@@ -1706,7 +1711,7 @@
   margin-top: 4px;
   color: var(--muted-2);
   font-family: var(--font-serif);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.75;
   text-wrap: pretty;
 }
@@ -1716,7 +1721,7 @@
   border: 1px solid color-mix(in srgb, var(--challenge-accent) 34%, transparent);
   color: var(--challenge-accent);
   font-family: var(--font-pixel);
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.04em;
   white-space: nowrap;
 }
@@ -1741,7 +1746,7 @@
   width: 100%;
   color: var(--verdigris);
   font-family: var(--font-pixel);
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.06em;
 }
 
@@ -1764,7 +1769,7 @@
   background: transparent;
   color: var(--verdigris);
   font-family: var(--font-pixel);
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.04em;
   cursor: pointer;
 }
@@ -1783,7 +1788,7 @@
   margin-top: 6px;
   color: var(--muted-2);
   font-family: var(--font-serif);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.75;
 }
 
@@ -1792,7 +1797,7 @@
   padding: 0;
   color: var(--parchment-dim);
   font-family: var(--font-serif);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.8;
 }
 

@@ -1,6 +1,6 @@
 import { CHAPTERS } from "../data/chapters.js";
 import { BASE_IDS, ENDGAME_IDS, state as schema } from "../data/schema.js";
-import { normalizeCraftedPairs } from "./craftedPairs.js";
+import { normalizeCraftedPairs, normalizeFailedPairs } from "./craftedPairs.js";
 import { ELEMENT_BY_ID, findResult, pairKey } from "./recipes.js";
 
 export const SAVE_KEY = schema.storageKey;
@@ -12,6 +12,7 @@ export function createInitialState() {
     discovered: [...BASE_IDS],
     order: [...BASE_IDS].reverse(),
     craftedPairs: [],
+    failedPairs: [],
     completedChapters: [],
     insight: 3,
     fusions: 0,
@@ -40,6 +41,7 @@ function normalizeLoadedState(raw) {
     ? raw.completedChapters.filter((id) => CHAPTERS.some((chapter) => chapter.id === id))
     : [];
   const craftedPairs = normalizeCraftedPairs(raw.craftedPairs, discovered);
+  const failedPairs = normalizeFailedPairs(raw.failedPairs);
   return {
     ...base,
     ...raw,
@@ -47,6 +49,7 @@ function normalizeLoadedState(raw) {
     discovered,
     order,
     craftedPairs,
+    failedPairs,
     completedChapters,
     insight: Number.isFinite(raw.insight) ? Math.max(0, Math.floor(raw.insight)) : base.insight,
     fusions: Number.isFinite(raw.fusions) ? Math.max(0, raw.fusions) : 0,
@@ -164,10 +167,13 @@ export function fuseElements(inputState, a, b) {
   const resultId = findResult(a, b);
   let state = { ...inputState, fusions: inputState.fusions + 1 };
   if (!resultId) {
+    const failedPairs = state.failedPairs || [];
+    const failedKey = pairKey(a, b);
     state = {
       ...state,
       failures: state.failures + 1,
       consecutiveFailures: state.consecutiveFailures + 1,
+      failedPairs: failedPairs.includes(failedKey) ? failedPairs : [...failedPairs, failedKey],
     };
     let bonusInsight = 0;
     if (state.consecutiveFailures >= 8) {
@@ -188,13 +194,14 @@ export function fuseElements(inputState, a, b) {
     };
   }
 
+  const craftedPairs = state.craftedPairs || [];
+  const craftedKey = pairKey(a, b);
   state = {
     ...state,
     successes: state.successes + 1,
     consecutiveFailures: 0,
+    failedPairs: (state.failedPairs || []).filter((key) => key !== craftedKey),
   };
-  const craftedPairs = state.craftedPairs || [];
-  const craftedKey = pairKey(a, b);
   if (!craftedPairs.includes(craftedKey)) {
     state = { ...state, craftedPairs: [...craftedPairs, craftedKey] };
   }
