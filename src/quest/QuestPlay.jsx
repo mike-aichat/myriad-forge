@@ -103,7 +103,7 @@ export function QuestPlay({ quest, initialRun, reducedMotion, onCheckpoint, onFi
 
   useEffect(() => {
     if (selected.length === 2 && run.status === "playing" && !run.pendingChoice && !isFusing) {
-      fuseButtonRef.current?.focus();
+      fuseButtonRef.current?.focus({ preventScroll: true });
     }
   }, [selected.length, run.status, run.pendingChoice, isFusing]);
 

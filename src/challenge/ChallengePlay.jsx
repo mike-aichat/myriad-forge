@@ -110,7 +110,7 @@ export function ChallengePlay({ challenge, reducedMotion, onWin, onLose, onBack 
 
   useEffect(() => {
     if (selected.length === 2 && run.status === "playing" && !isFusing) {
-      fuseButtonRef.current?.focus();
+      fuseButtonRef.current?.focus({ preventScroll: true });
     }
   }, [selected.length, run.status, isFusing]);
 

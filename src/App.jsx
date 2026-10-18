@@ -79,7 +79,7 @@ export default function App() {
 
   useEffect(() => {
     if (mode === "main" && selected.length === 2 && !locked && !isFusing && !isInspiring) {
-      fuseButtonRef.current?.focus();
+      fuseButtonRef.current?.focus({ preventScroll: true });
     }
   }, [mode, selected.length, locked, isFusing, isInspiring]);
 
