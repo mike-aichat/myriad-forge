@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { ELEMENT_BY_ID } from "../game/recipes.js";
 import { chapterProgress } from "../game/progress.js";
 import { Sprite } from "./Sprite.jsx";
+import { getObjectiveHint } from "./objectiveHint.js";
 
 export function Journal({
   chapter,
@@ -11,6 +12,7 @@ export function Journal({
   allComplete,
   stats,
 }) {
+  const discoveredSet = useMemo(() => new Set(state.discovered), [state.discovered]);
   const progress = chapterProgress(state, chapter);
   const completed = state.completedChapters.includes(chapter.id);
   const unlockElements = (chapter.reward?.unlock || [])
@@ -89,6 +91,7 @@ export function Journal({
         {chapter.objectives.map((objective, index) => {
           const element = ELEMENT_BY_ID.get(objective.target);
           const done = state.discovered.includes(objective.target);
+          const hint = getObjectiveHint(objective.target, discoveredSet);
           return (
             <li key={objective.target} className={done ? "is-done" : ""}>
               <span className="task-index" aria-hidden="true">
@@ -107,8 +110,8 @@ export function Journal({
                 <span>{objective.prompt}</span>
                 <b>{done ? element.name : "？？？"}</b>
               </div>
-              <span className="task-state" aria-label={done ? "已完成" : "未完成"}>
-                {done ? "已写下" : "留白"}
+              <span className={`task-state is-${hint.kind}`} title={hint.title}>
+                {hint.label}
               </span>
             </li>
           );

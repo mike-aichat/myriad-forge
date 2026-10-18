@@ -1285,6 +1285,16 @@ kbd {
   white-space: nowrap;
 }
 
+.task-state.is-ready {
+  color: var(--verdigris);
+  opacity: 0.95;
+}
+
+.task-state.is-missing {
+  color: var(--muted-2);
+  opacity: 0.7;
+}
+
 .journal-tasks li.is-done .task-state {
   color: var(--verdigris);
 }
@@ -2727,6 +2737,33 @@ kbd {
 
 .story-objective.is-done span:last-child {
   color: var(--verdigris);
+}
+
+.story-objective__meta > span {
+  color: var(--parchment-dim);
+}
+
+.story-objective.is-done .story-objective__meta > span {
+  color: var(--verdigris);
+}
+
+.story-objective__hint {
+  display: inline-block;
+  margin-left: 8px;
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  font-style: normal;
+  white-space: nowrap;
+  color: var(--muted-2);
+}
+
+.story-objective__hint.is-ready {
+  color: var(--verdigris);
+}
+
+.story-objective__hint.is-missing {
+  color: var(--muted-2);
+  opacity: 0.7;
 }
 
 .story-reward {

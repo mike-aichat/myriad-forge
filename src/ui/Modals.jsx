@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { CHAPTERS } from "../data/chapters.js";
 import { CATEGORY_MAP } from "../data/categories.js";
@@ -15,6 +15,7 @@ import {
   stats as getStats,
 } from "../game/progress.js";
 import { Sprite } from "./Sprite.jsx";
+import { getObjectiveHint } from "./objectiveHint.js";
 
 const FOCUSABLE =
   'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -209,6 +210,7 @@ export function StoryModal({ state, onClose, onOpenElement }) {
   const completed = state.completedChapters.includes(selected.id);
   const unlocked = chapterIsUnlocked(state, selected);
   const stats = getStats(state);
+  const discoveredSet = useMemo(() => new Set(state.discovered), [state.discovered]);
 
   return (
     <Modal
@@ -283,6 +285,7 @@ export function StoryModal({ state, onClose, onOpenElement }) {
                 {selected.objectives.map((objective, index) => {
                   const element = ELEMENT_BY_ID.get(objective.target);
                   const done = state.discovered.includes(objective.target);
+                  const hint = getObjectiveHint(objective.target, discoveredSet);
                   return (
                     <div className={`story-objective ${done ? "is-done" : ""}`} key={objective.target}>
                       <span className="story-objective__index">{done ? "◆" : String(index + 1).padStart(2, "0")}</span>
@@ -297,7 +300,14 @@ export function StoryModal({ state, onClose, onOpenElement }) {
                       </button>
                       <div>
                         <p>{objective.prompt}</p>
-                        <span>{done ? element.name : "？？？"}</span>
+                        <span className="story-objective__meta">
+                          <span>{done ? element.name : "？？？"}</span>
+                          {!done && (
+                            <em className={`story-objective__hint is-${hint.kind}`} title={hint.title}>
+                              {hint.label}
+                            </em>
+                          )}
+                        </span>
                       </div>
                     </div>
                   );
