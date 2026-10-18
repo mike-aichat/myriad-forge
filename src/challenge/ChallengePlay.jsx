@@ -318,7 +318,7 @@ export function ChallengePlay({ challenge, reducedMotion, onWin, onLose, onBack 
             <span className="eyebrow">炉中的要素 · {run.discovered.length} 种</span>
             <span>
               {puzzle
-                ? "起始要素全部来自主图鉴之外，新要素会加入牌堆"
+                ? "本页专用起始要素；新要素会加入牌堆"
                 : "起始要素不可替换，新要素会加入余烬"}
             </span>
           </div>
@@ -374,8 +374,8 @@ export function ChallengePlay({ challenge, reducedMotion, onWin, onLose, onBack 
             </div>
             <p>
               {targetIsNew
-                ? `主图鉴里没有它，只有这${puzzle ? "页谜题" : "则试炼"}能造出来。`
-                : "它也在主炉的图鉴里，但这一次，只能用手边的余烬把它做出来。"}
+                ? "只有这里能造出它。"
+                : "这一次，只能用手边的材料把它做出来。"}
             </p>
           </div>
         </div>

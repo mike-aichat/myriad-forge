@@ -326,7 +326,7 @@ export function QuestPlay({ quest, initialRun, reducedMotion, onCheckpoint, onFi
         <div className="challenge-tray">
           <div className="challenge-tray__head">
             <span className="eyebrow">炉中的要素 · {run.discovered.length} 种</span>
-            <span>起始要素全部来自主图鉴之外，新要素会加入牌堆</span>
+            <span>本则任务专用起始要素；新要素会加入牌堆</span>
           </div>
           <div className="challenge-tray__grid quest-tray__grid">
             {trayElements.map(({ element, starter, optional, unlockedByChoice }) => {

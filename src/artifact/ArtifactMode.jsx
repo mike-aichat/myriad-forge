@@ -332,7 +332,7 @@ export function ArtifactMode({ run, onRunChange, onBack }) {
           <p className="eyebrow">炉外机构 · LOST & FOUND MUSEUM</p>
           <h2>失物招领博物馆</h2>
           <p>
-            真品厅收八件无人认领的遗物，误会厅收二十四件鉴定错误的赝品。
+            真品厅收着无人认领的遗物，误会厅收着鉴定错误的赝品。
             馆长老白已经去世，但还在打卡，并坚持给每件错误写展签。
           </p>
           <div className="artifact-hero__stats">

@@ -1,7 +1,7 @@
 import React from "react";
 import { CHALLENGES } from "../data/challenges.js";
 import { QUESTS } from "../data/quests.js";
-import { ARTIFACT_FRAGMENTS, ARTIFACTS, MISIDENTIFIED } from "../data/artifacts.js";
+import { ARTIFACT_FRAGMENTS } from "../data/artifacts.js";
 import { CATEGORY_MAP } from "../data/categories.js";
 import { Sprite } from "../ui/Sprite.jsx";
 import {
@@ -17,12 +17,12 @@ const FAMILY_META = {
   puzzle: {
     name: "谜题",
     kicker: "PUZZLES · 四则小物件",
-    blurb: "没有余烬，没有失败。起始要素全部来自主图鉴之外，试错免费，卡住可以翻提示。",
+    blurb: "没有余烬，也不会失败。随便试，卡住了就翻提示。",
   },
   ember: {
     name: "燃尽",
-    kicker: "EMBER TRIALS · 四则旧故事",
-    blurb: "成功与失败都会消耗余烬。它们仍在炉边，等你把最后一点火用完。",
+    kicker: "EMBER TRIALS · 四则余烬故事",
+    blurb: "成功和失败都会烧掉余烬。火不多，想清楚再添。",
   },
 };
 
@@ -156,7 +156,7 @@ function QuestCard({ quest, progress, onOpen }) {
       </ol>
 
       <div className="challenge-card__starters">
-        <span className="eyebrow">任务专属起始要素 · {starters.length} 种 · 全部来自主图鉴之外</span>
+        <span className="eyebrow">任务专属起始要素 · {starters.length} 种 · 只在本则出现</span>
         <div className="challenge-card__starter-row">
           {starters.map((element) => (
             <span key={element.id} className="challenge-starter is-exclusive" title={element.description}>
@@ -194,8 +194,8 @@ function ArtifactCard({ run, onOpen }) {
         <p className="eyebrow">炉外机构 · LOST & FOUND MUSEUM</p>
         <h3>失物招领博物馆</h3>
         <p>
-          真品厅收藏 {ARTIFACTS.length} 件无人认领的遗物，误会厅收藏 {MISIDENTIFIED.length} 件被认真登记的赝品。
-          三块碎片，顺序无关；选错不会失败，只会多一件有展签的误会。
+          挑三块碎片，顺序无所谓。真品会归位，赝品也会被认真登记；
+          选错不会失败，只会多一件有展签的误会。
         </p>
         <div className="artifact-card-feature__stats">
           <span><b>{counts.trueCount}</b> / {counts.trueTotal} 真品</span>
@@ -225,8 +225,6 @@ function ArtifactCard({ run, onOpen }) {
 export function ChallengeHub({ progress, questProgress, artifactRun, collection, onOpen, onOpenQuest, onOpenArtifacts, onOpenCollection }) {
   const completed = Object.keys(progress.completed).length;
   const total = CHALLENGES.length;
-  const puzzleChallenges = CHALLENGES.filter((challenge) => challengeFamily(challenge) === "puzzle");
-  const emberChallenges = CHALLENGES.filter((challenge) => challengeFamily(challenge) === "ember");
   const questsDone = QUESTS.filter((quest) => questRecord(questProgress, quest.id).endings.length > 0).length;
   const endingsSeen = QUESTS.reduce(
     (sum, quest) => sum + questRecord(questProgress, quest.id).endings.length,
@@ -234,9 +232,6 @@ export function ChallengeHub({ progress, questProgress, artifactRun, collection,
   );
   const endingsTotal = QUESTS.reduce((sum, quest) => sum + quest.endings.length, 0);
   const artifactCountsNow = artifactCounts(artifactRun);
-  const exclusiveStarterCount = new Set(
-    puzzleChallenges.flatMap((challenge) => challenge.starterIds).filter((id) => !isMainElement(id))
-  ).size;
   const collectionStats = collection?.stats || {
     overallPercent: 0,
     challengeCompleted: completed,
@@ -280,16 +275,11 @@ export function ChallengeHub({ progress, questProgress, artifactRun, collection,
       <section className="challenge-hero panel">
         <div className="challenge-hero__copy">
           <p className="eyebrow">炉外总目录 · STORIES OUTSIDE THE FORGE</p>
-          <h2>八页试炼、三则任务、一座失物招领馆</h2>
-          <p>
-            谜题和燃尽沿用旧规则；任务分三幕，有一次选择和四个结局；失物招领馆连鉴定错误的赝品也收进展厅。
-            这些内容都不继承主图鉴，进度分别保存。
-          </p>
+          <h2>炉火照不到的地方</h2>
           <div className="challenge-hero__stats">
             <span><b>{completed}</b> / {total} 页试炼</span>
             <span><b>{questsDone}</b> / {QUESTS.length} 则任务</span>
             <span><b>{endingsSeen}</b> / {endingsTotal} 个任务结局</span>
-            <span><b>{exclusiveStarterCount}</b> 种谜题专属起始</span>
             <span><b>{artifactCountsNow.total}</b> / {artifactCountsNow.totalMax} 件馆藏</span>
           </div>
         </div>
@@ -300,18 +290,11 @@ export function ChallengeHub({ progress, questProgress, artifactRun, collection,
         </div>
       </section>
 
-      <div className="challenge-rules">
-        <span><b>自由试错</b>谜题没有余烬，错误组合不会失败。</span>
-        <span><b>任务选择</b>三则任务各有 3 幕、4 个结局，选择不可撤销。</span>
-        <span><b>燃尽模式</b>旧四则仍有有限余烬，成功失败都扣。</span>
-        <span><b>错误也有展签</b>遗物馆的 24 件赝品也会成为馆藏。</span>
-      </div>
-
       <section className="challenge-collection-strip panel">
         <div className="challenge-collection-strip__copy">
           <p className="eyebrow">COLLECTION · 炉外收藏总览</p>
           <h3>收藏总览</h3>
-          <p>四族进度、十四枚徽章、十二个任务结局和全部馆藏。没抵达的结局、没发现的展品会显示空位。</p>
+          <p>走过的试炼、看过的结局、收进馆里的东西，都在这里。没抵达的部分会留一个空位。</p>
           <div className="challenge-collection-strip__mini">
             <span>试炼 <b>{collectionStats.challengeCompleted}</b>/{collectionStats.challengeTotal}</span>
             <span>结局 <b>{collectionStats.endingsSeen}</b>/{collectionStats.endingTotal}</span>
@@ -340,7 +323,7 @@ export function ChallengeHub({ progress, questProgress, artifactRun, collection,
           </div>
           <div className="challenge-family__meta">
             <span>{questsDone} / {QUESTS.length} 已完成 · {endingsSeen} / {endingsTotal} 个结局</span>
-            <p>每则三幕，第二幕末尾要选一次，不能撤销。四结局里有一个真结局，需要在最终造物前完成两个可选目标。</p>
+            <p>第二幕末尾要选一次，不能反悔。真结局藏在两个可选目标后面。</p>
           </div>
         </div>
         <div className="quest-grid">
@@ -360,7 +343,7 @@ export function ChallengeHub({ progress, questProgress, artifactRun, collection,
           </div>
           <div className="challenge-family__meta">
             <span>{artifactCountsNow.trueCount} / {artifactCountsNow.trueTotal} 真品 · {artifactCountsNow.fakeCount} / {artifactCountsNow.fakeTotal} 误会</span>
-            <p>读失物档案，挑三块碎片。命中真品会归位；命中赝品会被认真登记；两者都不是，馆长老白会给你一句吐槽。</p>
+            <p>读档案，挑三块碎片。真品归位，赝品也会被认真登记；什么都没命中，老白会损你一句。</p>
           </div>
         </div>
         <ArtifactCard run={artifactRun} onOpen={onOpenArtifacts} />

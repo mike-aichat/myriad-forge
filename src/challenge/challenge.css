@@ -176,16 +176,6 @@
   color: var(--parchment);
 }
 
-.challenge-hero__copy > p:last-of-type {
-  max-width: 690px;
-  margin-top: 12px;
-  color: var(--parchment-dim);
-  font-family: var(--font-serif);
-  font-size: 15px;
-  line-height: 2;
-  text-wrap: pretty;
-}
-
 .challenge-hero__stats {
   display: flex;
   flex-wrap: wrap;
@@ -272,39 +262,6 @@
   transform: rotate(45deg);
   background: rgba(213, 160, 91, 0.06);
   box-shadow: 0 0 38px rgba(213, 160, 91, 0.12);
-}
-
-.challenge-rules {
-  display: flex;
-  align-items: stretch;
-  gap: 0;
-  margin: 18px 0;
-  padding: 0;
-  border-top: 1px solid var(--line-soft);
-  border-bottom: 1px solid var(--line-soft);
-}
-
-.challenge-rules span {
-  flex: 1;
-  padding: 12px 18px;
-  border-right: 1px solid var(--line-soft);
-  color: var(--muted-2);
-  font-family: var(--font-serif);
-  font-size: 13px;
-  line-height: 1.8;
-}
-
-.challenge-rules span:last-child {
-  border-right: 0;
-}
-
-.challenge-rules b {
-  display: inline-block;
-  margin-right: 8px;
-  color: var(--brass);
-  font-family: var(--font-pixel);
-  font-weight: normal;
-  font-size: 12px;
 }
 
 .challenge-grid {

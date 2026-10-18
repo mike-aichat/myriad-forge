@@ -128,13 +128,13 @@ export function QuestIntroOverlay({ quest, progress, onStart, onRestart, onBack 
         </div>
 
         <p className="challenge-intro-rule">
-          只可使用本任务中的配方。幕与幕之间会要求你做出选择；选择不可撤销，并会改变第三幕的配方和结局。
-          中途离开会从当前幕开头的检查点继续。已见结局与可选目标永久保存。
+          只可用本任务配方。幕间要做一次选择，不能反悔，第三幕的配方和结局都会变。
+          中途离开会从这一幕开头继续，见过的结局和完成的目标都会记住。
         </p>
 
         {checkpoint && act && (
           <p className="quest-checkpoint">
-            检测到检查点：第{act.numeral}幕「{act.title}」开头。当前已见结局 {record.endings.length} / {quest.endings.length}。
+            停在「{act.title}」这一幕的开头。已经见过 {record.endings.length} / {quest.endings.length} 个结局。
           </p>
         )}
 

@@ -421,7 +421,7 @@ export function ChallengeMode({ onExit, sound, onToggleSound, reducedMotion }) {
 
       <footer className="challenge-footer">
         <span>炉外总目录 · 谜题、任务、燃尽故事与失物招领博物馆</span>
-        <span>谜题与任务无失败 · 燃尽仍有次数 · 遗物的赝品也是馆藏</span>
+        <span>谜题与任务不会失败 · 燃尽要省着用 · 赝品也算馆藏</span>
       </footer>
     </div>
   );

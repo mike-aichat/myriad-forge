@@ -128,8 +128,8 @@ export function ChallengeIntroOverlay({ challenge, target, onStart, onBack }) {
 
         <p className="challenge-intro-rule">
           {puzzle
-            ? "只可使用本页中的配方。错误组合不会失败，也没有步数限制；卡住时可以翻开提示。离开会重置本次进度。"
-            : "只可使用本页中的配方。成功和失败都会消耗一枚余烬；离开试炼会重燃余烬，故事从头开始。"}
+            ? "只可用本页配方。错误组合不会失败，也没有步数限制；卡住就翻提示。离开会从头开始。"
+            : "只可用本页配方。成功和失败都会烧掉一枚余烬；离开后余烬重燃，故事从头开始。"}
         </p>
 
         <div className="challenge-intro-actions">

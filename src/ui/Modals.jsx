@@ -444,13 +444,13 @@ export function HelpModal({ state, sound, onToggleSound, onClose, onReset }) {
         <h3>关于本作</h3>
         <p>
           {stats.total} 个要素、{stats.chapters} / {stats.totalChapters} 页手记已经写下。
-          所有要素图案都由项目内的像素绘制代码生成，没有外部美术素材。音效由 Web Audio 实时合成。
+          所有要素图案与音效均为本作原创。
         </p>
         <p>
-          主炉之外还有炉外总目录：4 则谜题、3 则任务、4 则燃尽故事和失物招领博物馆。入口在顶栏的「试炼」，进度分别保存，不会改变主图鉴。
+          主炉之外的故事都在顶栏「试炼」里：谜题、任务、燃尽故事和失物招领博物馆。
         </p>
         <p className="help-credit">
-          玩法参考 Little Alchemy 与 Doodle God；配方结构研究参考 element-alchemy-cheater。字体为方舟像素字体（SIL OFL 1.1）。
+          玩法参考 Little Alchemy 与 Doodle God。字体为方舟像素字体（SIL OFL 1.1）。
         </p>
         <div className="help-sound-row">
           <span>声音</span>
@@ -463,7 +463,7 @@ export function HelpModal({ state, sound, onToggleSound, onClose, onReset }) {
       <section className="danger-zone">
         <div>
           <h3>重置进度</h3>
-          <p>清空主图鉴、手记和统计，进度回到四种源初要素。</p>
+          <p>清空图鉴、手记和所有记录，回到四种源初要素。</p>
         </div>
         <button
           type="button"

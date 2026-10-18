@@ -728,7 +728,7 @@
   grid-template-columns: minmax(0, 1fr) 230px;
   align-items: center;
   gap: 22px;
-  margin: 4px 0 20px;
+  margin: 20px 0;
   padding: 18px 22px;
   background:
     radial-gradient(ellipse at 90% 20%, rgba(213, 160, 91, 0.09), transparent 45%),

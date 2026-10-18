@@ -94,7 +94,7 @@ function QuestCollection({ quest, onOpen }) {
           ))}
         </div>
         <button type="button" className="text-button" onClick={() => onOpen(quest)}>
-          {quest.checkpoint ? "从检查点继续" : quest.endingsSeen ? "重走这一则" : "走进这一则"}
+          {quest.checkpoint ? "从这一幕继续" : quest.endingsSeen ? "重走这一则" : "走进这一则"}
         </button>
       </div>
     </article>
@@ -208,8 +208,8 @@ export function CollectionOverview({ collection, onBack, onOpenChallenge, onOpen
           <p className="eyebrow">COLLECTION OVERVIEW · 炉外收藏总览</p>
           <h2>收藏总览</h2>
           <p>
-            这里统计八页试炼、三则任务的十二个结局、六个可选目标，以及失物招领博物馆的
-            三十二件馆藏。没抵达的结局和没发现的展品只显示空位。
+            走过的试炼、看过的结局、收进馆里的东西，都记在这里。
+            没抵达的结局和没发现的展品只显示空位。
           </p>
           <div className="collection-hero__numbers">
             <span><b>{stats.overallPercent}%</b> 炉外完成度</span>
@@ -228,8 +228,8 @@ export function CollectionOverview({ collection, onBack, onOpenChallenge, onOpen
       <section className="collection-progress panel">
         <div className="collection-section-head">
           <div>
-            <p className="eyebrow">PROGRESS · 四族完成度</p>
-            <h3>四族进度</h3>
+            <p className="eyebrow">PROGRESS · 炉外完成度</p>
+            <h3>进度</h3>
           </div>
           <span className="collection-progress__overall">{stats.overallCurrent} / {stats.overallTotal} 总进度</span>
         </div>
@@ -289,7 +289,7 @@ export function CollectionOverview({ collection, onBack, onOpenChallenge, onOpen
             <p className="eyebrow">TRIALS · 八页试炼记录</p>
             <h3>谜题与燃尽</h3>
           </div>
-          <p>谜题按最佳步数显示 Par 星级；燃尽记录最佳熔炼次数。</p>
+          <p>谜题看最佳步数，燃尽记最少烧了几次。</p>
         </div>
         <div className="collection-trials">
           {[...puzzles, ...embers].map((challenge) => (

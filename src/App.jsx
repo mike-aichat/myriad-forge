@@ -445,7 +445,7 @@ export default function App() {
 
       <footer className="footer">
         <p>万象熔炉 · 要素合成游戏</p>
-        <p className="footer__note">全部要素图案由项目内的像素代码绘制 · 进度自动保存在本地</p>
+        <p className="footer__note">全部要素图案均为本作原创 · 进度自动保存在本地</p>
         <p className="footer__keys">
           <kbd>Enter</kbd> 熔炼 <span>·</span> <kbd>/</kbd> 搜索 <span>·</span> <kbd>M</kbd> 声音
         </p>

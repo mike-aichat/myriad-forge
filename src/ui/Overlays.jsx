@@ -190,7 +190,7 @@ export function IntroOverlay({ onStart }) {
         <button type="button" className="primary-button primary-button--wide" onClick={onStart} data-autofocus>
           开始游戏
         </button>
-        <p className="intro-foot">进度保存在浏览器中 · 建议使用桌面浏览器</p>
+        <p className="intro-foot">进度会自动保存 · 建议使用桌面浏览器</p>
       </div>
     </div>,
     document.body
