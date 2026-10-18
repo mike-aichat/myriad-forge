@@ -6,7 +6,7 @@
 
 ## 运行
 
-需要 Node.js 18+。
+需要 Node.js 20.19+（推荐 22+）。
 
 ```bash
 npm install
@@ -79,7 +79,7 @@ src/styles.css             完整视觉系统
 src/audio.js               Web Audio 合成音效
 src/art/pixel.js           像素网格、描边、随机数与绘制工具
 src/art/palette.js         调色板家族与按要素派生颜色
-src/art/shapes.js          约 120 种图形名到像素绘制函数的映射与组合
+src/art/shapes.js          图形名、别名与像素绘制函数
 src/art/sprites.js         像素画布生成与缓存
 src/art/Skyfield.jsx       深空星场背景
 src/art/CrucibleCanvas.jsx 星盘熔炉、炉火、烟与余烬
