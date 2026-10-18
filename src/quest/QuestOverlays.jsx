@@ -285,7 +285,7 @@ export function QuestResultOverlay({ quest, run, ending, progress, nextQuest, on
         </div>
         <p className="challenge-result-foot">
           {isTrueEnding
-            ? "真结局已记入任务图鉴。你和这则任务之间，已经没有没走过的路。"
+            ? "真结局已记入任务图鉴。这则任务的所有路线都走完了。"
             : `结局已记入任务图鉴。还有 ${quest.endings.length - record.endings.length} 个结局没有走到，也可以回头补完可选目标。`}
         </p>
       </article>

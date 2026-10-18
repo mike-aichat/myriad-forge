@@ -56,7 +56,7 @@ function ResultCard({ result, onReset }) {
     return (
       <div className="artifact-result artifact-result--empty">
         <span className="eyebrow">本次鉴定</span>
-        <p>把三块碎片放上鉴定台。顺序不重要，故事才重要。</p>
+        <p>把三块碎片放上鉴定台。顺序不重要，材料对得上就行。</p>
       </div>
     );
   }
@@ -181,7 +181,7 @@ function FakeGallery({ run }) {
         <div>
           <p className="eyebrow">误会厅 · THE HALL OF MISUNDERSTANDING</p>
           <h2>二十四件被认真登记的赝品</h2>
-          <p>错误不是失败。只要错得有形状，馆方就会给它一张展签。</p>
+          <p>鉴定错了也有展签。只要错得有形状，馆方就会收下。</p>
         </div>
         <span className="artifact-gallery__count">{run.fakeIds.length} / {MISIDENTIFIED.length}</span>
       </header>
@@ -256,7 +256,7 @@ export function ArtifactMode({ run, onRunChange, onBack }) {
   const resetResult = () => {
     setResult(null);
     setSelected([]);
-    setMessage("把三块碎片放上鉴定台。顺序不重要，故事才重要。");
+    setMessage("把三块碎片放上鉴定台。顺序不重要，材料对得上就行。");
   };
 
   const toggleFragment = (id) => {
@@ -332,8 +332,8 @@ export function ArtifactMode({ run, onRunChange, onBack }) {
           <p className="eyebrow">炉外机构 · LOST & FOUND MUSEUM</p>
           <h2>失物招领博物馆</h2>
           <p>
-            真品厅收藏八件无人认领的遗物，误会厅收藏二十四件鉴定错误的赝品。
-            馆长老白已经去世，但还在打卡。他坚持认为，错误也应该有展签。
+            真品厅收八件无人认领的遗物，误会厅收二十四件鉴定错误的赝品。
+            馆长老白已经去世，但还在打卡，并坚持给每件错误写展签。
           </p>
           <div className="artifact-hero__stats">
             <span><b>{counts.trueCount}</b> / {counts.trueTotal} 真品</span>
@@ -501,7 +501,7 @@ export function ArtifactMode({ run, onRunChange, onBack }) {
                     </div>
                   </>
                 ) : (
-                  <p>从下面的碎片池里拿起一块，它会告诉你自己记得什么。</p>
+                  <p>从下面的碎片池里拿起一块，它会显示自己的证词。</p>
                 )}
               </div>
             </aside>

@@ -58,7 +58,7 @@ export function Forge({
       <div className="panel__topline">
         <div>
           <p className="eyebrow">熔炉台</p>
-          <h2 id="forge-title">把两种存在放在一起</h2>
+          <h2 id="forge-title">选择两种要素</h2>
         </div>
         <div className="forge-counter" aria-live="polite">
           <span>已置入</span>
@@ -137,7 +137,7 @@ export function Forge({
           <span className="readout-divider" aria-hidden="true" />
           <span>成功率 {stats.rate}%</span>
         </div>
-        <p>失败也是一种答案。熔炉会记住。</p>
+        <p>失败不会影响进度，可以继续试。</p>
       </div>
     </section>
   );

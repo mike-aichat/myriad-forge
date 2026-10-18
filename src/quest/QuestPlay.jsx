@@ -186,7 +186,7 @@ export function QuestPlay({ quest, initialRun, reducedMotion, onCheckpoint, onFi
         setLastDiscovery(outcome.result);
         setMessage({
           tone: "success",
-          text: `「${outcome.result.name}」从炉底浮了上来。故事多了一行。`,
+          text: `「${outcome.result.name}」从炉底浮了上来，记下来了。`,
         });
       } else {
         audio.select();

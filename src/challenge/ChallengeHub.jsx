@@ -280,10 +280,10 @@ export function ChallengeHub({ progress, questProgress, artifactRun, collection,
       <section className="challenge-hero panel">
         <div className="challenge-hero__copy">
           <p className="eyebrow">炉外总目录 · STORIES OUTSIDE THE FORGE</p>
-          <h2>主线之外，还有八页试炼、三则任务和一座失物招领馆</h2>
+          <h2>八页试炼、三则任务、一座失物招领馆</h2>
           <p>
-            谜题和燃尽是旧的炉外故事；任务有幕、有选择、有四个结局；失物招领馆把错误鉴定也收进展厅。
-            三族试炼都不继承主图鉴，任务和遗物各自独立保存。
+            谜题和燃尽沿用旧规则；任务分三幕，有一次选择和四个结局；失物招领馆连鉴定错误的赝品也收进展厅。
+            这些内容都不继承主图鉴，进度分别保存。
           </p>
           <div className="challenge-hero__stats">
             <span><b>{completed}</b> / {total} 页试炼</span>
@@ -304,14 +304,14 @@ export function ChallengeHub({ progress, questProgress, artifactRun, collection,
         <span><b>自由试错</b>谜题没有余烬，错误组合不会失败。</span>
         <span><b>任务选择</b>三则任务各有 3 幕、4 个结局，选择不可撤销。</span>
         <span><b>燃尽模式</b>旧四则仍有有限余烬，成功失败都扣。</span>
-        <span><b>错误也有展签</b>遗物馆的 24 件赝品不是失败，是馆藏。</span>
+        <span><b>错误也有展签</b>遗物馆的 24 件赝品也会成为馆藏。</span>
       </div>
 
       <section className="challenge-collection-strip panel">
         <div className="challenge-collection-strip__copy">
           <p className="eyebrow">COLLECTION · 炉外收藏总览</p>
-          <h3>把走过的路，收进同一本册子</h3>
-          <p>四族进度、十四枚徽章、十二个任务结局和全部馆藏。未抵达的格子和未获得的徽章也会显示空位。</p>
+          <h3>收藏总览</h3>
+          <p>四族进度、十四枚徽章、十二个任务结局和全部馆藏。没抵达的结局、没发现的展品会显示空位。</p>
           <div className="challenge-collection-strip__mini">
             <span>试炼 <b>{collectionStats.challengeCompleted}</b>/{collectionStats.challengeTotal}</span>
             <span>结局 <b>{collectionStats.endingsSeen}</b>/{collectionStats.endingTotal}</span>
@@ -340,7 +340,7 @@ export function ChallengeHub({ progress, questProgress, artifactRun, collection,
           </div>
           <div className="challenge-family__meta">
             <span>{questsDone} / {QUESTS.length} 已完成 · {endingsSeen} / {endingsTotal} 个结局</span>
-            <p>每一则都有三幕、一次不可撤销的选择和四个结局。没有余烬，没有步数上限，也不会失败；真结局需要可选的真相。</p>
+            <p>每则三幕，第二幕末尾要选一次，不能撤销。四结局里有一个真结局，需要在最终造物前完成两个可选目标。</p>
           </div>
         </div>
         <div className="quest-grid">
@@ -369,7 +369,7 @@ export function ChallengeHub({ progress, questProgress, artifactRun, collection,
       {completed === total && questsDone === QUESTS.length && (
         <div className="challenge-hub__complete">
           <span aria-hidden="true">✦</span>
-          八页试炼和三则任务都写完了。遗物馆还亮着灯，主线也还在炉边等你。
+          八页试炼和三则任务都完成了。遗物馆仍然可以继续鉴定，主炉也还在。
         </div>
       )}
     </main>

@@ -24,7 +24,7 @@ const BOREDOM_LINES = [
   "炉底冒出一小股烟，什么也没留下。",
   "两种存在礼貌地错开了。",
   "熔炉打了个哈欠。",
-  "有东西一闪而过，但没来得及成为名字。",
+  "有东西一闪而过，没留下任何东西。",
   "它们交换了秘密，然后各自散了。",
   "灰烬翻了个身，继续睡。",
 ];
@@ -50,7 +50,7 @@ export default function App() {
   const [isFusing, setIsFusing] = useState(false);
   const [forgeMessage, setForgeMessage] = useState({
     tone: "idle",
-    text: "从要素库里挑两样东西。世界还没有意见。",
+    text: "从要素库里挑两样东西，放进熔炉。",
   });
   const [reducedMotion, setReducedMotion] = useState(false);
 
@@ -130,7 +130,7 @@ export default function App() {
         }
         if (!overlay && selected.length) {
           setSelected([]);
-          setForgeMessage({ tone: "idle", text: "熔炉清空了。世界继续等。" });
+          setForgeMessage({ tone: "idle", text: "熔炉清空了。" });
         }
         return;
       }
@@ -191,14 +191,14 @@ export default function App() {
     const next = selected.filter((_, itemIndex) => itemIndex !== index);
     setSelected(next);
     audio.click();
-    setForgeMessage({ tone: "idle", text: next.length ? "一个位置空了出来。" : "熔炉清空了。世界继续等。" });
+    setForgeMessage({ tone: "idle", text: next.length ? "一个位置空了出来。" : "熔炉清空了。" });
   };
 
   const handleClear = () => {
     if (isFusing) return;
     setSelected([]);
     audio.click();
-    setForgeMessage({ tone: "idle", text: "熔炉清空了。世界继续等。" });
+    setForgeMessage({ tone: "idle", text: "熔炉清空了。" });
   };
 
   const handleAddFromDetail = (id) => {
@@ -332,7 +332,7 @@ export default function App() {
     audio.setEnabled(game.sound);
     if (game.sound) audio.select();
     setGame({ ...game, introSeen: true });
-    setForgeMessage({ tone: "idle", text: "从要素库里挑两样东西。世界还没有意见。" });
+    setForgeMessage({ tone: "idle", text: "从要素库里挑两样东西，放进熔炉。" });
   };
 
   const handleReset = () => {
@@ -351,7 +351,7 @@ export default function App() {
     setQuery("");
     setCategory("all");
     setShowUnknown(false);
-    setForgeMessage({ tone: "idle", text: "炉火重新点燃。四个名字又回到了掌心。" });
+    setForgeMessage({ tone: "idle", text: "炉火重新点燃。进度回到四种源初要素。" });
   };
 
   const closeOverlay = () => {
@@ -444,7 +444,7 @@ export default function App() {
       </main>
 
       <footer className="footer">
-        <p>万象熔炉 · 在虚无里点燃第一簇火</p>
+        <p>万象熔炉 · 要素合成游戏</p>
         <p className="footer__note">全部要素图案由项目内的像素代码绘制 · 进度自动保存在本地</p>
         <p className="footer__keys">
           <kbd>Enter</kbd> 熔炼 <span>·</span> <kbd>/</kbd> 搜索 <span>·</span> <kbd>M</kbd> 声音

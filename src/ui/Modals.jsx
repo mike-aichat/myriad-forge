@@ -158,7 +158,7 @@ export function ElementDetailModal({ element, state, selected, onAdd, onClose })
               ))}
             </div>
           ) : (
-            <p className="detail-muted">它是从虚无中被直接递到你手里的，没有配方。</p>
+            <p className="detail-muted">它是开局要素，没有配方。</p>
           )}
         </section>
         <section className="detail-section detail-section--aside">
@@ -348,7 +348,7 @@ export function HintsModal({ state, hint, onDraw, onClose }) {
             </div>
           </div>
           <p className="hint-copy">
-            把这两样放进熔炉。炉底会浮出什么，灵光也不肯说全。
+            把这两样放进熔炉。灵光不会直接告诉你结果。
           </p>
           <p className="hint-foot">灵光优先指向当前手记的目标，但不会替你按下熔炼。</p>
           <div className="modal-actions">
@@ -362,7 +362,7 @@ export function HintsModal({ state, hint, onDraw, onClose }) {
               {canDraw ? `再借一束 · 1 灵光` : "灵光用尽了"}
             </button>
             <button type="button" className="text-button" onClick={onClose}>
-              回到炉边
+              关闭
             </button>
           </div>
         </>
@@ -407,7 +407,7 @@ export function HelpModal({ state, sound, onToggleSound, onClose, onReset }) {
   const [armed, setArmed] = useState(false);
   const stats = getStats(state);
   return (
-    <Modal open kicker="指南" title="炉边的规则" onClose={onClose} className="help-modal">
+    <Modal open kicker="指南" title="玩法与规则" onClose={onClose} className="help-modal">
       <div className="help-grid">
         <section>
           <h3>怎么玩</h3>
@@ -431,13 +431,13 @@ export function HelpModal({ state, sound, onToggleSound, onClose, onReset }) {
       </div>
 
       <section className="help-about">
-        <h3>这本炉边书</h3>
+        <h3>关于本作</h3>
         <p>
           {stats.total} 个要素、{stats.chapters} / {stats.totalChapters} 页手记已经写下。
           所有要素图案都由项目内的像素绘制代码生成，没有外部美术素材。音效由 Web Audio 实时合成。
         </p>
         <p>
-          主炉之外还有四则「炉外试炼」：固定起始要素、有限余烬与独立故事。入口在顶栏的「试炼」，进度单独保存，不会改变主图鉴。
+          主炉之外还有炉外总目录：4 则谜题、3 则任务、4 则燃尽故事和失物招领博物馆。入口在顶栏的「试炼」，进度分别保存，不会改变主图鉴。
         </p>
         <p className="help-credit">
           玩法参考 Little Alchemy 与 Doodle God；配方结构研究参考 element-alchemy-cheater。字体为方舟像素字体（SIL OFL 1.1）。
@@ -452,8 +452,8 @@ export function HelpModal({ state, sound, onToggleSound, onClose, onReset }) {
 
       <section className="danger-zone">
         <div>
-          <h3>重新点火</h3>
-          <p>清空图鉴、手记与统计，回到只有四种源初要素的空白书页。</p>
+          <h3>重置进度</h3>
+          <p>清空主图鉴、手记和统计，进度回到四种源初要素。</p>
         </div>
         <button
           type="button"

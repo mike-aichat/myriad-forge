@@ -23,16 +23,16 @@ export function Journal({
         <div className="panel__topline">
           <div>
             <p className="eyebrow">创世手记</p>
-            <h2 id="journal-title">书页已经写满</h2>
+            <h2 id="journal-title">手记完成</h2>
           </div>
           <span className="journal-page-mark">终</span>
         </div>
         <div className="journal-seal" aria-hidden="true">
           <span>✦</span>
         </div>
-        <p className="journal-complete-title">你把宇宙合上了。</p>
+        <p className="journal-complete-title">全部要素已收录。</p>
         <p className="journal-intro">
-          七页手记、{stats.discovered} 个要素，以及许多次没有结果的熔炼。世界仍然在炉边呼吸，随时可以继续添上新的句子。
+          七页手记、{stats.discovered} 个要素，以及许多次没有结果的熔炼。进度已自动保存，你可以继续合成。
         </p>
         <div className="journal-complete-stats">
           <div>
@@ -117,7 +117,7 @@ export function Journal({
 
       <div className="journal-reward">
         <div className="journal-reward__copy">
-          <span className="eyebrow">写满此页可得</span>
+          <span className="eyebrow">本页奖励</span>
           <div className="journal-reward__items">
             {chapter.reward?.insight > 0 && <span>✦ 灵光 +{chapter.reward.insight}</span>}
             {unlockElements.map((element) => (

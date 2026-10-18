@@ -195,7 +195,7 @@ export function ChallengePlay({ challenge, reducedMotion, onWin, onLose, onBack 
         setLastDiscovery(outcome.result);
         setMessage({
           tone: "success",
-          text: `「${outcome.result.name}」从炉底浮了上来。${puzzle ? "谜面亮了一格。" : "故事多了一行。"}`,
+          text: `「${outcome.result.name}」从炉底浮了上来。${puzzle ? "谜面亮了一格。" : "记下来了。"}`,
         });
       } else {
         audio.select();
@@ -374,7 +374,7 @@ export function ChallengePlay({ challenge, reducedMotion, onWin, onLose, onBack 
             </div>
             <p>
               {targetIsNew
-                ? `主图鉴里没有它。只有这${puzzle ? "页谜题" : "则试炼"}会记得。`
+                ? `主图鉴里没有它，只有这${puzzle ? "页谜题" : "则试炼"}能造出来。`
                 : "它也在主炉的图鉴里，但这一次，只能用手边的余烬把它做出来。"}
             </p>
           </div>

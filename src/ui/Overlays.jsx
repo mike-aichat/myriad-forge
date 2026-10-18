@@ -80,7 +80,7 @@ export function DiscoveryOverlay({ overlay, onClose, discoveredCount }) {
           <span>{milestone ? "灵光 +1" : "已收入要素库"}</span>
         </div>
         <button type="button" className="primary-button" onClick={onClose} data-autofocus>
-          {endgame ? "把它放回宇宙" : "收入图鉴"}
+          {endgame ? "收下" : "收入图鉴"}
         </button>
       </div>
     </div>,
@@ -114,7 +114,7 @@ export function ChapterOverlay({ overlay, onClose }) {
           {insight === 0 && unlocked.length === 0 && <span>这一页已被记住。</span>}
         </div>
         <button type="button" className="primary-button" onClick={onClose} data-autofocus>
-          继续铸世
+          继续合成
         </button>
       </div>
     </div>,
@@ -136,12 +136,12 @@ export function EndingOverlay({ onClose, stats }) {
           <span />
           <Sprite element={element} size={156} alt="万象归一" />
         </div>
-        <h2 id="ending-title">宇宙读完了你写的句子</h2>
+        <h2 id="ending-title">所有要素都已收录</h2>
         <p className="ending-copy">
-          你把生命、时间、王冠、世界与神谕放进了同一句话里。炉火没有熄灭，只是安静下来，像终于听懂了一个很长的故事。
+          你把生命、时间、王冠、世界与神谕放进了同一句话里。炉火安静下来。
         </p>
         <p className="ending-copy ending-copy--small">
-          世界没有结束。你可以继续留在炉边，把尚未命名的东西一个一个叫出来。
+          你还可以继续合成，把还没命名的东西造出来。
         </p>
         <div className="ending-stats">
           <div><b>{stats.discovered}</b><span>要素</span></div>
@@ -150,7 +150,7 @@ export function EndingOverlay({ onClose, stats }) {
           <div><b>{stats.chapters}</b><span>页手记</span></div>
         </div>
         <button type="button" className="primary-button primary-button--wide" onClick={onClose} data-autofocus>
-          留在炉边
+          继续游戏
         </button>
       </div>
     </div>,
@@ -166,11 +166,11 @@ export function IntroOverlay({ onStart }) {
       <div className="intro-aurora" aria-hidden="true" />
       <div className="intro-grid" aria-hidden="true" />
       <div className="intro-card" ref={ref}>
-        <p className="intro-kicker">一场关于万物的静默实验</p>
+        <p className="intro-kicker">要素合成游戏</p>
         <h2 id="intro-title">万象熔炉</h2>
         <p className="intro-latin">MYRIAD FORGE</p>
         <p className="intro-copy">
-          你在一张没有字的书页上醒来。火、水、土、风在掌心留下四种温度。把它们放在一起，看看世界愿不愿意继续。
+          你在一张没有字的书页上醒来。火、水、土、风在掌心留下四种温度。把它们放在一起，看看能造出什么。
         </p>
         <div className="intro-elements" aria-label="四种源初要素">
           {base.map((element) => (
@@ -185,10 +185,10 @@ export function IntroOverlay({ onStart }) {
           <i aria-hidden="true">✦</i>
           <span>投入熔炉</span>
           <i aria-hidden="true">✦</i>
-          <span>收录新的名字</span>
+          <span>收录新要素</span>
         </div>
         <button type="button" className="primary-button primary-button--wide" onClick={onStart} data-autofocus>
-          点燃第一簇火
+          开始游戏
         </button>
         <p className="intro-foot">进度保存在浏览器中 · 建议使用桌面浏览器</p>
       </div>

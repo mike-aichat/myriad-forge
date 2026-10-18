@@ -4,7 +4,7 @@ const e = make("human");
 
 export default [
   e("human", "人", [["beast", "wisdom"], ["beast", "tool"]], "野兽第一次抬头看星星，忽然想问为什么。", "human", "human"),
-  e("language", "语言", ["human", "air"], "空气被人类修剪出形状，从此能搬运想法。", "rune", "language", "wave"),
+  e("language", "语言", ["human", "air"], "人类把空气修剪出形状，让它搬运想法。", "rune", "language", "wave"),
   e("symbol", "符号", ["smoke", "fire"], "火和烟的即兴涂鸦，后来被当成了约定。", "rune", "symbol", "lines"),
   e("writing", "文字", ["symbol", "clay"], "符号在黏土上定居，学会了不依赖说话人。", "scroll", "writing", "lines"),
   e("art", "艺术", ["human", "color"], "人类发现，有些东西不为了活命也值得做。", "palette", "art"),
@@ -15,7 +15,7 @@ export default [
   e("knowledge", "知识", ["book", "light"], "前人把火交给你，还附了一张不太清楚的地图。", "book", "knowledge", "halo"),
   e("logic", "逻辑", ["wisdom", "writing"], "思想学会走路之后，开始嫌弃自己的影子。", "gear", "logic"),
   e("philosophy", "哲学", ["wisdom", "book"], "一个问题生下的另一个问题，靠怀疑喂养。", "book", "philosophy", "ring"),
-  e("science", "科学", ["philosophy", "tool"], "哲学终于愿意动手，把世界拆开看看。", "potion", "science"),
+  e("science", "科学", ["philosophy", "tool"], "哲学愿意动手了，把世界拆开看看。", "potion", "science"),
   e("math", "数学", ["logic", "symbol"], "人类发明的一种语言，宇宙居然也在用。", "rune", "math", "grid"),
   e("law", "法律", ["writing", "sword"], "文字借来剑的力气，给人群画了边界。", "scales", "law"),
   e("money", "货币", ["gold", "writing"], "金子学会了写字，于是人人开始相信它。", "ingot", "money", "stamp"),
@@ -38,6 +38,6 @@ export default [
   e("trade", "贸易", ["ship", "money"], "船把陌生带到港口，也把港口变成陌生。", "boat", "trade", "coin"),
   e("map", "地图", ["writing", "mountain"], "山和河被压成一张纸，走路的人因此少绕远。", "scroll", "map", "lines"),
   e("news", "新闻", ["writing", "air"], "今天发生的事，被风急着送去明天。", "scroll", "news", "wing"),
-  e("secret", "秘密", ["writing", "dark"], "文字写进黑暗里，就不再只是文字。", "eye", "secret"),
+  e("secret", "秘密", ["writing", "dark"], "文字写进黑暗里，能看见的人不多。", "eye", "secret"),
   e("name", "名字", ["language", "symbol"], "语言和符号给某个东西钉上的一枚小钉子。", "rune", "name", "ring"),
 ];

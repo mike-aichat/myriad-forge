@@ -206,10 +206,10 @@ export function CollectionOverview({ collection, onBack, onOpenChallenge, onOpen
       <section className="collection-hero panel">
         <div className="collection-hero__copy">
           <p className="eyebrow">COLLECTION OVERVIEW · 炉外收藏总览</p>
-          <h2>把走过的路，收进同一本册子</h2>
+          <h2>收藏总览</h2>
           <p>
-            这里记录八页试炼、三则任务的十二个结局、六个可选目标，以及失物招领博物馆的
-            三十二件馆藏。结局和展品只在抵达之后显形；未抵达的格子会留一个空位。
+            这里统计八页试炼、三则任务的十二个结局、六个可选目标，以及失物招领博物馆的
+            三十二件馆藏。没抵达的结局和没发现的展品只显示空位。
           </p>
           <div className="collection-hero__numbers">
             <span><b>{stats.overallPercent}%</b> 炉外完成度</span>
@@ -229,7 +229,7 @@ export function CollectionOverview({ collection, onBack, onOpenChallenge, onOpen
         <div className="collection-section-head">
           <div>
             <p className="eyebrow">PROGRESS · 四族完成度</p>
-            <h3>还差什么</h3>
+            <h3>四族进度</h3>
           </div>
           <span className="collection-progress__overall">{stats.overallCurrent} / {stats.overallTotal} 总进度</span>
         </div>
@@ -261,7 +261,7 @@ export function CollectionOverview({ collection, onBack, onOpenChallenge, onOpen
             <p className="eyebrow">BADGES · 完成度徽章</p>
             <h3>炉外徽章 · {badgeUnlocked} / {badges.length}</h3>
           </div>
-          <p>徽章只记录已经发生的事，不要求一次做完。未获得的徽章也会显示进度。</p>
+          <p>未获得的徽章也会显示当前进度，不必一次做完。</p>
         </div>
         <div className="collection-badges">
           {badges.map((badge) => <BadgeCard key={badge.id} badge={badge} />)}
@@ -272,7 +272,7 @@ export function CollectionOverview({ collection, onBack, onOpenChallenge, onOpen
         <div className="collection-section-head">
           <div>
             <p className="eyebrow">ENDINGS · 任务结局图鉴</p>
-            <h3>十二种告别</h3>
+            <h3>十二个任务结局</h3>
           </div>
           <p>未抵达的结局只显示空位和条件方向；已抵达的结局会保留尾声。</p>
         </div>
@@ -302,7 +302,7 @@ export function CollectionOverview({ collection, onBack, onOpenChallenge, onOpen
 
       <footer className="collection-footer">
         <button type="button" className="primary-button" onClick={onBack}>回到炉外总目录</button>
-        <span>收藏不会因为重走而丢失 · 徽章会随着进度自动点亮</span>
+        <span>重走不会清掉收藏，徽章会随进度点亮。</span>
       </footer>
     </main>
   );
