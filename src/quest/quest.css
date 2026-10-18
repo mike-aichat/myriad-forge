@@ -1,0 +1,606 @@
+.quest-intro-card {
+  width: min(860px, 94vw);
+}
+
+.quest-intro-acts {
+  display: grid;
+  gap: 6px;
+  margin-top: 15px;
+}
+
+.quest-intro-acts > div {
+  display: grid;
+  grid-template-columns: 58px 1fr;
+  gap: 2px 10px;
+  padding: 7px 10px;
+  border-left: 1px solid rgba(213, 160, 91, 0.24);
+  background: rgba(5, 16, 19, 0.28);
+}
+
+.quest-intro-acts > div.is-done {
+  border-left-color: var(--verdigris);
+  opacity: 0.66;
+}
+
+.quest-intro-acts span {
+  grid-row: span 2;
+  color: var(--brass);
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  letter-spacing: 0.08em;
+}
+
+.quest-intro-acts b {
+  color: var(--parchment);
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  font-weight: normal;
+}
+
+.quest-intro-acts em {
+  color: var(--muted-2);
+  font-family: var(--font-serif);
+  font-size: 10px;
+  font-style: normal;
+}
+
+.quest-checkpoint {
+  margin-top: 12px;
+  padding: 8px 12px;
+  border: 1px solid rgba(108, 184, 163, 0.22);
+  background: rgba(108, 184, 163, 0.05);
+  color: var(--verdigris);
+  font-family: var(--font-serif);
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.quest-act-rail {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 14px 24px 2px;
+  list-style: none;
+}
+
+.quest-act-rail li {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 7px;
+  align-items: start;
+  padding: 8px 9px;
+  border: 1px solid var(--line-soft);
+  background: rgba(5, 16, 19, 0.34);
+  opacity: 0.5;
+}
+
+.quest-act-rail li.is-current {
+  border-color: rgba(213, 160, 91, 0.42);
+  background: rgba(213, 160, 91, 0.06);
+  opacity: 1;
+}
+
+.quest-act-rail li.is-done {
+  opacity: 1;
+  border-color: rgba(108, 184, 163, 0.28);
+}
+
+.quest-act-rail li > span {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  color: var(--brass);
+  font-family: var(--font-pixel);
+  font-size: 8px;
+}
+
+.quest-act-rail li.is-done > span {
+  color: var(--verdigris);
+}
+
+.quest-act-rail b {
+  display: block;
+  color: var(--parchment);
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  font-weight: normal;
+}
+
+.quest-act-rail em {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted-2);
+  font-family: var(--font-serif);
+  font-size: 9px;
+  font-style: normal;
+  line-height: 1.45;
+}
+
+.quest-step-readout b {
+  color: var(--verdigris);
+}
+
+.quest-play .challenge-forge {
+  min-height: 830px;
+}
+
+.quest-play .challenge-story {
+  max-height: 980px;
+}
+
+.quest-story .challenge-story__head > p:last-child {
+  min-height: 34px;
+}
+
+.quest-target {
+  grid-template-columns: 88px minmax(0, 1fr);
+}
+
+.quest-target .challenge-target__copy > p {
+  max-height: 48px;
+  overflow: hidden;
+}
+
+.quest-optionals {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.quest-optionals__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.quest-optionals__head > b {
+  color: var(--brass-hi);
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  font-weight: normal;
+}
+
+.quest-optional {
+  display: grid;
+  grid-template-columns: 13px minmax(0, 1fr);
+  gap: 5px;
+  margin-top: 7px;
+  padding: 6px 8px;
+  background: rgba(5, 16, 19, 0.26);
+  border-left: 1px solid rgba(141, 164, 156, 0.18);
+}
+
+.quest-optional.is-done {
+  border-left-color: var(--verdigris);
+  background: rgba(108, 184, 163, 0.05);
+}
+
+.quest-optional > span {
+  color: var(--brass);
+  font-family: var(--font-pixel);
+  font-size: 10px;
+}
+
+.quest-optional b {
+  display: block;
+  color: var(--parchment-dim);
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  font-weight: normal;
+}
+
+.quest-optional p {
+  margin-top: 2px;
+  color: var(--muted-2);
+  font-family: var(--font-serif);
+  font-size: 9px;
+  line-height: 1.6;
+}
+
+.quest-optional em {
+  display: inline-block;
+  margin-top: 2px;
+  color: var(--brass);
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  font-style: normal;
+}
+
+.quest-decisions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 11px;
+  padding-top: 9px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.quest-decisions > .eyebrow {
+  width: 100%;
+}
+
+.quest-decision {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 3px 7px;
+  border: 1px solid rgba(213, 160, 91, 0.3);
+  background: rgba(213, 160, 91, 0.06);
+}
+
+.quest-decision b {
+  color: var(--brass-hi);
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  font-weight: normal;
+}
+
+.quest-decision em {
+  color: var(--muted-2);
+  font-family: var(--font-serif);
+  font-size: 8px;
+  font-style: normal;
+}
+
+.quest-hints {
+  margin-top: 10px;
+}
+
+.quest-log {
+  max-height: 230px;
+}
+
+.quest-play .challenge-tray__grid {
+  max-height: 178px;
+}
+
+.challenge-element.is-optional .challenge-element__kind {
+  color: var(--brass-hi);
+}
+
+.challenge-element.is-optional {
+  border-color: rgba(213, 160, 91, 0.22);
+}
+
+/* Choice overlay */
+
+.quest-choice-overlay {
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.quest-choice-card {
+  width: min(920px, 94vw);
+  max-height: 92vh;
+  overflow-y: auto;
+  padding: 30px 34px 28px;
+  background:
+    radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--challenge-accent) 16%, transparent), transparent 42%),
+    linear-gradient(180deg, rgba(20, 42, 48, 0.995), rgba(4, 14, 18, 0.998));
+  border: 1px solid var(--line-strong);
+  clip-path: polygon(0 14px, 14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px));
+  filter: drop-shadow(0 35px 90px rgba(0, 0, 0, 0.62));
+  animation: discovery-in 420ms cubic-bezier(0.17, 0.84, 0.28, 1.06) both;
+}
+
+.quest-choice-card h2 {
+  margin-top: 6px;
+  font-family: var(--font-pixel);
+  font-size: 28px;
+  font-weight: normal;
+  line-height: 1.45;
+  color: var(--parchment);
+}
+
+.quest-choice-card__copy {
+  max-width: 700px;
+  margin-top: 8px;
+  color: var(--muted);
+  font-family: var(--font-serif);
+  font-size: 13px;
+  line-height: 1.9;
+}
+
+.quest-choice-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.quest-choice-option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 7px;
+  padding: 17px 17px 15px;
+  border: 1px solid var(--line-soft);
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(213, 160, 91, 0.08), transparent 55%),
+    rgba(5, 16, 19, 0.44);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 180ms ease, transform 180ms ease, background 180ms ease;
+}
+
+.quest-choice-option:hover,
+.quest-choice-option:focus-visible {
+  border-color: var(--brass);
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(213, 160, 91, 0.14), transparent 60%),
+    rgba(12, 30, 34, 0.66);
+  transform: translateY(-2px);
+}
+
+.quest-choice-option__index {
+  color: var(--brass);
+  font-family: var(--font-pixel);
+  font-size: 10px;
+}
+
+.quest-choice-option > b {
+  font-family: var(--font-pixel);
+  font-size: 16px;
+  font-weight: normal;
+  color: var(--parchment);
+}
+
+.quest-choice-option > p {
+  flex: 1;
+  color: var(--muted);
+  font-family: var(--font-serif);
+  font-size: 11px;
+  line-height: 1.8;
+}
+
+.quest-choice-option__unlock {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  padding-top: 7px;
+  border-top: 1px solid var(--line-soft);
+  color: var(--muted-2);
+  font-family: var(--font-pixel);
+  font-size: 8px;
+}
+
+.quest-choice-option__unlock i {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--brass-hi);
+  font-family: var(--font-serif);
+  font-size: 10px;
+  font-style: normal;
+}
+
+.quest-choice-card__warning {
+  margin-top: 15px;
+  padding-top: 11px;
+  border-top: 1px solid var(--line-soft);
+  color: var(--muted-2);
+  font-family: var(--font-serif);
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+/* Result overlay */
+
+.quest-result-card {
+  width: min(720px, 93vw);
+}
+
+.quest-result-card__subtitle {
+  margin-top: 4px;
+  color: var(--muted-2);
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
+.quest-result-optionals {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.quest-result-optionals > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  border: 1px solid var(--line-soft);
+  color: var(--muted-2);
+  font-family: var(--font-serif);
+  font-size: 10px;
+}
+
+.quest-result-optionals > span.is-done {
+  border-color: rgba(108, 184, 163, 0.35);
+  color: var(--verdigris);
+}
+
+.quest-result-optionals em {
+  color: var(--muted-2);
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  font-style: normal;
+}
+
+.quest-result-overlay.is-true-ending .challenge-result-card {
+  border-color: rgba(213, 160, 91, 0.52);
+  box-shadow: 0 0 80px rgba(213, 160, 91, 0.09);
+}
+
+.quest-result-overlay.is-true-ending .quest-result-card h2 {
+  color: var(--brass-hi);
+  text-shadow: 0 0 28px rgba(213, 160, 91, 0.25);
+}
+
+.challenge-result-sigil.is-true {
+  filter: drop-shadow(0 0 18px rgba(213, 160, 91, 0.28));
+}
+
+/* Quest hub cards */
+
+.quest-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.quest-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-height: 560px;
+  padding: 19px 21px 18px;
+  background:
+    radial-gradient(ellipse at 100% 0%, color-mix(in srgb, var(--challenge-accent) 11%, transparent), transparent 44%),
+    linear-gradient(180deg, rgba(23, 44, 49, 0.55), rgba(7, 20, 24, 0.97));
+}
+
+.quest-card__topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.quest-card__subtitle {
+  margin-top: -4px;
+  color: var(--muted);
+  font-family: var(--font-serif);
+  font-size: 11px;
+}
+
+.quest-card blockquote {
+  margin: 0;
+  padding: 3px 0 3px 11px;
+  border-left: 1px solid color-mix(in srgb, var(--challenge-accent) 58%, transparent);
+  color: var(--parchment-dim);
+  font-family: var(--font-serif);
+  font-size: 11px;
+  font-style: italic;
+  line-height: 1.85;
+}
+
+.quest-card__goal {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 8px 10px;
+  border: 1px solid var(--line-soft);
+  background: rgba(5, 16, 19, 0.34);
+}
+
+.quest-card__sprite {
+  position: relative;
+  flex: 0 0 auto;
+  width: 86px;
+  height: 86px;
+  display: grid;
+  place-items: center;
+}
+
+.quest-card__sprite > span {
+  position: absolute;
+  inset: 5px;
+  border: 1px solid color-mix(in srgb, var(--challenge-accent) 30%, transparent);
+  border-radius: 50%;
+}
+
+.quest-card__goal > div:last-child {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+}
+
+.quest-card__goal .eyebrow {
+  width: 100%;
+}
+
+.quest-card__goal b {
+  color: var(--parchment);
+  font-family: var(--font-pixel);
+  font-size: 17px;
+  font-weight: normal;
+}
+
+.quest-card__goal p {
+  width: 100%;
+  color: var(--muted-2);
+  font-family: var(--font-serif);
+  font-size: 9px;
+  line-height: 1.6;
+}
+
+.quest-card__acts {
+  display: grid;
+  gap: 4px;
+  list-style: none;
+}
+
+.quest-card__acts li {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 1px 6px;
+  padding: 5px 7px;
+  border-left: 1px solid rgba(213, 160, 91, 0.2);
+  background: rgba(5, 16, 19, 0.24);
+}
+
+.quest-card__acts span {
+  grid-row: span 2;
+  color: var(--brass);
+  font-family: var(--font-pixel);
+  font-size: 8px;
+}
+
+.quest-card__acts b {
+  color: var(--parchment-dim);
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  font-weight: normal;
+}
+
+.quest-card__acts em {
+  color: var(--muted-2);
+  font-family: var(--font-serif);
+  font-size: 8px;
+  font-style: normal;
+  line-height: 1.4;
+}
+
+.quest-card__record {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: auto;
+}
+
+.quest-card__record span {
+  padding: 3px 6px;
+  border: 1px solid var(--line-soft);
+  color: var(--muted-2);
+  font-family: var(--font-pixel);
+  font-size: 8px;
+}
+
+.quest-card .challenge-card__footer {
+  margin-top: 2px;
+}

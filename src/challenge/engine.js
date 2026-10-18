@@ -1,12 +1,11 @@
-import { ELEMENT_BY_ID } from "../game/recipes.js";
-import { CHALLENGE_ELEMENT_BY_ID } from "../data/challenges.js";
+import { resolveOutsideElement, isMainElementId } from "../data/outside.js";
 
 export function resolveChallengeElement(id) {
-  return ELEMENT_BY_ID.get(id) || CHALLENGE_ELEMENT_BY_ID.get(id) || null;
+  return resolveOutsideElement(id);
 }
 
 export function isMainElement(id) {
-  return ELEMENT_BY_ID.has(id);
+  return isMainElementId(id);
 }
 
 export function challengeFamily(challenge) {

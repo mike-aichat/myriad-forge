@@ -82,6 +82,34 @@
   color: var(--muted-2);
 }
 
+.challenge-topbar__meters {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  white-space: nowrap;
+}
+
+.challenge-topbar__meters > span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  color: var(--muted-2);
+  font-family: var(--font-pixel);
+  font-size: 9px;
+}
+
+.challenge-topbar__meters b {
+  color: var(--brass-hi);
+  font-weight: normal;
+  font-size: 13px;
+}
+
+.challenge-topbar__meters em {
+  color: var(--muted-2);
+  font-style: normal;
+  font-size: 8px;
+}
+
 .challenge-topbar__active {
   max-width: 320px;
   padding-left: 16px;

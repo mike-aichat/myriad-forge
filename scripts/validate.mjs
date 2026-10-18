@@ -7,6 +7,13 @@ import { createInitialState, fuseElements } from "../src/game/progress.js";
 import { RECIPES_BY_RESULT, findResult } from "../src/game/recipes.js";
 import { drawHint } from "../src/game/hints.js";
 import { CHALLENGES, CHALLENGE_ELEMENTS } from "../src/data/challenges.js";
+import { QUESTS, QUEST_ELEMENTS } from "../src/data/quests.js";
+import {
+  ARTIFACTS,
+  ARTIFACT_FRAGMENTS,
+  ARTIFACT_TIERS,
+  MISIDENTIFIED,
+} from "../src/data/artifacts.js";
 import {
   challengeFamily,
   createRun,
@@ -17,6 +24,25 @@ import {
   recipeKey,
   resolveChallengeElement,
 } from "../src/challenge/engine.js";
+import {
+  availableRecipeMap,
+  chooseQuestOption,
+  createQuestRun,
+  fuseQuest,
+  questRecipeKey,
+  questUniverse,
+} from "../src/quest/engine.js";
+import {
+  artifactComplete,
+  artifactHint,
+  artifactKey,
+  buildFakeMap,
+  buildTrueMap,
+  createArtifactRun,
+  curatorStage,
+  forgeArtifact,
+  tierProgress,
+} from "../src/artifact/engine.js";
 
 const errors = [];
 const warnings = [];
@@ -430,6 +456,395 @@ if (emberCount !== 4) fail(`燃尽试炼数量应为 4，目前 ${emberCount}`);
 if (mainTargetCount < 1) fail("至少需要一个以主线要素为目标的试炼");
 if (challengeOnlyTargetCount < 1) fail("至少需要一个以试炼限定要素为目标的试炼");
 
+// ---------------------------------------------------------------------------
+// 炉外任务：三幕、选择、四个结局、可选目标与真实引擎试玩。
+// ---------------------------------------------------------------------------
+
+const questIds = new Set();
+const questElementIds = new Set();
+const questElementNames = new Set();
+const questSummaries = [];
+
+for (const element of QUEST_ELEMENTS) {
+  if (byId.has(element.id)) fail(`任务要素与主线要素 ID 冲突：${element.id}`);
+  if (challengeElementIds.has(element.id)) fail(`任务要素与试炼要素 ID 冲突：${element.id}`);
+  if (questElementIds.has(element.id)) fail(`任务要素 ID 重复：${element.id}`);
+  questElementIds.add(element.id);
+  if (!element.name || !element.description || element.description.trim().length < 8) {
+    fail(`任务要素 ${element.id} 缺少名称或描述`);
+  }
+  if (questElementNames.has(element.name)) fail(`任务要素名称重复：${element.name}`);
+  questElementNames.add(element.name);
+  if (!categoryIds.has(element.category)) fail(`任务要素 ${element.id} 的类型不存在：${element.category}`);
+  if (!resolveShapeName(element.shape)) fail(`任务要素 ${element.id} 的像素图形没有绘制：${element.shape}`);
+}
+
+if (QUESTS.length !== 3) fail(`任务数量应为 3，目前 ${QUESTS.length}`);
+
+function questRecipeAvailableForRun(quest, run, recipe) {
+  if ((recipe.act || 1) > run.actIndex + 1) return false;
+  if (recipe.requiresFlag && !run.flags.includes(recipe.requiresFlag)) return false;
+  return true;
+}
+
+function nextQuestRecipe(quest, run, allowOptional) {
+  const map = availableRecipeMap(quest, run);
+  for (const recipe of map.values()) {
+    if (recipe.result === quest.finalTargetId) continue;
+    if (!allowOptional && recipe.optional) continue;
+    if (!questRecipeAvailableForRun(quest, run, recipe)) continue;
+    if (run.discovered.includes(recipe.a) && run.discovered.includes(recipe.b) && !run.discovered.includes(recipe.result)) {
+      return recipe;
+    }
+  }
+  return null;
+}
+
+function driveQuest(quest, optionId, allowOptional) {
+  let run = createQuestRun(quest);
+  let guard = 0;
+  while (run.status === "playing" && !run.pendingChoice && guard < 80) {
+    guard += 1;
+    const recipe = nextQuestRecipe(quest, run, allowOptional);
+    if (!recipe) break;
+    run = fuseQuest(quest, run, recipe.a, recipe.b).run;
+  }
+  if (!run.pendingChoice) {
+    return { run, error: "没有在第二幕末尾触发选择" };
+  }
+  const choice = quest.choices[0];
+  const chosen = chooseQuestOption(quest, run, choice.id, optionId);
+  run = chosen.run;
+  guard = 0;
+  while (run.status === "playing" && guard < 80) {
+    guard += 1;
+    const recipe = nextQuestRecipe(quest, run, allowOptional);
+    if (!recipe) break;
+    run = fuseQuest(quest, run, recipe.a, recipe.b).run;
+  }
+  const finalRecipe = [...availableRecipeMap(quest, run).values()].find(
+    (recipe) => recipe.result === quest.finalTargetId && run.discovered.includes(recipe.a) && run.discovered.includes(recipe.b)
+  );
+  if (!finalRecipe) return { run, error: "第三幕终点无法抵达" };
+  run = fuseQuest(quest, run, finalRecipe.a, finalRecipe.b).run;
+  return { run, error: run.status === "won" ? null : "终点造出后没有结算" };
+}
+
+for (const quest of QUESTS) {
+  if (questIds.has(quest.id)) fail(`任务 ID 重复：${quest.id}`);
+  questIds.add(quest.id);
+  if (quest.family !== "quest") fail(`任务「${quest.id}」的 family 不是 quest`);
+  for (const field of ["title", "subtitle", "quote", "intro", "opening"]) {
+    if (!quest[field] || !String(quest[field]).trim()) fail(`任务「${quest.id}」缺少故事字段：${field}`);
+  }
+  if (!Array.isArray(quest.starterIds) || quest.starterIds.length !== 6) {
+    fail(`任务「${quest.title}」必须有 6 个专属起始要素`);
+  }
+  if (new Set(quest.starterIds).size !== quest.starterIds.length) fail(`任务「${quest.title}」起始要素重复`);
+  const startersMain = quest.starterIds.filter((id) => byId.has(id));
+  if (startersMain.length) fail(`任务「${quest.title}」的起始要素不能来自主线：${startersMain.join(", ")}`);
+  if (!quest.acts || quest.acts.length < 3) fail(`任务「${quest.title}」不足 3 幕`);
+  if (quest.acts?.[quest.acts.length - 1]?.targetId !== quest.finalTargetId) {
+    fail(`任务「${quest.title}」的最后一幕目标必须等于 finalTargetId`);
+  }
+  if (quest.endings.length !== 4) fail(`任务「${quest.title}」应有 4 个结局，目前 ${quest.endings.length}`);
+  if (quest.optionalObjectives.length !== 2) fail(`任务「${quest.title}」应有 2 个可选目标`);
+  if (!quest.choices.length) fail(`任务「${quest.title}」没有幕间选择`);
+
+  const trueEnding = quest.endings[0];
+  if (!trueEnding || !trueEnding.condition?.flag) fail(`任务「${quest.title}」的真结局必须带 flag 条件`);
+  if (!trueEnding?.condition?.optional || trueEnding.condition.optional.length < 2) {
+    fail(`任务「${quest.title}」的真结局必须依赖至少两个可选目标`);
+  }
+  const endingIds = new Set();
+  for (const ending of quest.endings) {
+    if (endingIds.has(ending.id)) fail(`任务「${quest.title}」结局 ID 重复：${ending.id}`);
+    endingIds.add(ending.id);
+    if (!ending.title || !ending.outro) fail(`任务「${quest.title}」的结局 ${ending.id} 缺少文本`);
+    if (ending.condition?.flag && !quest.choices.some((choice) => choice.options.some((option) => option.flag === ending.condition.flag))) {
+      fail(`任务「${quest.title}」的结局 ${ending.id} 引用了不存在的选择旗标`);
+    }
+  }
+
+  const actTargets = new Set();
+  for (const act of quest.acts) {
+    if (!act.id || !act.title || !act.objective || !act.targetId) fail(`任务「${quest.title}」存在字段缺失的幕`);
+    if (actTargets.has(act.targetId)) fail(`任务「${quest.title}」重复使用幕目标：${act.targetId}`);
+    actTargets.add(act.targetId);
+    if (!resolveChallengeElement(act.targetId)) fail(`任务「${quest.title}」的幕目标不存在：${act.targetId}`);
+    if (!Array.isArray(act.hints) || act.hints.length < 3) fail(`任务「${quest.title}」第${act.numeral}幕至少需要 3 条提示`);
+    if (act.hints?.some((hint) => !String(hint).trim())) fail(`任务「${quest.title}」第${act.numeral}幕存在空提示`);
+  }
+
+  const choiceFlags = new Set();
+  for (const choice of quest.choices) {
+    if (!quest.acts.some((act) => act.id === choice.actId)) fail(`任务「${quest.title}」的选择不在任何一幕中`);
+    if (!choice.prompt || !choice.description) fail(`任务「${quest.title}」的选择缺少文本`);
+    if (choice.options.length !== 3) fail(`任务「${quest.title}」的选择应有 3 个选项`);
+    for (const option of choice.options) {
+      if (choiceFlags.has(option.flag)) fail(`任务「${quest.title}」选择旗标重复：${option.flag}`);
+      choiceFlags.add(option.flag);
+      if (!option.label || !option.description || !option.outcome) fail(`任务「${quest.title}」的选项 ${option.id} 缺少文本`);
+      for (const id of option.unlockIds || []) {
+        if (!resolveChallengeElement(id)) fail(`任务「${quest.title}」解锁了不存在的要素：${id}`);
+      }
+    }
+  }
+
+  const pairSet = new Set();
+  for (const recipe of quest.recipes) {
+    if (!recipe.a || !recipe.b || !recipe.result) {
+      fail(`任务「${quest.title}」存在格式错误的配方`);
+      continue;
+    }
+    if (recipe.a === recipe.b) fail(`任务「${quest.title}」的配方不能自我合成：${recipe.a}`);
+    for (const id of [recipe.a, recipe.b, recipe.result]) {
+      if (!resolveChallengeElement(id)) fail(`任务「${quest.title}」的配方引用了不存在的要素：${id}`);
+      if (byId.has(id)) fail(`任务「${quest.title}」的配方不能引用主线要素：${id}`);
+    }
+    if (recipe.act !== undefined && ![1, 2, 3].includes(recipe.act)) {
+      fail(`任务「${quest.title}」的配方幕号无效：${recipe.act}`);
+    }
+    if (recipe.requiresFlag && !choiceFlags.has(recipe.requiresFlag)) {
+      fail(`任务「${quest.title}」的配方引用了不存在的选择旗标：${recipe.requiresFlag}`);
+    }
+    const key = questRecipeKey(recipe.a, recipe.b);
+    if (pairSet.has(key)) fail(`任务「${quest.title}」重复配方：${recipe.a} + ${recipe.b}`);
+    pairSet.add(key);
+  }
+
+  const universe = questUniverse(quest);
+  const reachable = new Set([
+    ...quest.starterIds,
+    ...quest.choices.flatMap((choice) => choice.options.flatMap((option) => option.unlockIds || [])),
+  ]);
+  let moving = true;
+  while (moving) {
+    moving = false;
+    for (const recipe of quest.recipes) {
+      if (reachable.has(recipe.a) && reachable.has(recipe.b) && !reachable.has(recipe.result)) {
+        reachable.add(recipe.result);
+        moving = true;
+      }
+    }
+  }
+  for (const id of universe) {
+    if (!reachable.has(id)) fail(`任务「${quest.title}」的要素无法从起始牌堆抵达：${id}`);
+  }
+  for (const id of reachable) {
+    if (!quest.starterIds.includes(id) && !quest.beats?.[id]) {
+      fail(`任务「${quest.title}」的要素 ${resolveChallengeElement(id)?.name || id} 没有故事节拍`);
+    }
+  }
+  for (const objective of quest.optionalObjectives) {
+    if (!objective.label || !objective.description || !objective.hint) {
+      fail(`任务「${quest.title}」的可选目标 ${objective.id} 缺少文本`);
+    }
+    for (const id of objective.targetIds) {
+      if (!reachable.has(id)) fail(`任务「${quest.title}」的可选目标 ${objective.id} 无法抵达：${id}`);
+    }
+  }
+
+  if (quest.stepLimit !== undefined && quest.stepLimit !== null) {
+    fail(`任务「${quest.title}」不应设置步数或余烬上限`);
+  }
+  const smoke = createQuestRun(quest);
+  let wrongPair = null;
+  for (let i = 0; i < quest.starterIds.length && !wrongPair; i += 1) {
+    for (let j = i + 1; j < quest.starterIds.length; j += 1) {
+      const key = questRecipeKey(quest.starterIds[i], quest.starterIds[j]);
+      if (!pairSet.has(key)) {
+        wrongPair = [quest.starterIds[i], quest.starterIds[j]];
+        break;
+      }
+    }
+  }
+  if (!wrongPair) {
+    fail(`任务「${quest.title}」没有可用于测试的无效组合`);
+  } else {
+    const invalid = fuseQuest(quest, smoke, wrongPair[0], wrongPair[1]);
+    if (invalid.run.status !== "playing" || invalid.result || invalid.run.lost) {
+      fail(`任务「${quest.title}」的无效组合不应失败或结束`);
+    }
+  }
+
+  for (const option of quest.choices[0].options) {
+    const normal = driveQuest(quest, option.id, false);
+    if (normal.error) {
+      fail(`任务「${quest.title}」选项 ${option.label} 的普通结局无法抵达：${normal.error}`);
+      continue;
+    }
+    const expected = quest.endings.find(
+      (ending) => ending.id !== trueEnding.id && ending.condition?.flag === option.flag
+    );
+    if (!expected) fail(`任务「${quest.title}」的选项 ${option.label} 没有对应结局`);
+    if (expected && normal.run.endingId !== expected.id) {
+      fail(`任务「${quest.title}」选项 ${option.label} 应抵达 ${expected.id}，实际 ${normal.run.endingId}`);
+    }
+    if (normal.run.optional.length) {
+      fail(`任务「${quest.title}」的普通结局路线不应依赖可选目标`);
+    }
+  }
+
+  const trueOption = quest.choices[0].options.find((option) => option.flag === trueEnding.condition.flag);
+  if (!trueOption) {
+    fail(`任务「${quest.title}」的真结局引用了不存在的选项旗标`);
+  } else {
+    const truth = driveQuest(quest, trueOption.id, true);
+    if (truth.error) {
+      fail(`任务「${quest.title}」的真结局无法抵达：${truth.error}`);
+    } else {
+      if (truth.run.endingId !== trueEnding.id) {
+        fail(`任务「${quest.title}」真结局应抵达 ${trueEnding.id}，实际 ${truth.run.endingId}`);
+      }
+      for (const id of trueEnding.condition.optional || []) {
+        if (!truth.run.optional.includes(id)) fail(`任务「${quest.title}」真结局路线没有完成可选目标：${id}`);
+      }
+    }
+  }
+
+  questSummaries.push({
+    name: quest.title,
+    starters: quest.starterIds.length,
+    acts: quest.acts.length,
+    endings: quest.endings.length,
+    optional: quest.optionalObjectives.length,
+    recipes: quest.recipes.length,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// 失物招领博物馆：26 碎片、8 真品、24 件赝品与三槽鉴定引擎。
+// ---------------------------------------------------------------------------
+
+const fragmentIds = new Set();
+const fragmentNames = new Set();
+const fragmentById = new Map();
+for (const fragment of ARTIFACT_FRAGMENTS) {
+  if (byId.has(fragment.id)) fail(`碎片与主线要素 ID 冲突：${fragment.id}`);
+  if (fragmentIds.has(fragment.id)) fail(`碎片 ID 重复：${fragment.id}`);
+  fragmentIds.add(fragment.id);
+  fragmentById.set(fragment.id, fragment);
+  if (fragmentNames.has(fragment.name)) fail(`碎片名称重复：${fragment.name}`);
+  fragmentNames.add(fragment.name);
+  if (!fragment.description || fragment.description.trim().length < 8) fail(`碎片 ${fragment.id} 缺少描述`);
+  if (!Array.isArray(fragment.tags) || fragment.tags.length < 2) fail(`碎片 ${fragment.id} 至少需要 2 个标签`);
+  if (!fragment.testimony || fragment.testimony.trim().length < 6) fail(`碎片 ${fragment.id} 缺少证词`);
+  if (!resolveShapeName(fragment.shape)) fail(`碎片 ${fragment.id} 的像素图形没有绘制：${fragment.shape}`);
+  if (!categoryIds.has(fragment.category)) fail(`碎片 ${fragment.id} 的类型不存在：${fragment.category}`);
+}
+if (ARTIFACT_FRAGMENTS.length !== 26) fail(`碎片数量应为 26，目前 ${ARTIFACT_FRAGMENTS.length}`);
+
+const artifactNames = new Set();
+const artifactIngredientUse = new Set();
+for (const artifact of ARTIFACTS) {
+  if (byId.has(artifact.id)) fail(`真品与主线要素 ID 冲突：${artifact.id}`);
+  if (artifactNames.has(artifact.name)) fail(`遗物名称重复：${artifact.name}`);
+  artifactNames.add(artifact.name);
+  if (!artifact.description || !artifact.story || !artifact.curatorNote) fail(`真品 ${artifact.id} 缺少展签文本`);
+  if (!Array.isArray(artifact.clues) || artifact.clues.length !== 3) fail(`真品 ${artifact.id} 需要 3 条证词`);
+  if (!Array.isArray(artifact.ingredients) || artifact.ingredients.length !== 3) {
+    fail(`真品 ${artifact.id} 需要 3 个材料`);
+  }
+  for (const id of artifact.ingredients) {
+    if (!fragmentById.has(id)) fail(`真品 ${artifact.id} 引用了不存在的碎片：${id}`);
+    artifactIngredientUse.add(id);
+  }
+  if (!resolveShapeName(artifact.shape)) fail(`真品 ${artifact.id} 的像素图形没有绘制：${artifact.shape}`);
+}
+
+const fakeTierCounts = { almost: 0, misunderstood: 0, abandoned: 0 };
+for (const exhibit of MISIDENTIFIED) {
+  if (byId.has(exhibit.id)) fail(`赝品与主线要素 ID 冲突：${exhibit.id}`);
+  if (artifactNames.has(exhibit.name)) fail(`遗物名称重复：${exhibit.name}`);
+  artifactNames.add(exhibit.name);
+  if (!ARTIFACT_TIERS[exhibit.tier]) fail(`赝品 ${exhibit.id} 的 tier 无效：${exhibit.tier}`);
+  else fakeTierCounts[exhibit.tier] += 1;
+  if (!exhibit.description || !exhibit.curatorNote || !exhibit.visitorReview) fail(`赝品 ${exhibit.id} 缺少展签文本`);
+  if (!exhibit.hint || exhibit.hint.trim().length < 8) fail(`赝品 ${exhibit.id} 缺少可用提示`);
+  if (!Array.isArray(exhibit.ingredients) || exhibit.ingredients.length !== 3) {
+    fail(`赝品 ${exhibit.id} 需要 3 个材料`);
+  }
+  for (const id of exhibit.ingredients) {
+    if (!fragmentById.has(id)) fail(`赝品 ${exhibit.id} 引用了不存在的碎片：${id}`);
+    artifactIngredientUse.add(id);
+  }
+  if (!resolveShapeName(exhibit.shape)) fail(`赝品 ${exhibit.id} 的像素图形没有绘制：${exhibit.shape}`);
+}
+if (MISIDENTIFIED.length !== 24) fail(`赝品数量应为 24，目前 ${MISIDENTIFIED.length}`);
+for (const [tier, count] of Object.entries(fakeTierCounts)) {
+  if (count !== 8) fail(`赝品档位 ${tier} 应为 8 件，目前 ${count}`);
+}
+for (const id of fragmentIds) {
+  if (!artifactIngredientUse.has(id)) fail(`碎片 ${fragmentById.get(id)?.name || id} 没有被任何展品使用`);
+}
+
+const trueMap = buildTrueMap();
+const fakeMap = buildFakeMap();
+if (trueMap.size !== 8) fail(`真品组合应为 8，目前 ${trueMap.size}`);
+if (fakeMap.size !== 24) fail(`赝品组合应为 24，目前 ${fakeMap.size}`);
+const allArtifactKeys = new Set([...trueMap.keys(), ...fakeMap.keys()]);
+if (allArtifactKeys.size !== 32) fail(`32 条遗物配方的组合键必须互不重叠，目前 ${allArtifactKeys.size}`);
+
+for (const artifact of ARTIFACTS) {
+  const run = createArtifactRun();
+  const outcome = forgeArtifact(run, artifact.ingredients);
+  if (outcome.type !== "true" || outcome.artifact?.id !== artifact.id) {
+    fail(`真品 ${artifact.id} 无法通过三槽引擎鉴定`);
+  }
+}
+for (const exhibit of MISIDENTIFIED) {
+  const run = createArtifactRun();
+  const outcome = forgeArtifact(run, exhibit.ingredients);
+  if (outcome.type !== "fake" || outcome.exhibit?.id !== exhibit.id) {
+    fail(`赝品 ${exhibit.id} 无法通过三槽引擎鉴定`);
+  }
+}
+
+let noneCombo = null;
+for (let i = 0; i < ARTIFACT_FRAGMENTS.length && !noneCombo; i += 1) {
+  for (let j = i + 1; j < ARTIFACT_FRAGMENTS.length && !noneCombo; j += 1) {
+    for (let k = j + 1; k < ARTIFACT_FRAGMENTS.length; k += 1) {
+      const ids = [ARTIFACT_FRAGMENTS[i].id, ARTIFACT_FRAGMENTS[j].id, ARTIFACT_FRAGMENTS[k].id];
+      if (!allArtifactKeys.has(artifactKey(ids))) {
+        noneCombo = ids;
+        break;
+      }
+    }
+  }
+}
+if (!noneCombo) {
+  fail("找不到任何未命中的三碎片组合，无法测试馆长吐槽");
+} else {
+  let run = createArtifactRun();
+  let autoHint = null;
+  for (let i = 0; i < 3; i += 1) {
+    const outcome = forgeArtifact(run, noneCombo);
+    run = outcome.run;
+    if (outcome.type !== "none") fail("未命中组合没有返回 none");
+    if (outcome.autoHint) autoHint = outcome.autoHint;
+  }
+  if (!autoHint) fail("连续三次未命中后没有触发馆长提示");
+  if (run.attempts !== 3 || run.missStreak !== 0) fail("未命中次数或连续未命中状态异常");
+}
+
+const completeRun = createArtifactRun({
+  trueIds: ARTIFACTS.map((item) => item.id),
+  fakeIds: MISIDENTIFIED.map((item) => item.id),
+  attempts: 32,
+});
+if (!artifactComplete(completeRun)) fail("集齐 8 真品 + 24 赝品后没有触发收尾条件");
+if (curatorStage(0).at !== 0 || curatorStage(8).at !== 8 || curatorStage(16).at !== 16 || curatorStage(24).at !== 24) {
+  fail("馆长阶段台词没有覆盖 0 / 8 / 16 / 24 四档");
+}
+const hintRun = createArtifactRun({ fakeIds: MISIDENTIFIED.map((item) => item.id) });
+const finalHint = artifactHint(hintRun);
+if (!finalHint.artifact) fail("赝品全收集后提示没有转向真品厅");
+const tierSummary = tierProgress(createArtifactRun());
+for (const tier of tierSummary) {
+  if (tier.total !== 8) fail(`误会厅档位 ${tier.tier} 的进度总数不是 8`);
+}
+
 if (errors.length) {
   console.error(`✕ 数据校验失败（${errors.length} 项）`);
   for (const error of errors) console.error(`  - ${error}`);
@@ -461,6 +876,17 @@ for (const summary of challengeSummaries) {
     `  ${summary.family === "puzzle" ? "谜题" : "燃尽"} · ${summary.name}：${summary.target}（${summary.targetKind}）· ${rule}`
   );
 }
+console.log(
+  `\n炉外任务：${QUESTS.length} 则 · 全部 ${QUESTS.reduce((sum, quest) => sum + quest.acts.length, 0)} 幕 · ${QUESTS.reduce((sum, quest) => sum + quest.endings.length, 0)} 个结局 · ${QUESTS.reduce((sum, quest) => sum + quest.optionalObjectives.length, 0)} 个可选目标`
+);
+for (const summary of questSummaries) {
+  console.log(
+    `  任务 · ${summary.name}：${summary.acts} 幕 / ${summary.endings} 结局 / ${summary.optional} 可选 / ${summary.starters} 起始 / ${summary.recipes} 配方`
+  );
+}
+console.log(
+  `\n失物招领博物馆：${ARTIFACT_FRAGMENTS.length} 碎片 · 真品 ${ARTIFACTS.length} · 赝品 ${MISIDENTIFIED.length}（8 / 8 / 8）· ${allArtifactKeys.size} 条有效组合`
+);
 if (warnings.length) {
   console.log("\n提醒：");
   for (const warning of warnings) console.log(`  - ${warning}`);

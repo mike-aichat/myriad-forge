@@ -17,7 +17,7 @@ function useChallengeOverlay(onBack) {
     document.body.classList.add("is-locked");
     const timer = window.setTimeout(() => {
       const target = ref.current?.querySelector("[data-autofocus]") || ref.current;
-      target?.focus?.();
+      target?.focus?.({ preventScroll: true });
     }, 40);
     const onKeyDown = (event) => {
       if (event.key === "Escape") {

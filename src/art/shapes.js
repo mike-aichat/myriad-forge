@@ -1790,6 +1790,143 @@ SHAPES.driftletter = (g, p) => {
   g.set(18, 13, "h");
 };
 
+SHAPES.ticket = (g, p) => {
+  g.rect(3, 7, 18, 11, "b");
+  g.rect(4, 8, 16, 9, "l");
+  g.line(4, 8, 20, 8, "h");
+  g.line(10, 8, 10, 16, "d");
+  g.set(9, 12, "l");
+  g.set(11, 12, "l");
+  g.set(9, 14, "l");
+  g.set(11, 14, "l");
+  g.rect(14, 11, 5, 1, "a");
+  g.rect(14, 13, 4, 1, "d");
+  g.set(3, 10, "d");
+  g.set(20, 15, "d");
+};
+
+SHAPES.seat = (g, p) => {
+  g.rect(6, 4, 12, 9, "b");
+  g.rect(7, 5, 10, 7, "l");
+  g.line(8, 6, 15, 6, "h");
+  g.rect(5, 12, 14, 3, "d");
+  g.rect(6, 12, 12, 1, "l");
+  g.rect(7, 15, 2, 6, "b");
+  g.rect(15, 15, 2, 6, "b");
+  g.rect(10, 16, 4, 1, "d");
+  g.rect(5, 20, 14, 1, "s");
+  g.set(16, 13, "h");
+};
+
+SHAPES.jar = (g, p) => {
+  g.rect(7, 3, 10, 2, "d");
+  g.rect(8, 5, 8, 3, "b");
+  g.rect(6, 8, 12, 12, "b");
+  g.rect(7, 9, 10, 10, "l");
+  g.rect(8, 10, 3, 6, "h");
+  g.rect(13, 12, 4, 5, "d");
+  g.rect(6, 18, 12, 2, "d");
+  g.line(8, 19, 16, 19, "s");
+  g.set(15, 9, "w");
+  g.set(9, 7, "a");
+};
+
+SHAPES.chart = (g, p) => {
+  g.poly([[3, 4], [19, 3], [21, 19], [4, 21]], "b");
+  g.poly([[4, 5], [18, 4], [19, 18], [5, 19]], "l");
+  g.line(5, 9, 18, 8, "d");
+  g.line(5, 14, 18, 13, "d");
+  g.line(5, 17, 18, 16, "d");
+  g.line(7, 11, 11, 7, "a");
+  g.line(11, 7, 15, 11, "a");
+  g.line(15, 11, 10, 15, "a");
+  g.set(7, 11, "h");
+  g.set(11, 7, "h");
+  g.set(15, 11, "h");
+  g.set(10, 15, "h");
+};
+
+SHAPES.tooth = (g, p) => {
+  g.rect(7, 4, 10, 9, "l");
+  g.rect(8, 5, 8, 6, "b");
+  g.rect(6, 6, 2, 4, "l");
+  g.rect(16, 6, 2, 4, "l");
+  g.poly([[8, 12], [10, 12], [9, 19], [7, 17]], "b");
+  g.poly([[14, 12], [16, 12], [16, 17], [14, 19]], "b");
+  g.line(11, 5, 11, 9, "h");
+  g.line(13, 6, 13, 10, "h");
+  g.set(14, 5, "a");
+  g.set(8, 16, "d");
+};
+
+SHAPES.frame = (g, p) => {
+  g.frame(4, 3, 16, 18, "d");
+  g.frame(5, 4, 14, 16, "b");
+  g.frame(7, 6, 10, 12, "l");
+  g.frame(8, 7, 8, 10, "s");
+  g.rect(8, 8, 8, 8, "d");
+  g.set(4, 3, "h");
+  g.set(19, 3, "h");
+  g.set(4, 20, "h");
+  g.set(19, 20, "h");
+  g.set(11, 11, "a");
+};
+
+SHAPES.photo = (g, p) => {
+  g.rect(4, 4, 16, 16, "l");
+  g.rect(5, 5, 14, 14, "b");
+  g.rect(5, 12, 14, 7, "d");
+  g.rect(5, 14, 14, 5, "b");
+  g.disc(14, 9, 3, "h");
+  g.set(14, 9, "a");
+  g.line(6, 16, 10, 12, "l");
+  g.line(10, 12, 14, 16, "l");
+  g.line(12, 17, 18, 16, "l");
+  g.set(6, 6, "w");
+  g.set(19, 5, "d");
+};
+
+SHAPES.door = (g, p) => {
+  g.rect(4, 2, 16, 20, "d");
+  g.rect(5, 3, 14, 19, "b");
+  g.rect(7, 5, 10, 8, "l");
+  g.rect(7, 14, 10, 7, "d");
+  g.rect(8, 6, 8, 6, "b");
+  g.line(8, 15, 16, 15, "b");
+  g.set(15, 12, "h");
+  g.set(16, 12, "a");
+  g.rect(3, 21, 18, 1, "s");
+};
+
+SHAPES.desk = (g, p) => {
+  g.rect(3, 10, 18, 3, "d");
+  g.rect(3, 10, 18, 1, "h");
+  g.rect(4, 13, 3, 8, "b");
+  g.rect(17, 13, 3, 8, "b");
+  g.rect(8, 5, 8, 5, "b");
+  g.rect(9, 6, 6, 3, "l");
+  g.line(9, 8, 14, 8, "d");
+  g.rect(10, 3, 4, 2, "d");
+  g.disc(12, 4, 2, "a");
+  g.set(12, 3, "h");
+  g.rect(8, 16, 8, 5, "b");
+  g.rect(9, 17, 6, 3, "l");
+};
+
+SHAPES.sunset = (g, p) => {
+  g.disc(12, 13, 6, "b");
+  g.disc(12, 13, 5, "a");
+  g.disc(12, 13, 3, "h");
+  g.rect(2, 17, 20, 4, "d");
+  g.rect(2, 17, 20, 1, "b");
+  g.line(4, 18, 9, 18, "a");
+  g.line(14, 18, 19, 18, "a");
+  g.set(12, 4, "w");
+  g.set(5, 8, "u");
+  g.set(19, 7, "u");
+  g.set(20, 12, "h");
+};
+
 // Aliases keep the 129 authored shape names within a hand-drawn family.
 const SHAPE_ALIASES = {
   ant: "bug",
