@@ -417,6 +417,27 @@ const shallowPair = pickInspirationPair(shallowState);
 if (!shallowPair || pairKey(shallowPair[0].id, shallowPair[1].id) !== "air+water") {
   fail("灵光没有在无任务可推进时选择等级最低的新要素");
 }
+const cappedState = {
+  ...createInitialState(),
+  discovered: ELEMENTS.filter((element) => ELEMENT_LEVEL.get(element.id) < 4).map(
+    (element) => element.id
+  ),
+};
+const cappedPair = pickInspirationPair(cappedState);
+if (!cappedPair) {
+  fail("灵光没有在结果等级并列时返回组合");
+}
+const cappedSum = cappedPair.reduce(
+  (total, element) => total + ELEMENT_LEVEL.get(element.id),
+  0
+);
+if (cappedSum !== 3) {
+  fail("灵光在结果等级相同的组合里没有优先材料等级和最低的");
+}
+const focusedIce = pickInspirationPair(cappedState, "ice");
+if (!focusedIce || pairKey(focusedIce[0].id, focusedIce[1].id) !== "air+ice") {
+  fail("灵光为已选要素找搭档时没有优先材料等级和最低的");
+}
 const focusedEarth = pickInspirationPair(inspirationState, "earth");
 if (!focusedEarth || pairKey(focusedEarth[0].id, focusedEarth[1].id) !== "earth+water") {
   fail("灵光没有为已选要素优先找能完成手记目标的搭档");

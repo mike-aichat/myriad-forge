@@ -9,6 +9,13 @@ function toPair(candidate) {
   return candidate.ingredients.map((id) => ELEMENT_BY_ID.get(id));
 }
 
+function levelSum(candidate) {
+  return candidate.ingredients.reduce(
+    (total, id) => total + (ELEMENT_LEVEL.get(id) ?? Infinity),
+    0
+  );
+}
+
 function buildCandidates(discovered, discoveredSet) {
   const candidates = [];
   for (let i = 0; i < discovered.length; i += 1) {
@@ -38,7 +45,12 @@ function prioritize(candidates, state, discoveredSet) {
   const lowest = candidates.filter(
     (candidate) => (ELEMENT_LEVEL.get(candidate.result) ?? Infinity) === lowestLevel
   );
-  return pickRandom(lowest);
+  let lowestSum = Infinity;
+  for (const candidate of lowest) {
+    lowestSum = Math.min(lowestSum, levelSum(candidate));
+  }
+  const cheapest = lowest.filter((candidate) => levelSum(candidate) === lowestSum);
+  return pickRandom(cheapest);
 }
 
 export function pickInspirationPair(state, focusId = null) {
